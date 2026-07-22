@@ -1,0 +1,171 @@
+/* ==========================================================================
+   NETOPS TOOLKIT — shared design system
+   One token set, used by index.html and every tool page.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+:root {
+  /* --- color: near-black NOC console, single green "operational" signal --- */
+  --bg:            #0a0d10;
+  --bg-raised:     #10151a;
+  --panel:         #12171d;
+  --panel-hover:   #171e25;
+  --border:        #212a31;
+  --border-bright: #2e3a43;
+
+  --text:          #dbe4ea;
+  --text-dim:      #7c8b96;
+  --text-faint:    #4a5860;
+
+  --signal-ok:     #33c481;   /* operational / done */
+  --signal-warn:   #e3a53d;   /* pending / attention */
+  --signal-crit:   #e2564c;   /* alarm / not done */
+  --signal-idle:   #4a5860;   /* planned / not yet built */
+
+  --accent:        #33c481;
+  --accent-dim:    #1d6b47;
+
+  /* --- type --- */
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --font-sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', sans-serif;
+
+  /* --- rhythm --- */
+  --radius: 3px;
+  --gap: 20px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: -1px -1px;
+  background-attachment: fixed;
+  opacity-transition: none;
+}
+
+/* faint grid only, keep it quiet */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  opacity: 0.94;
+  pointer-events: none;
+  z-index: -1;
+}
+
+a { color: inherit; text-decoration: none; }
+
+::selection { background: var(--accent-dim); color: #fff; }
+
+/* scrollbar, quiet */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* ==========================================================================
+   Typographic scale
+   ========================================================================== */
+
+.mono { font-family: var(--font-mono); }
+
+h1, h2, h3 { font-family: var(--font-mono); font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* ==========================================================================
+   Status dot — the recurring signature: every tool, every state, reads
+   through the same three-color signal used across your broadcast tools
+   (done / pending / not-done).
+   ========================================================================== */
+
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot--ok   { background: var(--signal-ok);   box-shadow: 0 0 6px 0 color-mix(in srgb, var(--signal-ok) 70%, transparent); }
+.dot--warn { background: var(--signal-warn); box-shadow: 0 0 6px 0 color-mix(in srgb, var(--signal-warn) 70%, transparent); }
+.dot--crit { background: var(--signal-crit); box-shadow: 0 0 6px 0 color-mix(in srgb, var(--signal-crit) 70%, transparent); }
+.dot--idle { background: var(--signal-idle); }
+
+.dot--pulse { animation: pulse 2.2s ease-in-out infinite; }
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot--pulse { animation: none; }
+}
+
+/* ==========================================================================
+   Buttons / inputs (shared across tool pages)
+   ========================================================================== */
+
+button, .btn {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 9px 16px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+button:hover, .btn:hover { background: var(--panel-hover); border-color: var(--accent); }
+button:focus-visible, .btn:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+button.primary { background: var(--accent-dim); border-color: var(--accent); color: #eafff4; }
+button.primary:hover { background: var(--accent); color: #06120c; }
+
+textarea, input, select {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  background: var(--bg-raised);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+textarea:focus, input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+/* ==========================================================================
+   Panel — the basic card/container unit
+   ========================================================================== */
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
