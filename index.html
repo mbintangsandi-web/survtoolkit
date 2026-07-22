@@ -3,279 +3,191 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NETOPS TOOLKIT</title>
+<title>SURV TOOLKIT</title>
 <link rel="stylesheet" href="shared/theme.css">
 <style>
 
   .wrap {
-    max-width: 980px;
+    max-width: 640px;
     margin: 0 auto;
-    padding: 0 24px 80px;
+    padding: 64px 24px 60px;
   }
 
-  /* ---------------------------------------------------------------
-     Status bar — signature element: reads like a real NOC console
-     header, live clock + pulsing "operational" signal, monospace.
-     --------------------------------------------------------------- */
-  .statusbar {
-    border-bottom: 1px solid var(--border);
-    background: var(--bg-raised);
-  }
-  .statusbar__inner {
-    max-width: 980px;
-    margin: 0 auto;
-    padding: 10px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-  .statusbar__left { display: flex; align-items: center; gap: 8px; }
-  .statusbar__left span.label { color: var(--signal-ok); }
-  .statusbar__right { display: flex; align-items: center; gap: 18px; }
-
-  /* ---------------------------------------------------------------
-     Header
-     --------------------------------------------------------------- */
   header.hero {
-    padding: 56px 0 40px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 40px;
+    text-align: center;
+    margin-bottom: 44px;
   }
+  header.hero .eyebrow { display: block; margin-bottom: 10px; }
   header.hero h1 {
-    font-size: 32px;
-    margin: 10px 0 12px;
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
+    font-size: 30px;
+    color: var(--text);
   }
-  header.hero h1 .cursor {
-    display: inline-block;
-    width: 10px;
-    height: 26px;
-    background: var(--accent);
-    animation: blink 1.1s step-end infinite;
-    vertical-align: -4px;
-  }
-  @keyframes blink { 50% { opacity: 0; } }
-  @media (prefers-reduced-motion: reduce) { header.hero h1 .cursor { animation: none; } }
-
+  header.hero h1 span { color: var(--accent); }
   header.hero p {
     color: var(--text-dim);
     font-size: 14px;
-    line-height: 1.6;
-    max-width: 560px;
-    margin: 0;
+    margin: 10px 0 0;
   }
 
   /* ---------------------------------------------------------------
-     Section labels
+     Menu — vertical stack of large buttons, one job each.
      --------------------------------------------------------------- */
-  .section-head {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    margin-bottom: 16px;
-  }
-  .section-head .count { font-family: var(--font-mono); font-size: 12px; color: var(--text-faint); }
-
-  /* ---------------------------------------------------------------
-     Tool grid / cards
-     --------------------------------------------------------------- */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 14px;
-    margin-bottom: 48px;
-  }
-  @media (max-width: 680px) {
-    .grid { grid-template-columns: 1fr; }
-  }
-
-  .card {
-    position: relative;
-    padding: 18px 18px 16px;
+  .menu {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    transition: border-color 0.15s ease, transform 0.15s ease;
+    gap: 14px;
   }
-  a.card:hover { border-color: var(--accent); transform: translateY(-1px); }
-  .card.disabled { opacity: 0.55; cursor: default; }
-  .card.disabled:hover { border-color: var(--border); transform: none; }
 
-  .card__top {
+  .menu-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 16px;
+    padding: 22px 24px;
+    transition: border-color 0.15s ease, transform 0.15s ease, background 0.15s ease;
   }
-  .card__id { font-family: var(--font-mono); font-size: 11px; color: var(--text-faint); letter-spacing: 0.06em; }
-  .card__status { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+  a.menu-item:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    transform: translateX(2px);
+  }
+  .menu-item.disabled { opacity: 0.6; cursor: default; }
+  .menu-item.disabled:hover { border-color: var(--border); background: var(--panel); transform: none; }
 
-  .card__title { font-size: 15px; font-weight: 600; color: var(--text); }
-  .card__desc { font-size: 12.5px; color: var(--text-dim); line-height: 1.55; }
-
-  /* ---------------------------------------------------------------
-     Footer
-     --------------------------------------------------------------- */
-  footer {
-    border-top: 1px solid var(--border);
-    padding-top: 20px;
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: var(--text-faint);
+  .menu-item__icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 9px;
+    background: var(--accent-dim);
+    color: var(--accent-deep);
     display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .menu-item__body { flex: 1; min-width: 0; }
+  .menu-item__title {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15.5px;
+    color: var(--text);
+  }
+  .menu-item__desc {
+    font-size: 12.5px;
+    color: var(--text-dim);
+    margin-top: 3px;
+    line-height: 1.5;
+  }
+
+  .menu-item__status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    flex-shrink: 0;
+  }
+
+  .menu-item__chevron {
+    color: var(--text-faint);
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  a.menu-item:hover .menu-item__chevron { color: var(--accent); }
+
+  footer {
+    text-align: center;
+    margin-top: 48px;
+    font-size: 11.5px;
+    color: var(--text-faint);
   }
 </style>
 </head>
 <body>
 
-  <div class="statusbar">
-    <div class="statusbar__inner">
-      <div class="statusbar__left">
-        <span class="dot dot--ok dot--pulse"></span>
-        <span class="label">SYSTEM OPERATIONAL</span>
-      </div>
-      <div class="statusbar__right">
-        <span id="toolcount">0 TOOLS AKTIF</span>
-        <span id="clock">--:--:--</span>
-      </div>
-    </div>
-  </div>
-
   <div class="wrap">
 
     <header class="hero">
-      <div class="eyebrow">Internal &middot; Regional Network Operations</div>
-      <h1>NETOPS TOOLKIT<span class="cursor"></span></h1>
-      <p>Kumpulan tools broadcast, rekonsiliasi, dan monitoring untuk operasional OLT regional. Semua tool berjalan langsung di browser &mdash; tempel data, generate, salin hasil.</p>
+      <span class="eyebrow">Regional Network Operations</span>
+      <h1>SURV<span> TOOLKIT</span></h1>
+      <p>Pilih menu di bawah untuk mulai.</p>
     </header>
 
-    <div class="section-head">
-      <h2 style="font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim);">Broadcast &amp; Tiket</h2>
-      <span class="count" id="count-broadcast"></span>
-    </div>
-    <div class="grid" id="grid-broadcast"></div>
+    <nav class="menu" id="menu"></nav>
 
-    <div class="section-head">
-      <h2 style="font-size:13px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-dim);">Rekonsiliasi &amp; Data</h2>
-      <span class="count" id="count-data"></span>
-    </div>
-    <div class="grid" id="grid-data"></div>
-
-    <footer>
-      <span>NETOPS TOOLKIT &middot; build lokal, tanpa backend</span>
-      <span id="lastvisit"></span>
-    </footer>
+    <footer id="lastvisit"></footer>
 
   </div>
 
 <script src="shared/utils.js"></script>
 <script>
   // ------------------------------------------------------------------
-  // Tool registry — add a new tool by adding one entry here and
-  // dropping the matching file in /tools. Nothing else needs editing.
-  // status: "active" | "planned"
+  // Menu utama — mengikuti diagram alur: 4 tombol besar.
+  // "Report Daily OLT Down" dan "Alarm" membuka halaman berikutnya
+  // (hub) yang menampilkan langkah/cabang di dalamnya. Tambah menu
+  // baru cukup tambah satu entri di sini.
   // ------------------------------------------------------------------
-  const TOOLS = [
+  const MENU = [
     {
-      group: 'broadcast',
-      id: 'OLT-01',
-      title: 'OLT Outage Broadcast',
-      desc: 'Generate broadcast insiden OLT dari data outage >8 jam, lengkap dengan root cause dan PIC.',
-      href: 'tools/outage-broadcast.html',
-      status: 'planned',
-    },
-    {
-      group: 'broadcast',
-      id: 'TKT-01',
-      title: 'Follow-Up Tiket &gt;3 Hari',
-      desc: 'Rekap tiket yang belum selesai lebih dari 3 hari, dikelompokkan per region SBU.',
+      icon: 'T3',
+      title: 'Tiket Lebih Dari 3 Hari',
+      desc: 'Rekap follow-up tiket yang belum selesai lebih dari 3 hari.',
       href: 'tools/followup-ticket.html',
       status: 'planned',
     },
     {
-      group: 'broadcast',
-      id: 'ALM-01',
-      title: 'Environment Alarm Broadcast',
-      desc: 'Konversi alarm environment mentah jadi broadcast per region, dengan deduplikasi otomatis.',
-      href: 'tools/alarm-broadcast.html',
+      icon: 'O8',
+      title: 'OLT Down Lebih Dari 8 Jam',
+      desc: 'Broadcast insiden OLT yang down lebih dari 8 jam.',
+      href: 'tools/outage-broadcast.html',
       status: 'planned',
     },
     {
-      group: 'data',
-      id: 'REG-01',
-      title: 'OLT Status Region Grouper',
-      desc: 'Kelompokkan status OLT per region berdasarkan prefix hostname, hitung DONE / NOT DONE.',
-      href: 'tools/region-grouper.html',
-      status: 'planned',
+      icon: 'RPT',
+      title: 'Report Daily OLT Down',
+      desc: 'Alur: Split Done/Not Done → Sync → Daily Report.',
+      href: 'tools/report-daily-olt-down.html',
+      status: 'active',
     },
     {
-      group: 'data',
-      id: 'INT-01',
-      title: 'Device List Intersect',
-      desc: 'Cari irisan device antara data realtime monitoring dan data rekap/dashboard.',
-      href: 'tools/device-intersect.html',
-      status: 'planned',
-    },
-    {
-      group: 'data',
-      id: 'SEP-01',
-      title: 'Done / Not Done Separator',
-      desc: 'Pisahkan daftar device berdasarkan status, dengan pengenalan keyword yang fleksibel.',
-      href: 'tools/done-notdone.html',
-      status: 'planned',
+      icon: 'ALM',
+      title: 'Alarm',
+      desc: 'Pilih sumber alarm: UNM atau NCE.',
+      href: 'tools/alarm.html',
+      status: 'active',
     },
   ];
 
-  function renderGroup(groupKey, containerId, countId) {
-    const items = TOOLS.filter(t => t.group === groupKey);
-    const container = document.getElementById(containerId);
-    document.getElementById(countId).textContent = `${items.length} TOOL`;
-
-    container.innerHTML = items.map(t => {
-      const isActive = t.status === 'active';
-      const dotClass = isActive ? 'dot--ok' : 'dot--idle';
-      const statusLabel = isActive ? 'Aktif' : 'Segera';
-      const tag = isActive ? 'a' : 'div';
-      const hrefAttr = isActive ? `href="${t.href}"` : '';
-      const cls = isActive ? 'card panel' : 'card panel disabled';
-      return `
-        <${tag} class="${cls}" ${hrefAttr}>
-          <div class="card__top">
-            <span class="card__id mono">${t.id}</span>
-            <span class="card__status"><span class="dot ${dotClass}"></span>${statusLabel}</span>
-          </div>
-          <div class="card__title">${t.title}</div>
-          <div class="card__desc">${t.desc}</div>
-        </${tag}>
-      `;
-    }).join('');
-  }
-
-  renderGroup('broadcast', 'grid-broadcast', 'count-broadcast');
-  renderGroup('data', 'grid-data', 'count-data');
-
-  document.getElementById('toolcount').textContent =
-    `${TOOLS.filter(t => t.status === 'active').length} / ${TOOLS.length} TOOLS AKTIF`;
+  const menuEl = document.getElementById('menu');
+  menuEl.innerHTML = MENU.map(m => {
+    const isActive = m.status === 'active';
+    const tag = isActive ? 'a' : 'div';
+    const hrefAttr = isActive ? `href="${m.href}"` : '';
+    const cls = isActive ? 'menu-item panel' : 'menu-item panel disabled';
+    const dotClass = isActive ? 'dot--ok' : 'dot--idle';
+    const statusLabel = isActive ? 'Aktif' : 'Segera';
+    return `
+      <${tag} class="${cls}" ${hrefAttr}>
+        <div class="menu-item__icon">${m.icon}</div>
+        <div class="menu-item__body">
+          <div class="menu-item__title">${m.title}</div>
+          <div class="menu-item__desc">${m.desc}</div>
+        </div>
+        <div class="menu-item__status"><span class="dot ${dotClass}"></span>${statusLabel}</div>
+        <div class="menu-item__chevron">${isActive ? '›' : ''}</div>
+      </${tag}>
+    `;
+  }).join('');
 
   document.getElementById('lastvisit').textContent =
-    'dimuat ' + NetopsUtils.formatTimestampID(new Date());
-
-  function tickClock() {
-    const now = new Date();
-    const hh = String(now.getHours()).padStart(2, '0');
-    const mm = String(now.getMinutes()).padStart(2, '0');
-    const ss = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('clock').textContent = `${hh}:${mm}:${ss}`;
-  }
-  tickClock();
-  setInterval(tickClock, 1000);
+    'SURV TOOLKIT · dimuat ' + NetopsUtils.formatTimestampID(new Date());
 </script>
 
 </body>
