@@ -1,17 +1,29 @@
-# NETOPS TOOLKIT
+# SURV TOOLKIT
 
 Portal internal untuk tools operasional OLT & broadcast regional. Statis, tanpa backend, tanpa build step — buka `index.html` langsung di browser atau host di mana saja (GitHub Pages, server internal, atau sebagai subfolder di web tim ops).
 
-## Struktur
+## Struktur menu
+
+Menu utama (`index.html`) punya 4 tombol, mengikuti alur kerja:
+
+- **Tiket Lebih Dari 3 Hari** → langsung ke `tools/followup-ticket.html`
+- **OLT Down Lebih Dari 8 Jam** → langsung ke `tools/outage-broadcast.html`
+- **Report Daily OLT Down** → halaman alur (`tools/report-daily-olt-down.html`) berisi 3 langkah berurutan: Split Done/Not Done → Sync → Daily Report
+- **Alarm** → halaman cabang (`tools/alarm.html`) berisi 2 pilihan sumber: UNM / NCE
+
+## Struktur folder
 
 ```
 /portal
-├── index.html          ← menu utama, daftar semua tool
-├── /tools               ← satu file HTML per tool
-│   └── (kosong — isi menyusul)
+├── index.html                        ← menu utama, 4 tombol
+├── /tools
+│   ├── report-daily-olt-down.html    ← halaman alur (3 langkah)
+│   ├── alarm.html                    ← halaman cabang (UNM / NCE)
+│   └── (tool individual menyusul: followup-ticket.html, outage-broadcast.html,
+│         done-notdone.html, sync.html, daily-report.html, alarm-unm.html, alarm-nce.html)
 ├── /shared
-│   ├── theme.css        ← design system (warna, tipografi, komponen)
-│   └── utils.js          ← logic bersama (parser TSV, region map, durasi, dedup)
+│   ├── theme.css                      ← design system (biru terang, tipografi, komponen)
+│   └── utils.js                        ← logic bersama (parser TSV, region map, durasi, dedup)
 └── README.md
 ```
 

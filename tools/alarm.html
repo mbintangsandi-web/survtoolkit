@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alarm · NOC TOOLKIT</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+
+  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 24px 60px; }
+
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+  .back:hover { color: var(--accent); }
+
+  header.hero { margin-bottom: 32px; }
+  header.hero .eyebrow { display: block; margin-bottom: 8px; }
+  header.hero h1 { font-size: 24px; }
+  header.hero p { color: var(--text-dim); font-size: 14px; margin: 8px 0 0; line-height: 1.6; }
+
+  /* ---------------------------------------------------------------
+     Branch — a choice, not a sequence, so side by side with no
+     numbering (numbers would imply an order that isn't real here).
+     --------------------------------------------------------------- */
+  .branch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 520px) { .branch { grid-template-columns: 1fr; } }
+
+  .branch__card {
+    padding: 26px 22px;
+    text-align: center;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  }
+  a.branch__card:hover { border-color: var(--accent); background: var(--accent-dim); transform: translateY(-2px); }
+  .branch__card.disabled { opacity: 0.65; cursor: default; }
+
+  .branch__title { font-family: var(--font-display); font-weight: 700; font-size: 15.5px; }
+  .branch__desc { font-size: 12.5px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+  <div class="wrap">
+
+    <a class="back" href="../index.html">← Menu Utama</a>
+
+    <header class="hero">
+      <span class="eyebrow">Alarm</span>
+      <h1>Pilih Sumber Alarm</h1>
+      <p>Format broadcast alarm environment berbeda tergantung sistem sumbernya. Pilih salah satu.</p>
+    </header>
+
+    <div class="branch" id="branch"></div>
+
+  </div>
+
+<script src="../shared/utils.js"></script>
+<script>
+  const BRANCHES = [
+    {
+      badge: 'UNM',
+      title: 'UNM',
+      desc: 'Alarm environment dari sistem UNM.',
+      href: 'alarm-unm.html',
+      status: 'active',
+    },
+    {
+      badge: 'NCE',
+      title: 'NCE',
+      desc: 'Alarm environment dari sistem NCE.',
+      href: 'alarm-nce.html',
+      status: 'active',
+    },
+  ];
+
+  const branchEl = document.getElementById('branch');
+  branchEl.innerHTML = BRANCHES.map(b => {
+    const isActive = b.status === 'active';
+    const tag = isActive ? 'a' : 'div';
+    const hrefAttr = isActive ? `href="${b.href}"` : '';
+    const cls = isActive ? 'branch__card panel' : 'branch__card panel disabled';
+    return `
+      <${tag} class="${cls}" ${hrefAttr}>
+        <div class="branch__title">${b.title}</div>
+        <div class="branch__desc">${b.desc}</div>
+      </${tag}>
+    `;
+  }).join('');
+</script>
+
+</body>
+</html>

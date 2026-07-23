@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Done / Not Done Separator — NOC TOOLKIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0d1117;
+    --bg-panel:  #161b22;
+    --bg-input:  #0d1117;
+    --border:    #30363d;
+    --border-hi: #484f58;
+    --text:      #c9d1d9;
+    --text-dim:  #6e7681;
+    --text-hi:   #f0f6fc;
+    --green:     #3fb950;
+    --green-dim: #1a4226;
+    --green-bg:  #0d2818;
+    --red:       #f85149;
+    --red-dim:   #5a1b1a;
+    --red-bg:    #2d0f0e;
+    --amber:     #d29922;
+    --amber-bg:  #2d1f00;
+    --blue:      #58a6ff;
+    --blue-bg:   #0c1d3a;
+    --mono:      'IBM Plex Mono', 'Courier New', monospace;
+    --sans:      'IBM Plex Sans', system-ui, sans-serif;
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ── Top bar ── */
+  .topbar {
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 48px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar-back {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s;
+  }
+  .topbar-back:hover { color: var(--text); }
+  .topbar-back svg { width: 14px; height: 14px; }
+  .topbar-sep { color: var(--border-hi); }
+  .topbar-title { color: var(--text-hi); font-size: 13px; font-weight: 500; }
+  .topbar-tag {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--blue-bg);
+    color: var(--blue);
+    border: 1px solid #1d3a6e;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── Main layout ── */
+  .main { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  .page-head { margin-bottom: 28px; }
+  .page-head h1 {
+    font-family: var(--mono);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-hi);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .page-head h1 .prompt { color: var(--green); }
+  .page-head p { font-size: 13px; color: var(--text-dim); }
+
+  /* ── Input section ── */
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .input-grid { grid-template-columns: 1fr; } }
+
+  .panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .panel-head {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-dim);
+    background: #1c2128;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-blue  { background: var(--blue); }
+  .dot-amber { background: var(--amber); }
+  .panel-body { padding: 0; }
+
+  textarea {
+    width: 100%;
+    min-height: 200px;
+    resize: vertical;
+    background: var(--bg-input);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    border: none;
+    padding: 14px;
+    outline: none;
+    line-height: 1.7;
+    caret-color: var(--green);
+  }
+  textarea::placeholder { color: var(--text-dim); }
+  textarea:focus { box-shadow: inset 0 0 0 1px var(--border-hi); }
+
+  /* ── Actions ── */
+  .actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    font-family: var(--mono);
+    font-size: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 1px solid var(--border-hi);
+    background: transparent;
+    color: var(--text);
+    transition: background 0.12s, border-color 0.12s;
+  }
+  .btn:hover { background: #21262d; border-color: var(--text-dim); }
+  .btn:active { transform: scale(0.98); }
+  .btn-primary {
+    background: var(--green-dim);
+    border-color: var(--green);
+    color: var(--green);
+  }
+  .btn-primary:hover { background: #204d2a; }
+  .btn svg { width: 14px; height: 14px; flex-shrink: 0; }
+
+  /* ── Stats row ── */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 480px) { .stats { grid-template-columns: 1fr; } }
+  .stat {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    text-align: center;
+  }
+  .stat-val { font-size: 26px; font-weight: 600; color: var(--text-hi); }
+  .stat-lbl { font-size: 11px; color: var(--text-dim); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .stat-val.green { color: var(--green); }
+  .stat-val.red { color: var(--red); }
+
+  /* ── Result grid ── */
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 600px) { .result-grid { grid-template-columns: 1fr; } }
+
+  .result-panel { border-radius: 6px; overflow: hidden; border: 1px solid; }
+  .result-panel.done-panel  { border-color: #1a4226; }
+  .result-panel.notdone-panel { border-color: var(--red-dim); }
+
+  .result-head {
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border-bottom: 1px solid;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .done-panel .result-head    { background: var(--green-bg); border-color: #1a4226; color: var(--green); }
+  .notdone-panel .result-head { background: var(--red-bg);   border-color: var(--red-dim); color: var(--red); }
+
+  .result-head .count-badge {
+    margin-left: auto;
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .done-panel .count-badge    { background: var(--green-dim); color: var(--green); }
+  .notdone-panel .count-badge { background: var(--red-dim);   color: var(--red); }
+
+  .copy-btn {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-hi);
+    background: transparent;
+    cursor: pointer;
+    font-family: var(--mono);
+    color: var(--text-dim);
+    transition: color 0.12s, border-color 0.12s;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--text-dim); }
+
+  .result-list {
+    list-style: none;
+    max-height: 280px;
+    overflow-y: auto;
+    background: var(--bg-panel);
+  }
+  .result-list::-webkit-scrollbar { width: 4px; }
+  .result-list::-webkit-scrollbar-track { background: transparent; }
+  .result-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .result-list li {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text);
+  }
+  .result-list li:last-child { border-bottom: none; }
+  .result-list li .row-num { color: var(--text-dim); font-size: 11px; min-width: 26px; text-align: right; user-select: none; }
+  .result-list li .icon-done    { color: var(--green); font-size: 12px; }
+  .result-list li .icon-notdone { color: var(--red);   font-size: 12px; }
+  .result-list .empty-row {
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 12px;
+    padding: 20px;
+    border: none;
+  }
+
+  /* ── Warning box ── */
+  .warn-box {
+    display: none;
+    background: var(--amber-bg);
+    border: 1px solid #5a3e00;
+    border-radius: 6px;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: var(--amber);
+    margin-bottom: 16px;
+    line-height: 1.8;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 40px;
+    font-size: 11px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-dot { color: var(--green); }
+
+  /* ── Hidden section ── */
+  #result-section { display: none; }
+  #result-section.visible { display: block; }
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<nav class="topbar">
+  <a class="topbar-back" href="../index.html">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 12L6 8l4-4"/></svg>
+    NOC TOOLKIT
+  </a>
+  <span class="topbar-sep">/</span>
+  <span class="topbar-title">Done / Not Done Separator</span>
+  <span class="topbar-tag">Device Status</span>
+</nav>
+
+<main class="main">
+
+  <!-- Page heading -->
+  <div class="page-head">
+    <h1><span class="prompt">$</span> done-notdone-separator</h1>
+    <p>Pisahkan daftar perangkat berdasarkan status penyelesaian dari dua kolom input.</p>
+  </div>
+
+  <!-- Input area -->
+  <div class="input-grid">
+    <div class="panel">
+      <div class="panel-head">
+        <span class="dot dot-blue"></span>
+        KOLOM 1 — Nama Perangkat
+      </div>
+      <div class="panel-body">
+        <textarea id="col-devices"
+          placeholder="OLT-JKTPST-01&#10;OLT-JKTBRT-02&#10;OLT-SBY-01&#10;OLT-MLAN-01&#10;OLT-BALI-01"></textarea>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <span class="dot dot-amber"></span>
+        KOLOM 2 — Status
+      </div>
+      <div class="panel-body">
+        <textarea id="col-status"
+          placeholder="done&#10;not done&#10;selesai&#10;belum&#10;done&#10;&#10;Kata kunci yang dikenali:&#10;done / selesai / completed&#10;not done / belum / pending"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="actions">
+    <button class="btn btn-primary" onclick="proses()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 1v14M1 8h14"/><circle cx="8" cy="8" r="7"/>
+      </svg>
+      Pisahkan Data
+    </button>
+    <button class="btn" onclick="isiContoh()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 6h6M5 9h4"/>
+      </svg>
+      Isi Contoh
+    </button>
+    <button class="btn" onclick="reset()">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 8a5 5 0 1 0 1-3M1 3l2 2 2-2"/>
+      </svg>
+      Reset
+    </button>
+  </div>
+
+  <!-- Result section -->
+  <div id="result-section">
+    <hr class="divider">
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-val" id="stat-total">0</div>
+        <div class="stat-lbl">Total Perangkat</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val green" id="stat-done">0</div>
+        <div class="stat-lbl">Done</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val red" id="stat-notdone">0</div>
+        <div class="stat-lbl">Not Done</div>
+      </div>
+    </div>
+
+    <!-- Warning -->
+    <div class="warn-box" id="warn-box"></div>
+
+    <!-- Result lists -->
+    <div class="result-grid">
+      <div class="result-panel done-panel">
+        <div class="result-head">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M2 8l4 4 8-8"/></svg>
+          Done
+          <span class="count-badge" id="count-done">0</span>
+          <button class="copy-btn" onclick="copyList('done')">salin</button>
+        </div>
+        <ul class="result-list" id="list-done">
+          <li class="empty-row">— belum ada data —</li>
+        </ul>
+      </div>
+      <div class="result-panel notdone-panel">
+        <div class="result-head">
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+          Not Done
+          <span class="count-badge" id="count-notdone">0</span>
+          <button class="copy-btn" onclick="copyList('notdone')">salin</button>
+        </div>
+        <ul class="result-list" id="list-notdone">
+          <li class="empty-row">— belum ada data —</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span class="footer-dot">●</span>
+    NOC TOOLKIT &mdash; Done / Not Done Separator &mdash; client-side only, no data dikirim
+  </div>
+
+</main>
+
+<script>
+  const DONE_KW    = ['done','selesai','completed','finish','finished','sudah','ok','yes','ya','✓','✔'];
+  const NOTDONE_KW = ['not done','not finished','belum selesai','belum','pending','no','tidak','belum','✗','–'];
+
+  function normalize(s) { return s.trim().toLowerCase(); }
+
+  function classifyStatus(s) {
+    const n = normalize(s);
+    // cek not done dulu (karena 'not done' mengandung 'done')
+    if (NOTDONE_KW.some(k => n === k || n.includes(k))) return 'notdone';
+    if (DONE_KW.some(k => n === k || n.includes(k)))    return 'done';
+    return 'unknown';
+  }
+
+  function proses() {
+    const devRaw = document.getElementById('col-devices').value;
+    const stRaw  = document.getElementById('col-status').value;
+
+    const devLines = devRaw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+    const stLines  = stRaw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+    const doneList    = [];
+    const notdoneList = [];
+    const warns       = [];
+
+    devLines.forEach((dev, i) => {
+      const st = stLines[i] || '';
+      if (!st) {
+        warns.push(`Baris ${i + 1}: "${dev}" tidak memiliki status`);
+        return;
+      }
+      const cls = classifyStatus(st);
+      if      (cls === 'done')    doneList.push({ dev, i: i + 1 });
+      else if (cls === 'notdone') notdoneList.push({ dev, i: i + 1 });
+      else    warns.push(`Baris ${i + 1}: status "${st}" tidak dikenali`);
+    });
+
+    // Update stats
+    document.getElementById('stat-total').textContent   = devLines.length;
+    document.getElementById('stat-done').textContent    = doneList.length;
+    document.getElementById('stat-notdone').textContent = notdoneList.length;
+    document.getElementById('count-done').textContent    = doneList.length;
+    document.getElementById('count-notdone').textContent = notdoneList.length;
+
+    renderList('list-done',    doneList,    'done');
+    renderList('list-notdone', notdoneList, 'notdone');
+
+    // Warnings
+    const warnBox = document.getElementById('warn-box');
+    if (warns.length > 0) {
+      warnBox.style.display = 'block';
+      warnBox.innerHTML = '⚠ ' + warns.length + ' peringatan:<br>' + warns.map(w => '&nbsp;&nbsp;• ' + w).join('<br>');
+    } else {
+      warnBox.style.display = 'none';
+    }
+
+    document.getElementById('result-section').classList.add('visible');
+  }
+
+  function renderList(id, items, type) {
+    const ul = document.getElementById(id);
+    ul.innerHTML = '';
+    if (items.length === 0) {
+      ul.innerHTML = '<li class="empty-row">— tidak ada perangkat —</li>';
+      return;
+    }
+    items.forEach(item => {
+      const li = document.createElement('li');
+      const iconClass = type === 'done' ? 'icon-done' : 'icon-notdone';
+      const iconChar  = type === 'done' ? '✓' : '✗';
+      li.innerHTML = `
+        <span class="row-num">${item.i}</span>
+        <span class="${iconClass}">${iconChar}</span>
+        ${escHtml(item.dev)}
+      `;
+      ul.appendChild(li);
+    });
+  }
+
+  function escHtml(s) {
+    return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function copyList(type) {
+    const id = type === 'done' ? 'list-done' : 'list-notdone';
+    const items = [...document.getElementById(id).querySelectorAll('li:not(.empty-row)')]
+      .map(li => {
+        // ambil teks nama perangkat saja (kolom terakhir)
+        const spans = li.querySelectorAll('span');
+        return spans[spans.length - 1]?.textContent?.trim() || li.textContent.trim();
+      })
+      .filter(Boolean);
+    if (items.length === 0) return;
+
+    const btn = event.target;
+    navigator.clipboard.writeText(items.join('\n')).then(() => {
+      const orig = btn.textContent;
+      btn.textContent = 'disalin!';
+      setTimeout(() => { btn.textContent = orig; }, 1500);
+    });
+  }
+
+  function isiContoh() {
+    document.getElementById('col-devices').value =
+      'OLT-JKTPST-01\nOLT-JKTBRT-02\nOLT-SBY-01\nOLT-MLAN-01\nOLT-BALI-01\nOLT-RKAL-01\nOLT-JATIM-01\nOLT-SBT-01';
+    document.getElementById('col-status').value =
+      'done\nnot done\nselesai\nbelum\ndone\nnot done\ndone\nbelum selesai';
+  }
+
+  function reset() {
+    document.getElementById('col-devices').value = '';
+    document.getElementById('col-status').value  = '';
+    document.getElementById('result-section').classList.remove('visible');
+  }
+</script>
+</body>
+</html>

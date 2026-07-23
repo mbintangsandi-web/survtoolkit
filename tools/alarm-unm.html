@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alarm Broadcast Generator</title>
+<style>
+  :root{
+    --bg:#0b0e13;
+    --panel:#12161e;
+    --panel2:#171c26;
+    --border:#232a37;
+    --text:#e6e9ef;
+    --muted:#8b94a7;
+    --accent:#3ba7ff;
+    --accent2:#ff5c5c;
+    --green:#3ddc97;
+    --amber:#ffb454;
+    --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    padding:24px;
+  }
+  h1{
+    font-size:20px;
+    margin:0 0 4px 0;
+    letter-spacing:0.3px;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:13px;
+    margin-bottom:20px;
+  }
+  .layout{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:18px;
+    max-width:1400px;
+    margin:0 auto;
+  }
+  @media (max-width: 980px){
+    .layout{grid-template-columns:1fr;}
+  }
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+  }
+  .panel h2{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:0.8px;
+    color:var(--muted);
+    margin:0 0 10px 0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  textarea{
+    width:100%;
+    min-height:360px;
+    background:var(--panel2);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:12px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    line-height:1.5;
+    resize:vertical;
+    outline:none;
+  }
+  textarea:focus{border-color:var(--accent);}
+  .btn-row{
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+    flex-wrap:wrap;
+  }
+  button{
+    background:var(--panel2);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:9px 14px;
+    font-size:13px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  button:hover{border-color:var(--accent); color:var(--accent);}
+  button.primary{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#0b0e13;
+    font-weight:600;
+  }
+  button.primary:hover{
+    background:#5cb8ff;
+    color:#0b0e13;
+  }
+  button.danger:hover{
+    border-color:var(--accent2);
+    color:var(--accent2);
+  }
+  .output{
+    white-space:pre-wrap;
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:14px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    line-height:1.55;
+    min-height:360px;
+    max-height:640px;
+    overflow-y:auto;
+  }
+  .stats{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:12px;
+  }
+  .stat{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:7px;
+    padding:8px 12px;
+    font-size:12px;
+    color:var(--muted);
+  }
+  .stat b{
+    color:var(--text);
+    font-size:14px;
+    display:block;
+  }
+  .badge{
+    font-size:10px;
+    padding:2px 7px;
+    border-radius:20px;
+    background:rgba(59,167,255,0.12);
+    color:var(--accent);
+    border:1px solid rgba(59,167,255,0.3);
+  }
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--green);
+    color:#08130d;
+    padding:10px 18px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    opacity:0;
+    pointer-events:none;
+    transition:all .25s ease;
+    z-index:99;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+  .empty-hint{
+    color:var(--muted);
+    font-size:12.5px;
+    font-style:italic;
+  }
+  .footnote{
+    color:var(--muted);
+    font-size:11px;
+    margin-top:10px;
+    line-height:1.5;
+  }
+</style>
+</head>
+<body>
+
+<a href="../index.html" style="display:inline-block;margin-bottom:10px;color:var(--muted);font-size:11px;font-family:var(--mono);text-decoration:none;">&larr; NOC TOOLKIT</a>
+<h1>🚨 Alarm Broadcast Generator</h1>
+<div class="subtitle">Paste data alarm (tab-separated) &rarr; hasilkan broadcast alarm environment per-SBU</div>
+
+<div class="layout">
+  <div class="panel">
+    <h2>Input Data <span class="badge">TSV / Paste dari Excel</span></h2>
+    <textarea id="inputData" placeholder="Paste data alarm di sini (tab-separated)..."></textarea>
+    <div class="btn-row">
+      <button class="primary" onclick="generate()">⚡ Generate Broadcast</button>
+      <button onclick="loadSample()">📋 Sample Data</button>
+      <button class="danger" onclick="resetAll()">🗑 Reset</button>
+    </div>
+    <div class="footnote">
+      Kolom yang dibaca: <b>Alarm Name</b> (kolom 4), <b>Alarm Source / Nama OLT</b> (kolom 7),
+      dan <b>Latest Occurrence Time</b> (kolom 12) — sesuai posisi standar export alarm monitoring.
+      Pengelompokan SBU otomatis diambil dari prefix nama OLT sebelum tanda "-" pertama.
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Hasil Broadcast <span id="badgeCount" class="badge">0 alarm</span></h2>
+    <div class="stats" id="statsRow"></div>
+    <div class="btn-row" style="margin-top:0; margin-bottom:12px;">
+      <button class="primary" onclick="copyOutput()">📄 Copy Semua</button>
+    </div>
+    <div class="output" id="outputBox"><span class="empty-hint">Hasil broadcast akan muncul di sini setelah klik "Generate Broadcast"...</span></div>
+  </div>
+</div>
+
+<div class="toast" id="toast">Copied to clipboard!</div>
+
+<script>
+const ALARM_LABELS = {
+  "Battery_Discharging": "Battery_Discharging",
+  "ENV_TEMP_OVER": "ENV_TEMP_OVER",
+  "ACMAINFAIL": "ACMAINFAIL"
+};
+
+function parseLine(line){
+  const cols = line.split('\t');
+  if(cols.length < 12) return null;
+  const alarmName = (cols[3] || '').trim();
+  const olt = (cols[6] || '').trim();
+  const latestTime = (cols[11] || '').trim();
+  if(!olt || !alarmName) return null;
+  return { olt, alarmName, latestTime };
+}
+
+function getSBU(oltName){
+  const idx = oltName.indexOf('-');
+  if(idx === -1) return oltName.trim();
+  return oltName.substring(0, idx).trim();
+}
+
+function generate(){
+  const raw = document.getElementById('inputData').value;
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+  const parsed = [];
+  for(const line of lines){
+    const row = parseLine(line);
+    if(row) parsed.push(row);
+  }
+
+  const outputBox = document.getElementById('outputBox');
+  const statsRow = document.getElementById('statsRow');
+  const badgeCount = document.getElementById('badgeCount');
+
+  if(parsed.length === 0){
+    outputBox.innerHTML = '<span class="empty-hint">Tidak ada data valid yang terbaca. Pastikan data ter-paste dengan format tab-separated.</span>';
+    statsRow.innerHTML = '';
+    badgeCount.textContent = '0 alarm';
+    return;
+  }
+
+  // group by SBU
+  const groups = {};
+  for(const row of parsed){
+    const sbu = getSBU(row.olt);
+    if(!groups[sbu]) groups[sbu] = [];
+    groups[sbu].push(row);
+  }
+
+  const sbuKeys = Object.keys(groups).sort();
+
+  let blocks = [];
+  for(const sbu of sbuKeys){
+    const items = groups[sbu];
+    let block = `‼️BROADCAST ALARM‼️\n`;
+    block += `Yth. Rekan SBU ${sbu},\n`;
+    block += `Telah terdeteksi Alarm Environment pada perangkat OLT. Dibantu untuk pengecekan :\n\n`;
+    items.forEach((item, i) => {
+      block += `${i+1}. ${item.olt} | ${item.latestTime} | ${item.alarmName}\n`;
+    });
+    block += `\n#envalarm\ncc : `;
+    blocks.push(block);
+  }
+
+  outputBox.textContent = blocks.join('\n\n' + '─'.repeat(40) + '\n\n');
+
+  badgeCount.textContent = `${parsed.length} alarm`;
+
+  statsRow.innerHTML = '';
+  const totalStat = document.createElement('div');
+  totalStat.className = 'stat';
+  totalStat.innerHTML = `<b>${sbuKeys.length}</b>SBU terdampak`;
+  statsRow.appendChild(totalStat);
+
+  const totalAlarm = document.createElement('div');
+  totalAlarm.className = 'stat';
+  totalAlarm.innerHTML = `<b>${parsed.length}</b>Total alarm`;
+  statsRow.appendChild(totalAlarm);
+
+  for(const sbu of sbuKeys){
+    const s = document.createElement('div');
+    s.className = 'stat';
+    s.innerHTML = `<b>${groups[sbu].length}</b>${sbu}`;
+    statsRow.appendChild(s);
+  }
+}
+
+function copyOutput(){
+  const text = document.getElementById('outputBox').innerText;
+  if(!text || text.includes('akan muncul di sini') || text.includes('Tidak ada data')){
+    return;
+  }
+  navigator.clipboard.writeText(text).then(() => {
+    const toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 1600);
+  });
+}
+
+function resetAll(){
+  document.getElementById('inputData').value = '';
+  document.getElementById('outputBox').innerHTML = '<span class="empty-hint">Hasil broadcast akan muncul di sini setelah klik "Generate Broadcast"...</span>';
+  document.getElementById('statsRow').innerHTML = '';
+  document.getElementById('badgeCount').textContent = '0 alarm';
+}
+
+function loadSample(){
+  const sample = `689045445\t0_\tCritical \tBattery_Discharging\tAuto Confirmation\tEquipment Clearance\tBALI-KPG.OESAO-FH.AN6000.2-OLT-09\tBALI-KPG.OESAO-FH.AN6000.2-OLT-09/HCU-OLT[801]\t\t1\t2026-07-01 12:32:00\t2026-07-01 12:32:00\t35 minutes 20 Seconds\t2026-07-01 13:07:34\t\t2026-07-01 13:07:20\tBALI-KPG.OESAO-FH.AN6000.2-OLT-09\t\t\t\t\t\tEnvironment Alarm\tAN6000-2\t\t172.29.95.5\t2026-07-01 13:07:21\t\t2698
+689015860\t0_\tCritical \tENV_TEMP_OVER\tUnconfirmed\tUncleared\tBALI-KRA.BEBANDEM-FH.AN6001.G16-OLT-04\tBALI-KRA.BEBANDEM-FH.AN6001.G16-OLT-04/HCU-OLT[801]\t\t2\t2026-06-30 11:40:24\t2026-07-01 11:41:18\t1 Hours 26 minutes 37 Seconds\t\t\t\t\t\t\t\tReport Threshold=42.00;Clear Threshold=40.00;Current Value=42.40;\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.95.243\t\t\t2478
+688899995\t0_\tCritical \tENV_TEMP_OVER\tUnconfirmed\tUncleared\tBALI-ODC.UP3.BALI.TIMUR.TEGAK-FH.AN6001.G16-OLT-01\tBALI-ODC.UP3.BALI.TIMUR.TEGAK-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t2\t2026-06-30 08:03:17\t2026-07-01 07:49:21\t5 Hours 18 minutes 34 Seconds\t\t\t\t\t\t\t\tReport Threshold=35.00;Clear Threshold=33.00;Current Value=35.40;\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.94.210\t\t\t2478
+689025190\t0_\tCritical \tBattery_Discharging\tUnconfirmed\tUncleared\tRKAL-KELAMPANGAN-FH.AN6001.G16-OLT-01\tRKAL-KELAMPANGAN-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t1\t2026-07-01 11:56:49\t2026-07-01 11:56:49\t1 Hours 11 minutes 6 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.96.54\t\t\t2698
+689056031\t0_\tCritical \tBattery_Discharging\tUnconfirmed\tUncleared\tRKAL-KUMAIHULU-FH.AN6001.G16-OLT-01\tRKAL-KUMAIHULU-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t2\t2026-06-30 19:42:30\t2026-07-01 12:54:52\t13 minutes 3 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.99.197\t\t\t2698
+688890769\t0_\tCritical \tACMAINFAIL\tUnconfirmed\tUncleared\tRKAL-ODC.CABINET.KETAPANG.9-FH.AN6001.G16-OLT-01\tRKAL-ODC.CABINET.KETAPANG.9-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t1\t2026-07-01 07:26:04\t2026-07-01 07:26:04\t5 Hours 41 minutes 51 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.99.142\t\t\t2486
+688927277\t0_\tCritical \tBattery_Discharging\tUnconfirmed\tUncleared\tRKAL-SULTAN.ADAM.3-FH.AN6001.G16-OLT-01\tRKAL-SULTAN.ADAM.3-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t1\t2026-07-01 08:47:31\t2026-07-01 08:47:31\t4 Hours 20 minutes 24 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.97.54\t\t\t2698
+688905727\t0_\tCritical \tACMAINFAIL\tUnconfirmed\tUncleared\tRKAL-SULTANIMANUDIN-FH.AN6001.G16-OLT-01\tRKAL-SULTANIMANUDIN-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t5\t2026-06-30 08:05:25\t2026-07-01 08:03:38\t5 Hours 4 minutes 17 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.99.194\t\t\t2486
+688927144\t0_\tCritical \tBattery_Discharging\tUnconfirmed\tUncleared\tRKAL-SUNGAI.ANDAI.1-FH.AN6001.G16-OLT-01\tRKAL-SUNGAI.ANDAI.1-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t1\t2026-07-01 08:47:24\t2026-07-01 08:47:24\t4 Hours 20 minutes 31 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.98.19\t\t\t2698
+688832461\t0_\tCritical \tBattery_Discharging\tUnconfirmed\tUncleared\tRKAL-SUNGAI.ANDAI.4-FH.AN6001.G16-OLT-01\tRKAL-SUNGAI.ANDAI.4-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t1\t2026-07-01 04:56:49\t2026-07-01 04:56:49\t8 Hours 11 minutes 6 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.98.22\t\t\t2698
+688950112\t0_\tCritical \tBattery_Discharging\tUnconfirmed\tUncleared\tRKAL-SUNGAI.LULUT-FH.AN6001.G16-OLT-01\tRKAL-SUNGAI.LULUT-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t1\t2026-07-01 09:32:36\t2026-07-01 09:32:36\t3 Hours 35 minutes 19 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.97.58\t\t\t2698
+688936555\t0_\tCritical \tACMAINFAIL\tUnconfirmed\tUncleared\tSBU-ODC.PANTAI.CEUREMEN-FH.AN6001.G16-OLT-01\tSBU-ODC.PANTAI.CEUREMEN-FH.AN6001.G16-OLT-01/HCU-OLT[801]\t\t4\t2026-06-30 23:17:38\t2026-07-01 09:04:21\t4 Hours 3 minutes 34 Seconds\t\t\t\t\t\t\t\t\t\tEnvironment Alarm\tAN6001-G16\t\t172.29.66.196\t\t\t2486`;
+  document.getElementById('inputData').value = sample;
+  generate();
+}
+</script>
+
+</body>
+</html>

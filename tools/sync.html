@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Device List Intersect — NOC TOOLKIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:        #0d1117;
+    --bg-card:   #161b22;
+    --bg-input:  #0d1117;
+    --bg-hover:  #1c2330;
+    --border:    #30363d;
+    --border-em: #484f58;
+    --text:      #e6edf3;
+    --text-2:    #8b949e;
+    --text-3:    #484f58;
+    --green:     #3fb950;
+    --green-dim: #1a3a22;
+    --green-text:#7ee787;
+    --blue:      #388bfd;
+    --blue-dim:  #0d2040;
+    --blue-text: #79c0ff;
+    --amber:     #d29922;
+    --amber-dim: #2d2008;
+    --amber-text:#e3b341;
+    --red:       #f85149;
+    --red-dim:   #2d0f0e;
+    --red-text:  #ff7b72;
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  .topbar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .topbar-logo {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--green);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+  .topbar-sep { color: var(--border-em); font-size: 18px; font-weight: 300; }
+  .topbar-title { font-family: var(--font-mono); font-size: 12px; color: var(--text-2); letter-spacing: 0.04em; }
+  .topbar-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--green);
+    color: var(--green);
+    letter-spacing: 0.06em;
+    margin-left: auto;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 28px 24px 0; }
+
+  .page-header { margin-bottom: 28px; }
+  .page-header h1 {
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .page-header h1 .icon { color: var(--green); }
+  .page-header p { font-size: 13px; color: var(--text-2); max-width: 640px; }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 700px) { .input-grid { grid-template-columns: 1fr; } }
+
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+  }
+  .card-header { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-blue  { background: var(--blue); }
+  .dot-amber { background: var(--amber); }
+  .dot-green { background: var(--green); }
+  .dot-red   { background: var(--red); }
+
+  .card-title { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--text); letter-spacing: 0.04em; }
+  .badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 1px 8px;
+    border-radius: 20px;
+    border: 1px solid;
+    margin-left: auto;
+    font-weight: 500;
+  }
+  .badge-blue  { border-color: var(--blue);  color: var(--blue-text); }
+  .badge-amber { border-color: var(--amber); color: var(--amber-text); }
+  .badge-green { border-color: var(--green); color: var(--green-text); }
+  .badge-red   { border-color: var(--red);   color: var(--red-text); }
+
+  textarea {
+    width: 100%;
+    height: 160px;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 10px 12px;
+    resize: vertical;
+    line-height: 1.7;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: var(--blue); }
+  .hint { font-size: 11px; color: var(--text-3); margin-top: 6px; font-family: var(--font-mono); }
+
+  .controls-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+  }
+  .ctrl-label { font-size: 12px; color: var(--text-2); font-family: var(--font-mono); white-space: nowrap; }
+  select, input[type="number"] {
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 5px 10px;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  select:focus, input[type="number"]:focus { border-color: var(--blue); }
+  input[type="number"] { width: 70px; }
+
+  .btn-run {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green);
+    color: #000;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 7px 18px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+  .btn-run:hover { opacity: 0.88; }
+  .btn-run:active { transform: scale(0.97); }
+
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 600px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .stat {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+  }
+  .stat-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text-2);
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stat-val { font-family: var(--font-mono); font-size: 28px; font-weight: 500; line-height: 1; }
+
+  .venn-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 16px 0 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (max-width: 700px) { .result-grid { grid-template-columns: 1fr; } }
+
+  .res-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 14px;
+    min-height: 140px;
+  }
+  .res-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+  .res-title { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 6px; }
+
+  .search-input {
+    width: 100%;
+    background: var(--bg-input);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 5px 9px;
+    outline: none;
+    margin-bottom: 8px;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--blue); }
+
+  .item-list {
+    max-height: 220px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .item-list::-webkit-scrollbar { width: 4px; }
+  .item-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  .item {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 3px 7px;
+    border-radius: 4px;
+    margin-bottom: 2px;
+    line-height: 1.6;
+    word-break: break-all;
+  }
+  .item-match  { background: var(--green-dim); color: var(--green-text); }
+  .item-only-a { background: var(--blue-dim);  color: var(--blue-text); }
+  .item-only-b { background: var(--amber-dim); color: var(--amber-text); }
+  .item-dup    { background: var(--red-dim);   color: var(--red-text); }
+
+  .empty-state { font-family: var(--font-mono); font-size: 11px; color: var(--text-3); padding: 8px 0; text-align: center; }
+
+  .dup-section { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .dup-label { font-family: var(--font-mono); font-size: 10px; color: var(--red-text); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; letter-spacing: 0.04em; }
+
+  .export-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .btn-copy {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 5px 12px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .btn-copy:hover { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+  .btn-copy.copied { border-color: var(--green); color: var(--green); }
+
+  .btn-sm {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-3);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .btn-sm:hover { border-color: var(--border-em); color: var(--text-2); }
+
+  #result-area { display: none; }
+  #prefix-ctrl { display: none; }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-logo" href="../index.html">◈ NOC TOOLKIT</a>
+  <span class="topbar-sep">/</span>
+  <span class="topbar-title">device-intersect</span>
+  <span class="topbar-tag">TOOL v1.0</span>
+</div>
+
+<div class="container">
+
+  <div class="page-header">
+    <h1><span class="icon">⇄</span> Device List Intersect Tool</h1>
+    <p>Temukan irisan antara data monitoring realtime dan recap/source data dashboard. Deteksi perangkat yang hanya ada di salah satu sumber, duplikat, dan persentase coverage.</p>
+  </div>
+
+  <div class="input-grid">
+    <div class="card">
+      <div class="card-header">
+        <span class="dot dot-blue"></span>
+        <span class="card-title">LIST A — MONITORING REALTIME</span>
+        <span class="badge badge-blue" id="cnt-a">0</span>
+      </div>
+      <textarea id="listA" placeholder="Paste list perangkat di sini&#10;Satu perangkat per baris&#10;&#10;Contoh:&#10;OLT-JKT-01&#10;OLT-JKT-02&#10;ONU-BDG-001&#10;ONT-SBY-03"></textarea>
+      <div class="hint">▸ satu item per baris · spasi awal/akhir diabaikan</div>
+      <div style="margin-top:8px; display:flex; gap:6px;">
+        <button class="btn-sm" onclick="loadSampleA()">load sample</button>
+        <button class="btn-sm" onclick="document.getElementById('listA').value=''; updateCount('a');">clear</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span class="dot dot-amber"></span>
+        <span class="card-title">LIST B — RECAP / SOURCE DATA</span>
+        <span class="badge badge-amber" id="cnt-b">0</span>
+      </div>
+      <textarea id="listB" placeholder="Paste list perangkat di sini&#10;Satu perangkat per baris&#10;&#10;Contoh:&#10;OLT-JKT-01&#10;OLT-JKT-03&#10;ONU-BDG-001&#10;ONT-SBY-99"></textarea>
+      <div class="hint">▸ satu item per baris · spasi awal/akhir diabaikan</div>
+      <div style="margin-top:8px; display:flex; gap:6px;">
+        <button class="btn-sm" onclick="loadSampleB()">load sample</button>
+        <button class="btn-sm" onclick="document.getElementById('listB').value=''; updateCount('b');">clear</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls-row">
+    <span class="ctrl-label">mode:</span>
+    <select id="mode" onchange="togglePrefix()">
+      <option value="exact">exact match (case-insensitive)</option>
+      <option value="trim">exact + trim whitespace</option>
+      <option value="normalize">normalize (hapus spasi &amp; tanda baca)</option>
+      <option value="prefix">prefix match (N karakter pertama)</option>
+    </select>
+    <span id="prefix-ctrl" style="display:none; align-items:center; gap:8px;">
+      <span class="ctrl-label">panjang prefix:</span>
+      <input type="number" id="prefix-len" value="8" min="1" max="30">
+    </span>
+    <button class="btn-run" onclick="runCompare()">▶ BANDINGKAN</button>
+  </div>
+
+  <div id="result-area">
+    <div class="stat-grid" id="stat-cards"></div>
+    <div class="venn-wrap" id="venn-area"></div>
+    <div class="result-grid" id="result-grid"></div>
+    <div class="export-row" id="export-row"></div>
+  </div>
+
+</div>
+
+<script>
+let state = {};
+
+const SAMPLE_A = `OLT-JKT-GATSU-01
+OLT-JKT-GATSU-02
+OLT-SBT-SORONG-01
+OLT-SBU-MANOKWARI-01
+OLT-SBU-MANOKWARI-02
+OLT-BALI-DENPASAR-01
+OLT-JATIM-SURABAYA-01
+OLT-JATIM-SURABAYA-02
+OLT-RKAL-TERNATE-01
+OLT-JKT-CENGKARENG-01`;
+
+const SAMPLE_B = `OLT-JKT-GATSU-01
+OLT-JKT-GATSU-02
+OLT-SBT-SORONG-01
+OLT-SBU-MANOKWARI-01
+OLT-BALI-DENPASAR-01
+OLT-JATIM-SURABAYA-01
+OLT-RKAL-TERNATE-01
+OLT-RKAL-AMBON-01
+OLT-JKT-CENGKARENG-01
+OLT-SBU-BIAK-01`;
+
+function loadSampleA() { document.getElementById('listA').value = SAMPLE_A; updateCount('a'); }
+function loadSampleB() { document.getElementById('listB').value = SAMPLE_B; updateCount('b'); }
+
+function parseList(raw) { return raw.split('\n').map(s => s.trim()).filter(s => s.length > 0); }
+
+function normalizeKey(s, mode, prefixLen) {
+  const base = s.toLowerCase();
+  if (mode === 'exact') return base;
+  if (mode === 'trim') return base.trim();
+  if (mode === 'normalize') return base.replace(/[\s\-_\.]/g, '');
+  if (mode === 'prefix') return base.slice(0, prefixLen);
+  return base;
+}
+
+function findDuplicates(arr) {
+  const seen = {}, dups = [];
+  arr.forEach(item => { const k = item.toLowerCase(); if (seen[k]) dups.push(item); else seen[k] = true; });
+  return dups;
+}
+
+function updateCount(which) {
+  const raw = document.getElementById('list' + which.toUpperCase()).value;
+  document.getElementById('cnt-' + which).textContent = parseList(raw).length;
+}
+
+function togglePrefix() {
+  const show = document.getElementById('mode').value === 'prefix';
+  document.getElementById('prefix-ctrl').style.display = show ? 'flex' : 'none';
+}
+
+function runCompare() {
+  const rawA = document.getElementById('listA').value;
+  const rawB = document.getElementById('listB').value;
+  const mode = document.getElementById('mode').value;
+  const prefixLen = parseInt(document.getElementById('prefix-len').value) || 8;
+  const listA = parseList(rawA);
+  const listB = parseList(rawB);
+  if (!listA.length && !listB.length) return;
+
+  const keyA = {}, keyB = {};
+  listA.forEach(item => { const k = normalizeKey(item, mode, prefixLen); if (!keyA[k]) keyA[k] = item; });
+  listB.forEach(item => { const k = normalizeKey(item, mode, prefixLen); if (!keyB[k]) keyB[k] = item; });
+
+  const intersect = [], onlyA = [], onlyB = [];
+  Object.keys(keyA).forEach(k => { if (keyB[k]) intersect.push({ a: keyA[k], b: keyB[k] }); else onlyA.push(keyA[k]); });
+  Object.keys(keyB).forEach(k => { if (!keyA[k]) onlyB.push(keyB[k]); });
+
+  state = { intersect, onlyA, onlyB, dupA: findDuplicates(listA), dupB: findDuplicates(listB), listA, listB };
+  renderResults();
+}
+
+function renderResults() {
+  const { intersect, onlyA, onlyB, listA, listB } = state;
+  const matchPct = listA.length ? Math.round(intersect.length / listA.length * 100) : 0;
+  const pctColor = matchPct >= 80 ? 'var(--green)' : matchPct >= 50 ? 'var(--amber)' : 'var(--red)';
+
+  document.getElementById('result-area').style.display = 'block';
+
+  document.getElementById('stat-cards').innerHTML = `
+    <div class="stat">
+      <div class="stat-label"><span class="dot dot-green"></span>IRISAN (A ∩ B)</div>
+      <div class="stat-val" style="color:var(--green)">${intersect.length}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label"><span class="dot dot-blue"></span>HANYA DI A</div>
+      <div class="stat-val" style="color:var(--blue)">${onlyA.length}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label"><span class="dot dot-amber"></span>HANYA DI B</div>
+      <div class="stat-val" style="color:var(--amber)">${onlyB.length}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-label"><span class="dot" style="background:${pctColor}"></span>COVERAGE A→B</div>
+      <div class="stat-val" style="color:${pctColor}">${matchPct}%</div>
+    </div>
+  `;
+
+  renderVenn(listA.length, listB.length, intersect.length);
+  renderGrid('');
+
+  document.getElementById('export-row').innerHTML = `
+    <button class="btn-copy" onclick="exportData('intersect',this)">⊙ copy irisan</button>
+    <button class="btn-copy" onclick="exportData('only_a',this)">⊙ copy hanya di A</button>
+    <button class="btn-copy" onclick="exportData('only_b',this)">⊙ copy hanya di B</button>
+    <button class="btn-copy" onclick="exportData('all',this)">⊙ export TSV lengkap</button>
+  `;
+
+  document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function renderVenn(a, b, inter) {
+  const max = Math.max(a, b, 1);
+  const ra = Math.round(42 + (a / max) * 28);
+  const rb = Math.round(42 + (b / max) * 28);
+  const overlapPx = inter > 0 ? Math.round((inter / Math.max(a, b)) * Math.min(ra, rb) * 1.2) : Math.round((ra + rb) * 0.6);
+  const cx1 = 80 + ra;
+  const cx2 = cx1 + ra + rb - overlapPx;
+  const cy = 72;
+  const w = cx2 + rb + 40;
+
+  document.getElementById('venn-area').innerHTML = `
+    <svg width="${w}" height="150" viewBox="0 0 ${w} 150" style="display:block; font-family:'IBM Plex Mono',monospace;">
+      <circle cx="${cx1}" cy="${cy}" r="${ra}" fill="#388bfd" fill-opacity="0.13" stroke="#388bfd" stroke-width="1.2"/>
+      <circle cx="${cx2}" cy="${cy}" r="${rb}" fill="#d29922" fill-opacity="0.13" stroke="#d29922" stroke-width="1.2"/>
+      <text x="${cx1 - ra * 0.55}" y="${cy - 6}" font-size="11" fill="#79c0ff" text-anchor="middle" font-weight="500">A</text>
+      <text x="${cx1 - ra * 0.55}" y="${cy + 14}" font-size="20" fill="#79c0ff" text-anchor="middle" font-weight="500">${a}</text>
+      <text x="${cx2 + rb * 0.55}" y="${cy - 6}" font-size="11" fill="#e3b341" text-anchor="middle" font-weight="500">B</text>
+      <text x="${cx2 + rb * 0.55}" y="${cy + 14}" font-size="20" fill="#e3b341" text-anchor="middle" font-weight="500">${b}</text>
+      <text x="${(cx1 + cx2) / 2}" y="${cy - 8}" font-size="10" fill="#7ee787" text-anchor="middle">match</text>
+      <text x="${(cx1 + cx2) / 2}" y="${cy + 14}" font-size="22" fill="#3fb950" text-anchor="middle" font-weight="500">${inter}</text>
+      <text x="${cx1 - ra * 0.55}" y="${cy + 34}" font-size="9" fill="#79c0ff" text-anchor="middle" opacity="0.6">realtime</text>
+      <text x="${cx2 + rb * 0.55}" y="${cy + 34}" font-size="9" fill="#e3b341" text-anchor="middle" opacity="0.6">recap</text>
+    </svg>
+  `;
+}
+
+function renderGrid(filter) {
+  const { intersect, onlyA, onlyB, dupA, dupB } = state;
+  const f = (filter || '').toLowerCase();
+  const filt = arr => f ? arr.filter(i => (typeof i === 'string' ? i : i.a).toLowerCase().includes(f)) : arr;
+
+  const makeItems = (arr, cls, keyFn) => {
+    const items = filt(arr);
+    if (!items.length) return '<div class="empty-state">— tidak ada item —</div>';
+    return items.map(i => `<div class="item ${cls}">${esc(keyFn(i))}</div>`).join('');
+  };
+
+  const dupSection = (dups, label) => !dups.length ? '' : `
+    <div class="dup-section">
+      <div class="dup-label">⚠ duplikat ${label} (${dups.length})</div>
+      ${dups.map(d => `<div class="item item-dup">${esc(d)}</div>`).join('')}
+    </div>`;
+
+  document.getElementById('result-grid').innerHTML = `
+    <div class="res-card">
+      <div class="res-header">
+        <span class="res-title"><span class="dot dot-green"></span>IRISAN (A ∩ B)</span>
+        <span class="badge badge-green">${intersect.length}</span>
+      </div>
+      <input class="search-input" placeholder="filter hasil..." oninput="renderGrid(this.value)">
+      <div class="item-list">${makeItems(intersect, 'item-match', i => i.a)}</div>
+    </div>
+    <div class="res-card">
+      <div class="res-header">
+        <span class="res-title"><span class="dot dot-blue"></span>HANYA DI A</span>
+        <span class="badge badge-blue">${onlyA.length}</span>
+      </div>
+      <div class="item-list">${makeItems(onlyA, 'item-only-a', i => i)}</div>
+      ${dupSection(dupA, 'A')}
+    </div>
+    <div class="res-card">
+      <div class="res-header">
+        <span class="res-title"><span class="dot dot-amber"></span>HANYA DI B</span>
+        <span class="badge badge-amber">${onlyB.length}</span>
+      </div>
+      <div class="item-list">${makeItems(onlyB, 'item-only-b', i => i)}</div>
+      ${dupSection(dupB, 'B')}
+    </div>
+  `;
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function exportData(type, btn) {
+  const { intersect, onlyA, onlyB } = state;
+  let text = '';
+  if (type === 'intersect') text = intersect.map(i => i.a).join('\n');
+  else if (type === 'only_a') text = onlyA.join('\n');
+  else if (type === 'only_b') text = onlyB.join('\n');
+  else {
+    text = 'device\tstatus\n';
+    intersect.forEach(i => { text += i.a + '\tMatch (A & B)\n'; });
+    onlyA.forEach(i => { text += i + '\tHanya di A\n'; });
+    onlyB.forEach(i => { text += i + '\tHanya di B\n'; });
+  }
+  navigator.clipboard.writeText(text).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  });
+  if (btn) {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ copied!'; btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = orig; btn.classList.remove('copied'); }, 1500);
+  }
+}
+
+document.getElementById('listA').addEventListener('input', () => updateCount('a'));
+document.getElementById('listB').addEventListener('input', () => updateCount('b'));
+</script>
+</body>
+</html>

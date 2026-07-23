@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Follow Up Tiket SBU</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Courier New', monospace;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+
+  h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #58a6ff;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #21262d;
+  }
+
+  .card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8b949e;
+    margin-bottom: 6px;
+  }
+
+  textarea {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #e6edf3;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 10px;
+    resize: vertical;
+    min-height: 260px;
+    line-height: 1.5;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: #58a6ff; }
+  textarea::placeholder { color: #484f58; }
+
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  button {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  button:hover { opacity: 0.8; }
+
+  .btn-primary { background: #238636; color: #fff; }
+  .btn-secondary { background: #21262d; color: #8b949e; border: 1px solid #30363d; }
+  .btn-copy { background: #1f6feb; color: #fff; }
+  .btn-sample { background: #6e40c9; color: #fff; }
+
+  #output-section { display: none; }
+
+  #output-box {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 14px;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #e6edf3;
+    min-height: 80px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #238636;
+    color: #fff;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    padding: 8px 16px;
+    border-radius: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+
+  .stat-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .stat {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 11px;
+    color: #8b949e;
+  }
+  .stat span { color: #58a6ff; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<a href="../index.html" style="display:inline-block;margin-bottom:14px;color:#8b949e;font-size:11px;font-family:'Courier New',monospace;text-decoration:none;">&larr; NOC TOOLKIT</a>
+
+<h1>⚡ Follow Up Tiket SBU</h1>
+
+<div class="card">
+  <label>Input Data Tiket</label>
+  <textarea id="inputData" placeholder="Tempel data tiket di sini...&#10;&#10;Format:&#10;RJKT&#10;RENVBRMB&#10;3 Hari 13 Jam 25 Menit&#10;&#10;RSBU&#10;RENVXXXX&#10;5 Hari 2 Jam 10 Menit&#10;..."></textarea>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="processData()">▶ Generate Output</button>
+    <button class="btn-sample" onclick="fillSample()">◈ Sample Data</button>
+    <button class="btn-secondary" onclick="resetAll()">↺ Reset</button>
+  </div>
+</div>
+
+<div class="card" id="output-section">
+  <label>Output Broadcast</label>
+  <div class="stat-row" id="stats"></div>
+  <div id="output-box"></div>
+  <div class="btn-row" style="margin-top:10px;">
+    <button class="btn-copy" onclick="copyOutput()">⎘ Copy Output</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Tersalin!</div>
+
+<script>
+const REGIONS = ['RSBU','RSBT','RSBS','RJKT','RJBB','RJBTG','RJBT','RBNT','RKAL','RINT'];
+
+const SAMPLE = `RJKT
+RENVBRMB
+3 Hari 13 Jam 25 Menit	
+RENVBU76
+3 Hari 13 Jam 4 Menit	
+RENVV5UX
+3 Hari 16 Jam 48 Menit	
+RENV9AFT
+3 Hari 21 Jam 57 Menit	
+RENVBB78
+3 Hari 9 Jam 49 Menit	
+RENVLVGU
+4 Hari 23 Jam 22 Menit	
+RENVCYC3
+4 Hari 9 Jam 11 Menit	
+RENVXMBD
+4 Hari 9 Jam 41 Menit	
+RENVK39R
+5 Hari 19 Jam 20 Menit	
+RENVL9Q6
+5 Hari 7 Menit	
+RENV5FZM
+7 Hari 10 Jam 47 Menit	
+
+RJBB
+RENVBN8U
+3 Hari 9 Jam 39 Menit
+
+RJBT
+RPH4GVEY
+194 Hari 13 Jam 20 Menit	
+RPH45HWD
+194 Hari 16 Jam 9 Menit	
+RPH468HY
+194 Hari 8 Jam 33 Menit	
+RPH4HU9N
+194 Hari 12 Jam 32 Menit	
+RPH477QX
+193 Hari 16 Jam 24 Menit	
+RPH4KKB2
+193 Hari 19 Jam 15 Menit	
+RPH45A3V
+194 Hari 16 Jam 40 Menit	
+EN3XM8GE
+172 Hari 22 Jam 5 Menit	
+RPH4G2CB
+194 Hari 14 Jam 39 Menit	
+RPH4L9NN
+193 Hari 12 Jam 52 Menit	
+RPH4748P
+193 Hari 17 Jam 8 Menit	
+RPHFATDS
+184 Hari 10 Jam 29 Menit	
+RPH4HKLF
+194 Hari 11 Jam 18 Menit	
+RPH4GJPA
+194 Hari 13 Jam 53 Menit	
+RPHDPKT7
+189 Hari 23 Jam 31 Menit	
+RPH46S3G
+194 Hari 9 Jam 53 Menit	
+RPH4JWV6
+194 Hari 7 Jam 4 Menit
+RPHDYES6
+190 Hari 18 Jam 12 Menit	
+RPH455TT
+194 Hari 16 Jam 17 Menit	
+RPHDEGHA
+191 Hari 10 Jam 3 Menit	
+RPH4JGK6
+193 Hari 23 Jam 42 Menit	
+RPH4ZWQ2
+193 Hari 12 Jam 17 Menit	
+RPH45EEX
+194 Hari 17 Jam 19 Menit	
+RPH4HLFX
+194 Hari 11 Jam 9 Menit	
+RPH45N54
+194 Hari 15 Jam 13 Menit
+EN39NKC6
+163 Hari 22 Jam 10 Menit	
+RPH46VUR
+194 Hari 8 Jam 5 Menit	
+RPH4HSAS
+194 Hari 12 Jam 9 Menit	
+RPH45A7X
+194 Hari 16 Jam 39 Menit	
+RPHD3ZYH
+189 Hari 18 Jam 34 Menit	
+RPH46SSM
+194 Hari 9 Jam 52 Menit	
+RPH4HC6F
+194 Hari 10 Jam 47 Menit	
+RPH4JDMQ
+194 Hari 26 Menit	
+RPH4JHJE
+193 Hari 23 Jam 32 Menit	
+RPH4JQ26
+194 Hari 7 Jam 27 Menit	
+RPH4K75Y
+193 Hari 19 Jam 11 Menit	
+RPHDG5VH
+188 Hari 15 Jam 31 Menit	
+RPH46AXD
+194 Hari 9 Jam 56 Menit	
+RPH4L6EQ
+193 Hari 13 Jam 48 Menit	
+RPH48D49
+193 Hari 7 Jam 44 Menit	
+RPH4G3MK
+194 Hari 14 Jam 30 Menit	
+RPH4GKW3
+194 Hari 13 Jam 51 Menit	
+RPH4GFK2
+194 Hari 14 Jam 12 Menit
+RPH4ZXNC
+193 Hari 10 Jam 3 Menit	
+RPH4GXL6
+194 Hari 13 Jam 28 Menit	
+RPH456QX
+194 Hari 16 Jam 4 Menit	
+RPH45ALM
+194 Hari 16 Jam 39 Menit	
+RPH4HABD
+194 Hari 12 Jam 12 Menit	
+RPHF2CKE
+184 Hari 18 Jam 19 Menit	
+RPH4GJ7K
+194 Hari 13 Jam 52 Menit	
+RPHDWKJ8
+191 Hari 12 Jam 53 Menit	
+RPH4KXTV
+193 Hari 18 Jam 52 Menit	
+RPH4ZS4H
+193 Hari 11 Jam 13 Menit	
+RPH46MZM
+194 Hari 7 Jam 32 Menit	
+RPH4GMWU
+194 Hari 13 Jam 10 Menit	
+RPH4H2RH
+194 Hari 12 Jam 31 Menit	
+RPH4K9KT
+193 Hari 18 Jam 38 Menit	
+RPH4JEKN
+194 Hari 6 Jam 57 Menit	
+RPH4VDKW
+192 Hari 13 Jam 2 Menit	
+RPH4H8QH
+194 Hari 11 Jam 2 Menit
+RPH4KEY7
+193 Hari 21 Jam 8 Menit	
+RPH4LDLZ
+193 Hari 14 Jam 15 Menit	
+RPH4J73U
+193 Hari 22 Jam 54 Menit	
+RPH45LUS
+194 Hari 15 Jam 45 Menit	
+RPH4J4GW
+194 Hari 1 Jam 16 Menit	
+RPH45U7F
+194 Hari 16 Jam 55 Menit	
+RPH4JD8J
+194 Hari 31 Menit	
+RPH4KUM6
+193 Hari 20 Jam 34 Menit	
+RPH4KH28
+193 Hari 19 Jam 35 Menit	
+RPH4J8VP
+193 Hari 22 Jam 22 Menit	
+RPH46U4J
+194 Hari 10 Jam 18 Menit	
+RPH4CHFD
+192 Hari 18 Jam 18 Menit	
+RWRUT4U5
+88 Hari 18 Jam 13 Menit	
+RPH4JSGE
+194 Hari 2 Jam 8 Menit	
+RPH4HL4Z
+194 Hari 11 Jam 9 Menit	
+RPHDEY5T
+191 Hari 11 Jam 10 Menit	
+RPH4JG3A
+193 Hari 23 Jam 47 Menit
+RPH45JPW
+194 Hari 15 Jam 59 Menit	
+RPH45VW3
+194 Hari 15 Jam 22 Menit	
+RPH45E6P
+194 Hari 17 Jam 16 Menit	
+RPH4JZSH
+193 Hari 22 Jam 35 Menit	
+RPH45D5Y
+194 Hari 16 Jam 25 Menit	
+RPH449GD
+195 Hari 7 Menit
+RPH4LHEW
+193 Hari 13 Jam 54 Menit	
+RPH45BVK
+194 Hari 15 Jam 15 Menit	
+RPH4KNQA
+193 Hari 18 Jam 26 Menit	
+RPH4GVBV
+194 Hari 13 Jam 17 Menit	
+RPH4524K
+194 Hari 16 Jam 52 Menit	
+RPHDENPY
+191 Hari 8 Jam 25 Menit	
+RPH4H8J4
+194 Hari 10 Jam 58 Menit
+
+RSBU
+RENV8JMY
+4 Hari 15 Jam 48 Menit	
+RENVN4BP
+3 Hari 6 Jam 24 Menit	
+RENVBPYK
+3 Hari 12 Jam 55 Menit	
+RENV9AB8
+3 Hari 21 Jam 57 Menit	
+RENV6R49
+6 Hari 12 Jam 34 Menit	
+RENVZYVE
+4 Hari 21 Jam 27 Menit	
+RENVZR48
+4 Hari 21 Jam 47 Menit	
+RENVNEGU
+3 Hari 9 Jam 4 Menit	
+RENVNAPV
+3 Hari 7 Jam 21 Menit
+RENCNF95
+19 Hari 13 Jam 25 Menit	
+RENV44S9
+8 Hari 9 Jam 14 Menit	
+RENVFXX5
+7 Hari 15 Jam 32 Menit	
+RENVBALS
+3 Hari 12 Jam 37 Menit	
+RENV9933
+3 Hari 19 Jam 35 Menit	
+RENVB6G2
+3 Hari 11 Jam 32 Menit	
+RENVFS3R
+7 Hari 18 Jam 16 Menit	
+RENVXHH4
+4 Hari 11 Jam 58 Menit	
+RENVXHL3
+4 Hari 11 Jam 57 Menit	
+RENVXCZZ
+4 Hari 10 Jam 33 Menit	
+RENVCA4N
+4 Hari 8 Jam 54 Menit	
+RENVBHVU
+3 Hari 11 Jam 37 Menit	
+RENVBN9P
+3 Hari 9 Jam 38 Menit	
+RENVBKQ5
+3 Hari 11 Jam 21 Menit	
+RENVND2B
+3 Hari 6 Jam 10 Menit	
+RENVVRBJ
+3 Hari 18 Jam 26 Menit	
+REN9XQYZ
+12 Hari 18 Jam 53 Menit
+
+RINT
+RENVBEA2
+3 Hari 13 Jam 39 Menit`;
+
+const DURATION_RE = /(\d+)\s*Hari(?:\s+(\d+)\s*Jam)?(?:\s+(\d+)\s*Menit)?/i;
+
+function parseDuration(str) {
+  const m = str.match(DURATION_RE);
+  if (!m) return null;
+  const d = parseInt(m[1] || 0);
+  const h = parseInt(m[2] || 0);
+  const mn = parseInt(m[3] || 0);
+  return { days: d, hours: h, minutes: mn, raw: str.trim() };
+}
+
+function isDurationLine(line) {
+  return DURATION_RE.test(line);
+}
+
+function isRegionHeader(line) {
+  return REGIONS.includes(line.trim().toUpperCase());
+}
+
+function isDeviceLine(line) {
+  // device: not a region header, not a duration line, non-empty, alphanumeric
+  return line.trim().length > 0 && !isRegionHeader(line) && !isDurationLine(line);
+}
+
+function formatDuration(d) {
+  let parts = [];
+  if (d.days > 0) parts.push(`${d.days} Hari`);
+  if (d.hours > 0) parts.push(`${d.hours} Jam`);
+  if (d.minutes > 0) parts.push(`${d.minutes} Menit`);
+  return parts.join(' ') || '0 Menit';
+}
+
+function getNow() {
+  const now = new Date();
+  const HH = String(now.getHours()).padStart(2,'0');
+  const MM = String(now.getMinutes()).padStart(2,'0');
+  const DD = String(now.getDate()).padStart(2,'0');
+  const mo = String(now.getMonth()+1).padStart(2,'0');
+  const YYYY = now.getFullYear();
+  return `${HH}:${MM} ${DD}/${mo}/${YYYY}`;
+}
+
+function processData() {
+  const raw = document.getElementById('inputData').value;
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+  // Parse: group by region, collect devices with duration
+  const regions = {}; // region -> [{device, duration}]
+  let currentRegion = null;
+  let pendingDevice = null;
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (isRegionHeader(line)) {
+      currentRegion = line.toUpperCase();
+      if (!regions[currentRegion]) regions[currentRegion] = [];
+      pendingDevice = null;
+    } else if (currentRegion) {
+      if (isDurationLine(line)) {
+        const dur = parseDuration(line);
+        if (pendingDevice && dur) {
+          regions[currentRegion].push({ device: pendingDevice, duration: dur });
+          pendingDevice = null;
+        }
+      } else if (isDeviceLine(line)) {
+        pendingDevice = line;
+      }
+    }
+  }
+
+  // Build output
+  const timestamp = getNow();
+  let out = `Follow Up Tiket SBU Lebih Dari 3 Hari\n${timestamp}\n`;
+
+  const regionOrder = REGIONS.filter(r => regions[r] && regions[r].length > 0);
+
+  let no = 1;
+  let totalAll = 0;
+
+  for (const region of regionOrder) {
+    const tickets = regions[region];
+    if (!tickets || tickets.length === 0) continue;
+    totalAll += tickets.length;
+    out += `\n${no}. ${region} : ${tickets.length} Tiket\n`;
+    for (const t of tickets) {
+      out += `${t.device}  (${formatDuration(t.duration)})\n`;
+    }
+    no++;
+  }
+
+  // Stats
+  document.getElementById('stats').innerHTML =
+    `<div class="stat">Region: <span>${regionOrder.length}</span></div>` +
+    `<div class="stat">Total Tiket: <span>${totalAll}</span></div>`;
+
+  document.getElementById('output-box').textContent = out.trim();
+  const sec = document.getElementById('output-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyOutput() {
+  const text = document.getElementById('output-box').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast());
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+function fillSample() {
+  document.getElementById('inputData').value = SAMPLE;
+}
+
+function resetAll() {
+  document.getElementById('inputData').value = '';
+  document.getElementById('output-section').style.display = 'none';
+  document.getElementById('output-box').textContent = '';
+  document.getElementById('stats').innerHTML = '';
+}
+</script>
+</body>
+</html>

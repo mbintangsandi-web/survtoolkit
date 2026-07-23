@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Environment Alarm Broadcast Tool</title>
+<style>
+  :root{
+    --bg:#0a0e14;
+    --panel:#111722;
+    --panel2:#0d1420;
+    --border:#1f2937;
+    --accent:#22d3ee;
+    --accent2:#f97316;
+    --text:#e5e7eb;
+    --dim:#8b95a5;
+    --green:#22c55e;
+    --red:#ef4444;
+    --mono:'Consolas','Monaco','Courier New',monospace;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#0a0e14 0%,#0c1119 100%);
+    color:var(--text);
+    font-family:var(--mono);
+    padding:24px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1100px;margin:0 auto;}
+  h1{
+    font-size:20px;
+    color:var(--accent);
+    margin:0 0 4px 0;
+    letter-spacing:0.5px;
+  }
+  .sub{color:var(--dim);font-size:13px;margin-bottom:20px;}
+  .panel{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:16px;
+    margin-bottom:16px;
+  }
+  .panel-title{
+    color:var(--accent2);
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    margin-bottom:10px;
+    font-weight:bold;
+  }
+  textarea{
+    width:100%;
+    background:var(--panel2);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:12px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    resize:vertical;
+    min-height:220px;
+    line-height:1.5;
+  }
+  textarea:focus{outline:1px solid var(--accent);}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  button{
+    background:var(--panel2);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:9px 16px;
+    font-family:var(--mono);
+    font-size:12.5px;
+    cursor:pointer;
+    transition:all .15s;
+  }
+  button:hover{border-color:var(--accent);color:var(--accent);}
+  button.primary{background:var(--accent);color:#04202a;border-color:var(--accent);font-weight:bold;}
+  button.primary:hover{background:#67e8f9;color:#04202a;}
+  button.warn{border-color:var(--red);color:var(--red);}
+  button.warn:hover{background:var(--red);color:#fff;}
+  button.copy{border-color:var(--green);color:var(--green);}
+  button.copy:hover{background:var(--green);color:#04220f;}
+  .stats{
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-top:14px;
+    font-size:12px;
+  }
+  .stat{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:8px 14px;
+    color:var(--dim);
+  }
+  .stat b{color:var(--accent);font-size:15px;display:block;}
+  .region-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .region-tab{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:6px 14px;
+    font-size:11.5px;
+    color:var(--dim);
+    cursor:pointer;
+  }
+  .region-tab.active{border-color:var(--accent2);color:var(--accent2);}
+  .output-block{
+    background:var(--panel2);
+    border:1px solid var(--border);
+    border-radius:6px;
+    padding:14px;
+    margin-bottom:14px;
+    white-space:pre-wrap;
+    font-size:12.5px;
+    line-height:1.6;
+    position:relative;
+  }
+  .output-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .output-header span{color:var(--accent2);font-weight:bold;font-size:12px;}
+  .output-header button{padding:5px 12px;font-size:11px;}
+  .empty{color:var(--dim);text-align:center;padding:30px;font-size:13px;}
+  .toast{
+    position:fixed;bottom:20px;right:20px;
+    background:var(--green);color:#04220f;
+    padding:10px 18px;border-radius:6px;
+    font-size:12.5px;font-weight:bold;
+    opacity:0;transition:opacity .3s;
+    pointer-events:none;
+  }
+  .toast.show{opacity:1;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="../index.html" style="display:inline-block;margin-bottom:10px;color:var(--dim);font-size:11px;font-family:var(--mono);text-decoration:none;">&larr; NOC TOOLKIT</a>
+  <h1>⚠️ Environment Alarm Broadcast Tool</h1>
+  <div class="sub">Paste data TSV dari sistem monitoring → generate broadcast per SBU/region</div>
+
+  <div class="panel">
+    <div class="panel-title">Input Data (TSV / Copy-Paste dari Excel)</div>
+    <textarea id="inputData" placeholder="Paste data di sini (dengan header: Operation, Severity, First Occurred (ST), Cleared On (ST), Occurrences, Name, Alarm Source, ...)"></textarea>
+    <div class="btn-row">
+      <button class="primary" onclick="generateBroadcast()">▶ Generate Broadcast</button>
+      <button onclick="loadSample()">📋 Sample Data</button>
+      <button class="warn" onclick="resetAll()">✕ Reset</button>
+    </div>
+    <div class="stats" id="statsBar"></div>
+  </div>
+
+  <div class="panel" id="outputPanel" style="display:none;">
+    <div class="panel-title">Broadcast Output (per SBU/Region)</div>
+    <div class="region-tabs" id="regionTabs"></div>
+    <div id="outputContainer"></div>
+    <div class="btn-row">
+      <button class="copy" onclick="copyAll()">📄 Copy Semua Region</button>
+    </div>
+  </div>
+
+  <div class="panel" id="emptyPanel">
+    <div class="empty">Belum ada data. Paste data lalu klik "Generate Broadcast", atau coba "Sample Data".</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let broadcastData = {}; // region -> array of {olt, time, name}
+let regionOrder = [];
+
+function loadSample(){
+  const sample = `Operation\tSeverity\tFirst Occurred (ST)\tCleared On (ST)\tOccurrences\tName\tAlarm Source\tLocation Info\tOther Information\tLast Occurred (ST)\tAcknowledged On (ST)\tFiber/Cable Name\tCleared By\tAcknowledged By\tClearance Status\tAcknowledgement Status\tAlarm Serial Number\tMaintenance Status\tMaintenance Region\tUser Label\tService Level\tAlarm ID
+\tMajor\t2026-07-09 09:33:04\t\t1\tThe rectifier module is abnormal\tSBT-INDRAGIRI.HLU.RENGAT.BRT.9279-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0 Rectifier ID=1\tEMU Type=40 Power Type=130\t2026-07-09 09:33:04\t\t\t\t\tUncleared\tUnacknowledged\t367654014\tNORMAL\t\t\t356585504\t
+\tMajor\t2026-07-09 09:33:04\t\t1\tThe rectifier module is abnormal\tSBT-INDRAGIRI.HLU.RENGAT.BRT.9279-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0 Rectifier ID=0\tEMU Type=40 Power Type=130\t2026-07-09 09:33:04\t\t\t\t\tUncleared\tUnacknowledged\t367654013\tNORMAL\t\t\t356585504\t
+\tMajor\t2026-07-09 09:33:03\t\t1\tThe AC power is off\tSBT-INDRAGIRI.HLU.RENGAT.BRT.9279-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0\tEMU Type=40 Power Type=130\t2026-07-09 09:33:03\t\t\t\t\tUncleared\tUnacknowledged\t367654012\tNORMAL\t\t\t356585490\t
+\tMajor\t2026-07-09 09:25:00\t\t1\tThe rectifier module is abnormal\tJATIM-MLG.ODC.KEMBANG.KERTAS-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0 Rectifier ID=1\tEMU Type=40 Power Type=130\t2026-07-09 09:25:00\t\t\t\t\tUncleared\tUnacknowledged\t367649921\tNORMAL\t\t\t356585504\t
+\tMajor\t2026-07-09 09:25:00\t\t1\tThe rectifier module is abnormal\tJATIM-MLG.ODC.KEMBANG.KERTAS-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0 Rectifier ID=0\tEMU Type=40 Power Type=130\t2026-07-09 09:25:00\t\t\t\t\tUncleared\tUnacknowledged\t367649920\tNORMAL\t\t\t356585504\t
+\tMajor\t2026-07-09 09:25:00\t\t1\tThe AC power is off\tJATIM-MLG.ODC.KEMBANG.KERTAS-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0\tEMU Type=40 Power Type=130\t2026-07-09 09:25:00\t\t\t\t\tUncleared\tUnacknowledged\t367649919\tNORMAL\t\t\t356585490\t
+\tMajor\t2026-07-09 09:24:32\t\t1\tThe rectifier module is abnormal\tJKT-MINI-TAMAN.PESONA-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0 Rectifier ID=0\tEMU Type=40 Power Type=130\t2026-07-09 09:24:32\t\t\t\t\tUncleared\tUnacknowledged\t367649660\tNORMAL\t\t\t356585504\t
+\tMajor\t2026-07-09 09:24:32\t\t1\tThe rectifier module is abnormal\tJKT-MINI-TAMAN.PESONA-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0 Rectifier ID=1\tEMU Type=40 Power Type=130\t2026-07-09 09:24:32\t\t\t\t\tUncleared\tUnacknowledged\t367649659\tNORMAL\t\t\t356585504\t
+\tMajor\t2026-07-09 09:24:32\t\t1\tThe AC power is off\tJKT-MINI-TAMAN.PESONA-HW.MA5801-OLT-01\tFrame=0, EMU ID=1 Power ID=0\tEMU Type=40 Power Type=130\t2026-07-09 09:24:32\t\t\t\t\tUncleared\tUnacknowledged\t367649643\tNORMAL\t\t\t356585490\t
+\tMajor\t2026-07-09 09:24:08\t\t1\tThe rectifier module is abnormal\tSBT-KARIMUN.MERAL.6661-HW.MA5801-OLT-01\tFrame=0, EMU ID=3 Power ID=0 Rectifier ID=1\tEMU Type=40 Power Type=130\t2026-07-09 09:24:08\t\t\t\t\tUncleared\tUnacknowledged\t367649396\tNORMAL\t\t\t356585504\t
+\tMajor\t2026-07-09 09:24:08\t\t1\tThe rectifier module is abnormal\tSBT-KARIMUN.MERAL.6661-HW.MA5801-OLT-01\tFrame=0, EMU ID=3 Power ID=0 Rectifier ID=0\tEMU Type=40 Power Type=130\t2026-07-09 09:24:08\t\t\t\t\tUncleared\tUnacknowledged\t367649395\tNORMAL\t\t\t356585504\t
+\tMajor\t2026-07-09 09:24:08\t\t1\tThe AC power is off\tSBT-KARIMUN.MERAL.6661-HW.MA5801-OLT-01\tFrame=0, EMU ID=3 Power ID=0\tEMU Type=40 Power Type=130\t2026-07-09 09:24:08\t\t\t\t\tUncleared\tUnacknowledged\t367649394\tNORMAL\t\t\t356585490\t`;
+  document.getElementById('inputData').value = sample;
+}
+
+function getRegion(alarmSource){
+  if(!alarmSource) return 'UNKNOWN';
+  const idx = alarmSource.indexOf('-');
+  if(idx === -1) return alarmSource.trim();
+  return alarmSource.substring(0, idx).trim();
+}
+
+function extractTime(dateTimeStr){
+  if(!dateTimeStr) return '';
+  const parts = dateTimeStr.trim().split(' ');
+  return parts.length > 1 ? parts[1] : dateTimeStr.trim();
+}
+
+function findCol(headers, ...names){
+  for(const name of names){
+    const idx = headers.findIndex(h => h.trim().toLowerCase() === name.toLowerCase());
+    if(idx !== -1) return idx;
+  }
+  return -1;
+}
+
+function generateBroadcast(){
+  const raw = document.getElementById('inputData').value;
+  if(!raw.trim()){
+    alert('Data input kosong. Paste data terlebih dahulu.');
+    return;
+  }
+  const lines = raw.split('\n').filter(l => l.trim() !== '');
+  if(lines.length < 2){
+    alert('Data tidak lengkap. Pastikan ada header dan minimal 1 baris data.');
+    return;
+  }
+  const headers = lines[0].split('\t');
+  const colFirstOccurred = findCol(headers, 'First Occurred (ST)', 'First Occurred');
+  const colName = findCol(headers, 'Name');
+  const colAlarmSource = findCol(headers, 'Alarm Source');
+
+  if(colFirstOccurred === -1 || colName === -1 || colAlarmSource === -1){
+    alert('Header tidak dikenali. Pastikan kolom "First Occurred (ST)", "Name", dan "Alarm Source" ada.');
+    return;
+  }
+
+  broadcastData = {};
+  regionOrder = [];
+  const seenKeys = new Set();
+  let totalRows = 0;
+  let uniqueAlarms = 0;
+
+  for(let i = 1; i < lines.length; i++){
+    const cols = lines[i].split('\t');
+    const alarmSource = (cols[colAlarmSource] || '').trim();
+    const name = (cols[colName] || '').trim();
+    const firstOccurred = (cols[colFirstOccurred] || '').trim();
+    if(!alarmSource || !name || !firstOccurred) continue;
+
+    totalRows++;
+    const dedupKey = alarmSource + '|' + name + '|' + firstOccurred;
+    if(seenKeys.has(dedupKey)) continue;
+    seenKeys.add(dedupKey);
+    uniqueAlarms++;
+
+    const region = getRegion(alarmSource);
+    if(!broadcastData[region]){
+      broadcastData[region] = [];
+      regionOrder.push(region);
+    }
+    broadcastData[region].push({
+      olt: alarmSource,
+      time: extractTime(firstOccurred),
+      name: name
+    });
+  }
+
+  if(regionOrder.length === 0){
+    alert('Tidak ada data valid yang bisa diproses.');
+    return;
+  }
+
+  renderStats(totalRows, uniqueAlarms, regionOrder.length);
+  renderOutput();
+}
+
+function renderStats(totalRows, uniqueAlarms, regionCount){
+  const statsBar = document.getElementById('statsBar');
+  statsBar.innerHTML = `
+    <div class="stat"><b>${totalRows}</b>Total Baris</div>
+    <div class="stat"><b>${uniqueAlarms}</b>Alarm Unik</div>
+    <div class="stat"><b>${regionCount}</b>Region/SBU</div>
+  `;
+}
+
+function buildBroadcastText(region){
+  const items = broadcastData[region];
+  let msg = `‼️BROADCAST ALARM‼️\nYth. Rekan SBU ${region},\nTelah terdeteksi Alarm Environment pada perangkat OLT.\nDibantu untuk pengecekan\n\n`;
+  items.forEach((item, idx) => {
+    msg += `${idx + 1}. ${item.olt} ${item.time} ${item.name}\n`;
+  });
+  msg += `\n#envalarm\ncc : `;
+  return msg;
+}
+
+function renderOutput(){
+  document.getElementById('outputPanel').style.display = 'block';
+  document.getElementById('emptyPanel').style.display = 'none';
+
+  const tabsEl = document.getElementById('regionTabs');
+  tabsEl.innerHTML = regionOrder.map(r =>
+    `<div class="region-tab" onclick="scrollToRegion('${r}')">${r} (${broadcastData[r].length})</div>`
+  ).join('');
+
+  const container = document.getElementById('outputContainer');
+  container.innerHTML = regionOrder.map(region => `
+    <div class="output-block" id="region-${region}">
+      <div class="output-header">
+        <span>SBU ${region}</span>
+        <button class="copy" onclick="copyRegion('${region}')">📋 Copy</button>
+      </div>
+      <div>${escapeHtml(buildBroadcastText(region))}</div>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function scrollToRegion(region){
+  const el = document.getElementById('region-' + region);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+function copyRegion(region){
+  const text = buildBroadcastText(region);
+  navigator.clipboard.writeText(text).then(() => showToast(`Broadcast SBU ${region} disalin!`));
+}
+
+function copyAll(){
+  let all = regionOrder.map(r => buildBroadcastText(r)).join('\n\n' + '─'.repeat(40) + '\n\n');
+  navigator.clipboard.writeText(all).then(() => showToast('Semua broadcast disalin!'));
+}
+
+function showToast(msg){
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+function resetAll(){
+  document.getElementById('inputData').value = '';
+  document.getElementById('statsBar').innerHTML = '';
+  document.getElementById('outputPanel').style.display = 'none';
+  document.getElementById('emptyPanel').style.display = 'block';
+  broadcastData = {};
+  regionOrder = [];
+}
+</script>
+</body>
+</html>

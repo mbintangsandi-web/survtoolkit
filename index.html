@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SURV TOOLKIT</title>
+<title>NOC TOOLKIT</title>
 <link rel="stylesheet" href="shared/theme.css">
 <style>
 
@@ -53,21 +53,6 @@
   .menu-item.disabled { opacity: 0.6; cursor: default; }
   .menu-item.disabled:hover { border-color: var(--border); background: var(--panel); transform: none; }
 
-  .menu-item__icon {
-    width: 42px;
-    height: 42px;
-    border-radius: 9px;
-    background: var(--accent-dim);
-    color: var(--accent-deep);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 15px;
-    flex-shrink: 0;
-  }
-
   .menu-item__body { flex: 1; min-width: 0; }
   .menu-item__title {
     font-family: var(--font-display);
@@ -80,19 +65,6 @@
     color: var(--text-dim);
     margin-top: 3px;
     line-height: 1.5;
-  }
-
-  .menu-item__status {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-display);
-    font-size: 10.5px;
-    font-weight: 600;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--text-faint);
-    flex-shrink: 0;
   }
 
   .menu-item__chevron {
@@ -116,7 +88,7 @@
 
     <header class="hero">
       <span class="eyebrow">Regional Network Operations</span>
-      <h1>SURV<span> TOOLKIT</span></h1>
+      <h1>NOC<span> TOOLKIT</span></h1>
       <p>Pilih menu di bawah untuk mulai.</p>
     </header>
 
@@ -136,28 +108,24 @@
   // ------------------------------------------------------------------
   const MENU = [
     {
-      icon: 'T3',
       title: 'Tiket Lebih Dari 3 Hari',
       desc: 'Rekap follow-up tiket yang belum selesai lebih dari 3 hari.',
       href: 'tools/followup-ticket.html',
-      status: 'planned',
+      status: 'active',
     },
     {
-      icon: 'O8',
       title: 'OLT Down Lebih Dari 8 Jam',
       desc: 'Broadcast insiden OLT yang down lebih dari 8 jam.',
       href: 'tools/outage-broadcast.html',
-      status: 'planned',
+      status: 'active',
     },
     {
-      icon: 'RPT',
       title: 'Report Daily OLT Down',
       desc: 'Alur: Split Done/Not Done → Sync → Daily Report.',
       href: 'tools/report-daily-olt-down.html',
       status: 'active',
     },
     {
-      icon: 'ALM',
       title: 'Alarm',
       desc: 'Pilih sumber alarm: UNM atau NCE.',
       href: 'tools/alarm.html',
@@ -171,23 +139,19 @@
     const tag = isActive ? 'a' : 'div';
     const hrefAttr = isActive ? `href="${m.href}"` : '';
     const cls = isActive ? 'menu-item panel' : 'menu-item panel disabled';
-    const dotClass = isActive ? 'dot--ok' : 'dot--idle';
-    const statusLabel = isActive ? 'Aktif' : 'Segera';
     return `
       <${tag} class="${cls}" ${hrefAttr}>
-        <div class="menu-item__icon">${m.icon}</div>
         <div class="menu-item__body">
           <div class="menu-item__title">${m.title}</div>
           <div class="menu-item__desc">${m.desc}</div>
         </div>
-        <div class="menu-item__status"><span class="dot ${dotClass}"></span>${statusLabel}</div>
         <div class="menu-item__chevron">${isActive ? '›' : ''}</div>
       </${tag}>
     `;
   }).join('');
 
   document.getElementById('lastvisit').textContent =
-    'SURV TOOLKIT · dimuat ' + NetopsUtils.formatTimestampID(new Date());
+    'NOC TOOLKIT · dimuat ' + NetopsUtils.formatTimestampID(new Date());
 </script>
 
 </body>
