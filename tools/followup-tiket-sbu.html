@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Follow Up Tiket SBU</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Courier New', monospace;
+    background: #0d1117;
+    color: #e6edf3;
+    min-height: 100vh;
+    padding: 24px 16px;
+  }
+  h1 {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #58a6ff;
+    margin-bottom: 4px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #21262d;
+  }
+  .subtitle { font-size: 11px; color: #484f58; margin-bottom: 18px; padding-top: 6px; }
+  .card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8b949e;
+    margin-bottom: 6px;
+  }
+  textarea {
+    width: 100%;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    color: #e6edf3;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    padding: 10px;
+    resize: vertical;
+    min-height: 220px;
+    line-height: 1.5;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: #58a6ff; }
+  textarea::placeholder { color: #484f58; }
+  .format-hint {
+    font-size: 10px;
+    color: #484f58;
+    margin-top: 8px;
+    line-height: 1.8;
+  }
+  .format-hint b { color: #6e7681; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  button {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 7px 14px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  button:hover { opacity: 0.8; }
+  .btn-primary  { background: #238636; color: #fff; }
+  .btn-secondary{ background: #21262d; color: #8b949e; border: 1px solid #30363d; }
+  .btn-copy     { background: #1f6feb; color: #fff; }
+  .btn-sa       { background: #6e40c9; color: #fff; }
+  .btn-sb       { background: #9a3e3e; color: #fff; }
+  #output-section { display: none; }
+  #output-box {
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 14px;
+    font-size: 12px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #e6edf3;
+  }
+  .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .stat {
+    background: #21262d;
+    border: 1px solid #30363d;
+    border-radius: 4px;
+    padding: 5px 11px;
+    font-size: 11px;
+    color: #8b949e;
+  }
+  .stat span { color: #58a6ff; font-weight: 700; }
+  .badge { display:inline-block; font-size:10px; padding:2px 7px; border-radius:3px; margin-left:6px; }
+  .badge-a { background:#6e40c9; color:#fff; }
+  .badge-b { background:#9a3e3e; color:#fff; }
+  .toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #238636; color: #fff;
+    font-size: 12px; font-family: 'Courier New', monospace;
+    padding: 8px 16px; border-radius: 4px;
+    opacity: 0; transition: opacity 0.2s; pointer-events: none;
+  }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<h1>⚡ Follow Up Tiket SBU</h1>
+<div class="subtitle">Mendukung dua format input — otomatis terdeteksi</div>
+
+<div class="card">
+  <label>Input Data Tiket</label>
+  <textarea id="inputData" placeholder="Paste data di sini..."></textarea>
+  <div class="format-hint">
+    <b>Format A</b> — region code header terpisah:<br>
+    &nbsp;&nbsp;RJKT<br>
+    &nbsp;&nbsp;RENVBRMB<br>
+    &nbsp;&nbsp;3 Hari 13 Jam 25 Menit<br><br>
+    <b>Format B</b> — durasi &amp; nama region dalam satu baris:<br>
+    &nbsp;&nbsp;RRVK6AE3<br>
+    &nbsp;&nbsp;9 Hari 1 Jam 46 Menit&nbsp;&nbsp;JAKARTA &amp; BANTEN
+  </div>
+  <div class="btn-row">
+    <button class="btn-primary" onclick="processData()">▶ Generate Output</button>
+    <button class="btn-sa" onclick="fillSampleA()">◈ Sample A</button>
+    <button class="btn-sb" onclick="fillSampleB()">◈ Sample B</button>
+    <button class="btn-secondary" onclick="resetAll()">↺ Reset</button>
+  </div>
+</div>
+
+<div class="card" id="output-section">
+  <label>Output Broadcast<span id="fmt-badge"></span></label>
+  <div class="stat-row" id="stats"></div>
+  <div id="output-box"></div>
+  <div class="btn-row" style="margin-top:10px;">
+    <button class="btn-copy" onclick="copyOutput()">⎘ Copy Output</button>
+  </div>
+</div>
+
+<div class="toast" id="toast">✓ Tersalin!</div>
+
+<script>
+// ── Constants ──────────────────────────────────────────────────────
+const REGION_CODES = ['RSBU','RSBT','RSBS','RJKT','RJBB','RJBTG','RJBT','RBNT','RKAL','RINT'];
+
+// Maps full region name (uppercase) → short code
+const REGION_NAME_MAP = {
+  'JAKARTA & BANTEN'        : 'RJKT',
+  'JAKARTA DAN BANTEN'      : 'RJKT',
+  'JAWA BARAT'              : 'RJBB',
+  'JAWA TENGAH'             : 'RJBTG',
+  'JAWA TIMUR'              : 'RJBT',
+  'SUMATERA BAGIAN UTARA'   : 'RSBU',
+  'SUMATERA BAGIAN SELATAN' : 'RSBS',
+  'SUMATERA BAGIAN TENGAH'  : 'RSBT',
+  'KALIMANTAN'              : 'RKAL',
+  'BALINUSRA'               : 'RBNT',
+  'INTERNASIONAL'           : 'RINT',
+};
+
+const DURATION_RE = /(\d+)\s*Hari(?:\s+(\d+)\s*Jam)?(?:\s+(\d+)\s*Menit)?/i;
+
+function parseDuration(str) {
+  const m = str.match(DURATION_RE);
+  if (!m) return null;
+  return { days: +m[1]||0, hours: +m[2]||0, minutes: +m[3]||0 };
+}
+
+function formatDuration(d) {
+  const p = [];
+  if (d.days)    p.push(`${d.days} Hari`);
+  if (d.hours)   p.push(`${d.hours} Jam`);
+  if (d.minutes) p.push(`${d.minutes} Menit`);
+  return p.join(' ') || '0 Menit';
+}
+
+function getNow() {
+  const n = new Date();
+  const p = v => String(v).padStart(2,'0');
+  return `${p(n.getHours())}:${p(n.getMinutes())} ${p(n.getDate())}/${p(n.getMonth()+1)}/${n.getFullYear()}`;
+}
+
+// ── Detect format ──────────────────────────────────────────────────
+// Format A: some lines are pure REGION_CODES
+// Format B: no pure region-code lines; duration line also contains region name text
+function detectFormat(lines) {
+  const hasCodeHeader = lines.some(l => REGION_CODES.includes(l.trim().toUpperCase()));
+  return hasCodeHeader ? 'A' : 'B';
+}
+
+// ── Parser A ───────────────────────────────────────────────────────
+// Structure: REGION_CODE / DEVICE / DURATION (repeating)
+function parseFormatA(lines) {
+  const regions = {};
+  let cur = null, pendingDevice = null;
+
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+
+    if (REGION_CODES.includes(line.toUpperCase())) {
+      cur = line.toUpperCase();
+      if (!regions[cur]) regions[cur] = [];
+      pendingDevice = null;
+    } else if (cur) {
+      if (DURATION_RE.test(line)) {
+        if (pendingDevice) {
+          regions[cur].push({ device: pendingDevice, duration: parseDuration(line) });
+          pendingDevice = null;
+        }
+      } else {
+        pendingDevice = line;
+      }
+    }
+  }
+  return regions;
+}
+
+// ── Parser B ───────────────────────────────────────────────────────
+// Structure per pair of lines:
+//   Line 1: DEVICE_CODE
+//   Line 2: DURATION_STRING  REGION_NAME   (tab or multiple spaces as separator)
+function parseFormatB(lines) {
+  const regions = {};
+  let i = 0;
+
+  while (i < lines.length) {
+    const line = lines[i].trim();
+    if (!line) { i++; continue; }
+
+    // Check if next line is a duration+region line
+    const nextLine = (lines[i+1] || '').trim();
+    if (nextLine && DURATION_RE.test(nextLine)) {
+      const device = line;
+
+      // Split nextLine into duration part and region part
+      // Duration is everything up to and including the last duration token
+      // Region is the remainder after the duration match
+      const durMatch = nextLine.match(DURATION_RE);
+      const durStr   = durMatch ? durMatch[0] : '';
+      // Region name = everything after the duration string, stripped
+      const afterDur = nextLine.slice(nextLine.indexOf(durStr) + durStr.length).trim();
+      // afterDur may contain leading whitespace/tabs already trimmed
+      const regionRaw = afterDur.replace(/^\s+/, '').trim();
+
+      const dur = parseDuration(durStr);
+      if (dur) {
+        const code = resolveRegion(regionRaw);
+        if (!regions[code]) regions[code] = [];
+        regions[code].push({ device, duration: dur });
+      }
+      i += 2;
+    } else {
+      i++;
+    }
+  }
+  return regions;
+}
+
+function resolveRegion(raw) {
+  if (!raw) return 'LAINNYA';
+  const key = raw.toUpperCase().trim();
+  if (REGION_NAME_MAP[key]) return REGION_NAME_MAP[key];
+  if (REGION_CODES.includes(key)) return key;
+  // Partial match
+  for (const [k, v] of Object.entries(REGION_NAME_MAP)) {
+    if (key.includes(k) || k.includes(key)) return v;
+  }
+  return raw.toUpperCase() || 'LAINNYA';
+}
+
+// ── Build output ───────────────────────────────────────────────────
+function buildOutput(regions) {
+  const ordered = [
+    ...REGION_CODES.filter(r => regions[r]?.length),
+    ...Object.keys(regions).filter(r => !REGION_CODES.includes(r) && regions[r]?.length),
+  ];
+  let out = `Follow Up Tiket SBU Lebih Dari 3 Hari\n${getNow()}\n`;
+  let no = 1, total = 0;
+  for (const region of ordered) {
+    const tickets = regions[region];
+    total += tickets.length;
+    out += `\n${no}. ${region} : ${tickets.length} Tiket\n`;
+    for (const t of tickets) out += `${t.device}  (${formatDuration(t.duration)})\n`;
+    no++;
+  }
+  return { text: out.trim(), ordered, total };
+}
+
+// ── Main ───────────────────────────────────────────────────────────
+function processData() {
+  const raw  = document.getElementById('inputData').value;
+  const lines = raw.split('\n');
+  const nonEmpty = lines.map(l => l.trim()).filter(Boolean);
+  if (!nonEmpty.length) { alert('Data kosong!'); return; }
+
+  const fmt = detectFormat(nonEmpty);
+  const regions = fmt === 'B' ? parseFormatB(lines) : parseFormatA(lines);
+  const { text, ordered, total } = buildOutput(regions);
+
+  document.getElementById('output-box').textContent = text;
+  document.getElementById('fmt-badge').innerHTML =
+    `<span class="badge badge-${fmt.toLowerCase()}">Format ${fmt}</span>`;
+  document.getElementById('stats').innerHTML =
+    `<div class="stat">Terdeteksi: <span>Format ${fmt}</span></div>` +
+    `<div class="stat">Region: <span>${ordered.length}</span></div>` +
+    `<div class="stat">Total Tiket: <span>${total}</span></div>`;
+
+  const sec = document.getElementById('output-section');
+  sec.style.display = 'block';
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyOutput() {
+  navigator.clipboard.writeText(document.getElementById('output-box').textContent).then(showToast);
+}
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+function resetAll() {
+  document.getElementById('inputData').value = '';
+  document.getElementById('output-section').style.display = 'none';
+}
+
+// ── Samples ────────────────────────────────────────────────────────
+const SAMPLE_A = `RJKT
+RENVBRMB
+3 Hari 13 Jam 25 Menit
+RENVBU76
+3 Hari 13 Jam 4 Menit
+RENVLVGU
+4 Hari 23 Jam 22 Menit
+RENV5FZM
+7 Hari 10 Jam 47 Menit
+
+RJBB
+RENVBN8U
+3 Hari 9 Jam 39 Menit
+
+RSBU
+RENV8JMY
+4 Hari 15 Jam 48 Menit
+RENCNF95
+19 Hari 13 Jam 25 Menit
+
+RINT
+RENVBEA2
+3 Hari 13 Jam 39 Menit`;
+
+const SAMPLE_B = `RRVK6AE3
+9 Hari 1 Jam 46 Menit	JAKARTA & BANTEN
+RRVKLAB3
+7 Hari 22 Jam 32 Menit	KALIMANTAN
+RRV7RG47
+3 Hari 20 Jam 23 Menit	JAKARTA & BANTEN
+RRV7W6W8
+4 Hari 11 Jam 56 Menit	JAKARTA & BANTEN
+RRV7RQ6Q
+3 Hari 23 Jam 2 Menit	SUMATERA BAGIAN UTARA
+RRV7E7W2
+4 Hari 40 Menit	SUMATERA BAGIAN UTARA
+RRV7QMRF
+4 Hari 18 Jam 50 Menit	SUMATERA BAGIAN UTARA
+RRVKCFH7
+6 Hari 18 Jam 45 Menit	SUMATERA BAGIAN UTARA
+RRVKMZGK
+5 Hari 2 Jam 2 Menit	SUMATERA BAGIAN UTARA`;
+
+function fillSampleA() { document.getElementById('inputData').value = SAMPLE_A; }
+function fillSampleB() { document.getElementById('inputData').value = SAMPLE_B; }
+</script>
+</body>
+</html>
