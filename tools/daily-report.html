@@ -3,356 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OLT Down Tracker — NETOPS TOOLKIT</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<title>Daily Report OLT Down — SURVTOOLKIT</title>
+<link rel="stylesheet" href="../shared/theme.css">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --bg:        #0d0f0e;
-    --bg-panel:  #141716;
-    --bg-input:  #0a0c0b;
-    --border:    #2a2f2c;
-    --border-hl: #3a4039;
-    --green:     #00e676;
-    --green-dim: #1a3d28;
-    --amber:     #ffb300;
-    --amber-dim: #3d2e00;
-    --red:       #ff5252;
-    --red-dim:   #3d0f0f;
-    --text:      #c8d4cc;
-    --text-dim:  #6b7d72;
-    --text-hl:   #e8f0eb;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'IBM Plex Sans', sans-serif;
-    --radius: 6px;
-  }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 14px;
-    line-height: 1.6;
-    min-height: 100vh;
-    padding: 0;
-  }
-
-  /* ── Header ── */
-  .header {
-    border-bottom: 1px solid var(--border);
-    padding: 14px 24px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-  .header-logo {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--green);
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    opacity: 0.7;
-  }
-  .header-divider { width: 1px; height: 18px; background: var(--border); }
-  .header-title {
-    font-family: var(--mono);
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text-hl);
-    letter-spacing: 0.04em;
-  }
-  .header-clock {
-    margin-left: auto;
-    font-family: var(--mono);
-    font-size: 12px;
-    color: var(--text-dim);
-  }
-
-  /* ── Main layout ── */
-  .main { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
-
-  .section-label {
-    font-family: var(--mono);
-    font-size: 10px;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--text-dim);
-    margin-bottom: 12px;
-  }
-
-  /* ── Input grid ── */
-  .input-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 16px;
-  }
-  .col-header {
-    font-family: var(--mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--green);
-    margin-bottom: 8px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .col-header::before {
-    content: '';
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    background: var(--green);
-    border-radius: 50%;
-    opacity: 0.6;
-  }
-  textarea {
-    width: 100%;
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text-hl);
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 1.7;
-    padding: 12px;
-    resize: vertical;
-    min-height: 180px;
-    outline: none;
-    transition: border-color 0.15s;
-  }
-  textarea:focus { border-color: var(--green); }
-  textarea::placeholder { color: var(--text-dim); opacity: 0.6; }
-  .col-hint {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 6px;
-    font-family: var(--mono);
-  }
-
-  /* ── Toolbar ── */
-  .toolbar {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 24px;
-    flex-wrap: wrap;
-  }
-  .btn {
-    font-family: var(--mono);
-    font-size: 12px;
-    letter-spacing: 0.06em;
-    padding: 8px 18px;
-    border-radius: var(--radius);
-    border: 1px solid;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.12s, color 0.12s;
-  }
-  .btn-primary {
-    background: var(--green);
-    color: #001208;
-    border-color: var(--green);
-    font-weight: 500;
-  }
-  .btn-primary:hover { background: #33eb8e; }
-  .btn-secondary {
-    background: transparent;
-    color: var(--text-dim);
-    border-color: var(--border-hl);
-  }
-  .btn-secondary:hover { background: var(--bg-panel); color: var(--text); }
-  .btn-copy {
-    background: transparent;
-    color: var(--amber);
-    border-color: var(--amber-dim);
-    margin-left: auto;
-  }
-  .btn-copy:hover { background: var(--amber-dim); }
-  .btn-sample {
-    background: transparent;
-    color: var(--text-dim);
-    border-color: var(--border);
-    font-size: 11px;
-  }
-  .btn-sample:hover { background: var(--bg-panel); color: var(--text); }
-
-  /* ── Error ── */
-  .error-msg {
-    display: none;
-    background: var(--red-dim);
-    border: 1px solid var(--red);
-    border-radius: var(--radius);
-    color: var(--red);
-    font-family: var(--mono);
-    font-size: 12px;
-    padding: 10px 14px;
-    margin-bottom: 16px;
-  }
-
-  /* ── Summary bar ── */
-  .summary-bar {
-    display: none;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 16px;
-    padding: 12px 16px;
-    background: var(--bg-panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    flex-wrap: wrap;
-  }
-  .stat {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--mono);
-    font-size: 12px;
-  }
-  .stat-val { font-size: 16px; font-weight: 500; }
-  .stat-label { color: var(--text-dim); font-size: 11px; }
-  .stat-sep { width: 1px; height: 28px; background: var(--border); }
-  .pill {
-    font-family: var(--mono);
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 99px;
-    font-weight: 500;
-  }
-  .pill-red { background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
-  .pill-green { background: var(--green-dim); color: var(--green); border: 1px solid var(--green); }
-  .pill-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber); }
-
-  /* ── Result box ── */
   .result-section { display: none; }
-  .result-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-    gap: 12px;
-  }
-  .result-box {
-    background: var(--bg-input);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
-    font-family: var(--mono);
-    font-size: 13px;
-    line-height: 2;
-    white-space: pre-wrap;
-    word-break: break-all;
-    color: var(--text-hl);
-    min-height: 120px;
-  }
-  .result-box .r-total { color: var(--amber); font-weight: 500; }
-  .result-box .r-region { color: var(--green); }
-  .result-box .r-done { color: var(--green); opacity: 0.8; }
-  .result-box .r-notdone { color: var(--red); }
-
-  /* copy toast */
-  .toast {
-    display: none;
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    background: var(--green);
-    color: #001208;
-    font-family: var(--mono);
-    font-size: 12px;
-    padding: 8px 16px;
-    border-radius: var(--radius);
-    font-weight: 500;
-    z-index: 999;
-  }
-
-  @media (max-width: 680px) {
-    .input-grid { grid-template-columns: 1fr; }
-    .main { padding: 16px; }
-  }
+  .r-total { color: var(--signal-warn); font-weight: 600; }
+  .r-region { color: var(--signal-ok); font-weight: 600; }
+  .r-done { color: var(--signal-ok); }
+  .r-notdone { color: var(--signal-crit); }
 </style>
 </head>
 <body>
 
-<a href="../index.html" style="display:block;padding:8px 24px 0;color:var(--text-dim);font-size:11px;font-family:var(--mono);text-decoration:none;">&larr; NOC TOOLKIT</a>
-<header class="header">
-  <span class="header-logo">Netops Toolkit</span>
-  <span class="header-divider"></span>
-  <span class="header-title">OLT Down Tracker</span>
-  <span class="header-clock" id="clock">--:--:--</span>
-</header>
+<div class="tool-wrap" style="max-width: 1100px;">
+  <a class="back-link" href="report-daily-olt-down.html">← Report Daily OLT Down</a>
 
-<main class="main">
+  <div class="tool-hero">
+    <span class="eyebrow">SURVTOOLKIT</span>
+    <h1>Daily Report OLT Down</h1>
+    <p>Generate laporan harian OLT Down berdasarkan input.</p>
+  </div>
 
-  <p class="section-label">Input Data OLT</p>
+  <div class="section-label">Input Data OLT</div>
 
-  <div class="input-grid">
-    <div>
-      <div class="col-header">Nama OLT</div>
-      <textarea id="col-name" placeholder="SBU-OLT-GDG-01&#10;SBT-OLT-MLG-02&#10;JKT-OLT-JKT-03&#10;BALI-OLT-DPS-01"></textarea>
-      <p class="col-hint">↳ prefix sebelum &quot;-&quot; → region</p>
+  <div class="input-grid--3col">
+    <div class="panel">
+      <div class="panel-header">Nama OLT</div>
+      <div class="panel-body">
+        <textarea id="col-name" placeholder="SBU-OLT-GDG-01&#10;SBT-OLT-MLG-02&#10;JKT-OLT-JKT-03&#10;BALI-OLT-DPS-01"></textarea>
+      </div>
+      <div class="hint" style="padding: 0 16px 12px;">↳ prefix sebelum "-" → region</div>
     </div>
-    <div>
-      <div class="col-header">Status</div>
-      <textarea id="col-status" placeholder="NOT DONE&#10;DONE&#10;NOT DONE&#10;NOT DONE"></textarea>
-      <p class="col-hint">↳ DONE atau NOT DONE per baris</p>
+    <div class="panel">
+      <div class="panel-header">Status</div>
+      <div class="panel-body">
+        <textarea id="col-status" placeholder="NOT DONE&#10;DONE&#10;NOT DONE&#10;NOT DONE"></textarea>
+      </div>
+      <div class="hint" style="padding: 0 16px 12px;">↳ DONE atau NOT DONE per baris</div>
     </div>
-    <div>
-      <div class="col-header">Durasi (jam)</div>
-      <textarea id="col-durasi" placeholder="3&#10;5&#10;2&#10;7"></textarea>
-      <p class="col-hint">↳ angka jam, satu baris per OLT</p>
+    <div class="panel">
+      <div class="panel-header">Durasi (jam)</div>
+      <div class="panel-body">
+        <textarea id="col-durasi" placeholder="3&#10;5&#10;2&#10;7"></textarea>
+      </div>
+      <div class="hint" style="padding: 0 16px 12px;">↳ angka jam, satu baris per OLT</div>
     </div>
   </div>
 
   <div class="toolbar">
-    <button class="btn btn-primary" onclick="proses()">▶ Proses</button>
-    <button class="btn btn-secondary" onclick="resetForm()">↺ Reset</button>
-    <button class="btn btn-sample" onclick="loadSample()">Muat Contoh Data</button>
+    <button class="btn primary" onclick="proses()">Proses</button>
+    <button class="btn" onclick="resetForm()">Reset</button>
+    <button class="btn" onclick="loadSample()">Muat Contoh Data</button>
   </div>
 
-  <div class="error-msg" id="error-msg"></div>
+  <div class="error-box" id="error-msg" style="display: none;"></div>
 
-  <div class="summary-bar" id="summary-bar">
-    <div class="stat">
-      <span class="stat-val" id="s-total">0</span>
-      <span class="stat-label">Total OLT</span>
+  <div class="panel summary-bar" id="summary-bar" style="display: none;">
+    <div class="stat-card" style="padding: 0; text-align: left; display: flex; align-items: center; gap: 8px;">
+      <span class="stat-card__value" id="s-total" style="font-size: 16px;">0</span>
+      <span class="stat-card__label" style="margin: 0;">Total OLT</span>
     </div>
     <div class="stat-sep"></div>
-    <div class="stat">
-      <span class="pill pill-red" id="s-notdone">0 Not Done</span>
-    </div>
-    <div class="stat">
-      <span class="pill pill-green" id="s-done">0 Done</span>
-    </div>
-    <div class="stat">
-      <span class="pill pill-amber" id="s-region">0 Region</span>
-    </div>
+    <span class="pill pill--crit" id="s-notdone">0 Not Done</span>
+    <span class="pill pill--ok" id="s-done">0 Done</span>
+    <span class="pill pill--warn" id="s-region">0 Region</span>
   </div>
 
   <div class="result-section" id="result-section">
-    <div class="result-header">
-      <p class="section-label" style="margin:0;">Hasil Output</p>
-      <button class="btn btn-copy" onclick="copyResult()">⧉ Salin</button>
+    <div class="toolbar" style="margin-bottom: 10px;">
+      <div class="section-label" style="margin:0;">Hasil Output</div>
+      <button class="btn btn-sm" onclick="copyResult()" style="margin-left: auto;">Salin</button>
     </div>
-    <div class="result-box" id="result-box"></div>
+    <div class="panel output-box" id="result-box"></div>
   </div>
 
-</main>
+  <div class="tool-footer">
+    SURVTOOLKIT &mdash; Daily Report OLT Down
+  </div>
+</div>
 
-<div class="toast" id="toast">✓ Tersalin ke clipboard</div>
+<div class="toast" id="toast"></div>
 
+<script src="../shared/utils.js"></script>
 <script>
-const REGION_MAP = {
-  "SBU":"RSBU","SBT":"RSBT","SBS":"RSBS","JKT":"RJKT",
-  "JABAR":"RJBB","JATENG":"RJBTG","JATIM":"RJBT",
-  "RIT":"RINT","RKAL":"RKAL","BALI":"RBNT"
-};
-
 const SAMPLE = {
   names:    "SBU-OLT-GDG-01\nSBU-OLT-GDG-02\nSBT-OLT-MLG-01\nJKT-OLT-JKT-01\nBALI-OLT-DPS-01\nJATIM-OLT-SBY-01",
   statuses: "NOT DONE\nDONE\nNOT DONE\nNOT DONE\nDONE\nNOT DONE",
@@ -387,8 +120,9 @@ function proses() {
     const name   = names[i];
     const status = statuses[i].toUpperCase().trim();
     const durasi = durasiArr[i];
-    const prefix = name.split('-')[0].toUpperCase();
-    const region = REGION_MAP[prefix] || prefix;
+    // Use utils.js to get region code
+    const region = NetopsUtils.getRegionCode(name) || name.split('-')[0].toUpperCase();
+    
     if (!regions[region]) regions[region] = [];
     regions[region].push({ name, durasi, status });
   }
@@ -402,8 +136,8 @@ function proses() {
 
   // update summary
   document.getElementById('s-total').textContent  = names.length;
-  document.getElementById('s-notdone').textContent = `❌ ${totalNotDone} Not Done`;
-  document.getElementById('s-done').textContent    = `✅ ${doneCount} Done`;
+  document.getElementById('s-notdone').textContent = `${totalNotDone} Not Done`;
+  document.getElementById('s-done').textContent    = `${doneCount} Done`;
   document.getElementById('s-region').textContent  = `${regionCount} Region`;
   document.getElementById('summary-bar').style.display = 'flex';
 
@@ -411,11 +145,11 @@ function proses() {
   let html = `<span class="r-total">Total : ${totalNotDone} OLT Down</span>\n\n`;
   for (const [region, olts] of Object.entries(regions)) {
     const nd = olts.filter(o => o.status === 'NOT DONE').length;
-    html += `<span class="r-region">${region} : ${nd}</span>\n`;
+    html += `<span class="r-region">${NetopsUtils.escapeHtml(region)} : ${nd}</span>\n`;
     for (const { name, durasi, status } of olts) {
       const mark = status === 'DONE' ? ' ✅' : status === 'NOT DONE' ? ' ❌' : '';
       const cls  = status === 'DONE' ? 'r-done' : status === 'NOT DONE' ? 'r-notdone' : '';
-      html += `<span class="${cls}">${name} | DURASI ${durasi} JAM${mark}</span>\n`;
+      html += `<span class="${cls}">${NetopsUtils.escapeHtml(name)} | DURASI ${NetopsUtils.escapeHtml(durasi)} JAM${mark}</span>\n`;
     }
     html += '\n';
   }
@@ -442,21 +176,10 @@ function resetForm() {
 function copyResult() {
   const box = document.getElementById('result-box');
   const text = box.innerText || box.textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const t = document.getElementById('toast');
-    t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', 2000);
+  NetopsUtils.copyToClipboard(text).then(() => {
+    NetopsUtils.showToast('Tersalin!');
   });
 }
-
-// live clock
-function tick() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-}
-tick();
-setInterval(tick, 1000);
 </script>
 </body>
 </html>

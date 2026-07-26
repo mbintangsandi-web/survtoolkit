@@ -1,7 +1,7 @@
 /**
- * NETOPS TOOLKIT — shared utilities
+ * SURVTOOLKIT — shared utilities
  * Single source of truth for logic that repeats across every tool:
- * region mapping, TSV parsing, duration parsing, dedup, clipboard.
+ * region mapping, TSV parsing, duration parsing, dedup, clipboard, UI helpers.
  *
  * Loaded as a plain script (no bundler): <script src="../shared/utils.js"></script>
  * Everything is attached to the global `NetopsUtils` object to avoid
@@ -16,18 +16,50 @@
   // OLT region is determined by the hostname prefix before the first
   // hyphen (e.g. "SBT-OLT-01" -> SBT). Add new prefixes here ONCE and
   // every tool that includes this file picks it up automatically.
+  //
+  // Aliases for alternative prefix styles are included (e.g. JABAR, JATIM)
+  // so tools that receive data from different NMS systems all work.
   // ------------------------------------------------------------------
   const REGION_MAP = {
-    SBU:  { code: 'RSBU',  name: 'Sumbagut' },
-    SBT:  { code: 'RSBT',  name: 'Sumbagteng' },
-    SBS:  { code: 'RSBS',  name: 'Sumbagsel' },
-    JKT:  { code: 'RJKT',  name: 'Jakarta' },
-    JBB:  { code: 'RJBB',  name: 'Jabar Barat' },
-    JBTG: { code: 'RJBTG', name: 'Jabar Tengah' },
-    JBT:  { code: 'RJBT',  name: 'Jabar Timur' },
-    BNT:  { code: 'RBNT',  name: 'Banten' },
-    KAL:  { code: 'RKAL',  name: 'Kalimantan' },
-    INT:  { code: 'RINT',  name: 'Indonesia Timur' },
+    SBU:    { code: 'RSBU',  name: 'Sumbagut' },
+    SBT:    { code: 'RSBT',  name: 'Sumbagteng' },
+    SBS:    { code: 'RSBS',  name: 'Sumbagsel' },
+    JKT:    { code: 'RJKT',  name: 'Jakarta' },
+    JBB:    { code: 'RJBB',  name: 'Jabar Barat' },
+    JBTG:   { code: 'RJBTG', name: 'Jabar Tengah' },
+    JBT:    { code: 'RJBT',  name: 'Jabar Timur' },
+    BNT:    { code: 'RBNT',  name: 'Banten' },
+    KAL:    { code: 'RKAL',  name: 'Kalimantan' },
+    INT:    { code: 'RINT',  name: 'Indonesia Timur' },
+    // Aliases — alternative prefix styles from different NMS exports
+    JABAR:  { code: 'RJBB',  name: 'Jabar Barat' },
+    JATENG: { code: 'RJBTG', name: 'Jabar Tengah' },
+    JATIM:  { code: 'RJBT',  name: 'Jabar Timur' },
+    BALI:   { code: 'RBNT',  name: 'Banten' },
+    RKAL:   { code: 'RKAL',  name: 'Kalimantan' },
+    RIT:    { code: 'RINT',  name: 'Indonesia Timur' },
+  };
+
+  /**
+   * Canonical region codes in display order.
+   */
+  const REGION_CODES = ['RSBU','RSBT','RSBS','RJKT','RJBB','RJBTG','RJBT','RBNT','RKAL','RINT'];
+
+  /**
+   * Full region name (as appears in some NMS exports) → canonical region code.
+   */
+  const REGION_NAME_MAP = {
+    'JAKARTA & BANTEN'        : 'RJKT',
+    'JAKARTA DAN BANTEN'      : 'RJKT',
+    'JAWA BARAT'              : 'RJBB',
+    'JAWA TENGAH'             : 'RJBTG',
+    'JAWA TIMUR'              : 'RJBT',
+    'SUMATERA BAGIAN UTARA'   : 'RSBU',
+    'SUMATERA BAGIAN SELATAN' : 'RSBS',
+    'SUMATERA BAGIAN TENGAH'  : 'RSBT',
+    'KALIMANTAN'              : 'RKAL',
+    'BALINUSRA'               : 'RBNT',
+    'INTERNASIONAL'           : 'RINT',
   };
 
   /**
@@ -41,6 +73,35 @@
     const region = REGION_MAP[prefix];
     if (!region) return { prefix, code: null, name: null };
     return { prefix, ...region };
+  }
+
+  /**
+   * Get region code from a hostname prefix (shorthand).
+   * @param {string} hostname e.g. "SBT-OLT-01"
+   * @returns {string} e.g. "RSBT", or the raw prefix if not found
+   */
+  function getRegionCode(hostname) {
+    if (!hostname) return '';
+    const prefix = String(hostname).trim().split('-')[0].toUpperCase();
+    const region = REGION_MAP[prefix];
+    return region ? region.code : prefix;
+  }
+
+  /**
+   * Resolve a full region name string to its canonical region code.
+   * Falls back to checking REGION_CODES, then partial matches.
+   * @param {string} rawName e.g. "JAKARTA & BANTEN"
+   * @returns {string} region code or the raw name uppercased
+   */
+  function resolveRegionName(rawName) {
+    if (!rawName) return 'LAINNYA';
+    const key = rawName.toUpperCase().trim();
+    if (REGION_NAME_MAP[key]) return REGION_NAME_MAP[key];
+    if (REGION_CODES.includes(key)) return key;
+    for (const [k, v] of Object.entries(REGION_NAME_MAP)) {
+      if (key.includes(k) || k.includes(key)) return v;
+    }
+    return key || 'LAINNYA';
   }
 
   // ------------------------------------------------------------------
@@ -150,6 +211,20 @@
     return parts.join(' ');
   }
 
+  /**
+   * Format total minutes into "X Jam" or "X Hari Y Jam Z Menit" style.
+   * Like formatMinutesToIDText but also handles raw string input.
+   * @param {string|number} durStr — minutes as number, "HH:MM", or already formatted text
+   * @returns {string}
+   */
+  function formatDurasi(durStr) {
+    if (!durStr || durStr === '-') return 'xx Jam';
+    if (/jam|hari/i.test(String(durStr))) return String(durStr);
+    const mins = parseDurationToMinutes(durStr);
+    if (mins > 0) return formatMinutesToIDText(mins);
+    return String(durStr);
+  }
+
   // ------------------------------------------------------------------
   // DEDUPLICATION
   // Alarm rows commonly repeat per OLT because multiple module IDs
@@ -177,7 +252,7 @@
   }
 
   // ------------------------------------------------------------------
-  // MISC
+  // MISC — clipboard, formatting, HTML escaping, UI toast
   // ------------------------------------------------------------------
 
   /**
@@ -221,16 +296,60 @@
     return `${d} ${b} ${y} ${hh}:${mm}`;
   }
 
+  /**
+   * Escape HTML special characters to prevent XSS in innerHTML.
+   * @param {string} str
+   * @returns {string}
+   */
+  function escapeHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  /**
+   * Show a toast notification. Expects a <div class="toast" id="toast"> in the page.
+   * @param {string} message
+   * @param {number} [duration=2000] milliseconds to show
+   */
+  function showToast(message, duration) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = message;
+    el.classList.add('show');
+    setTimeout(function () { el.classList.remove('show'); }, duration || 2000);
+  }
+
+  /**
+   * Format current time as "HH:MM DD/MM/YYYY".
+   * @returns {string}
+   */
+  function getNowShort() {
+    const n = new Date();
+    const p = v => String(v).padStart(2, '0');
+    return `${p(n.getHours())}:${p(n.getMinutes())} ${p(n.getDate())}/${p(n.getMonth() + 1)}/${n.getFullYear()}`;
+  }
+
   global.NetopsUtils = {
     REGION_MAP,
+    REGION_CODES,
+    REGION_NAME_MAP,
     getRegionFromHostname,
+    getRegionCode,
+    resolveRegionName,
     parseTSV,
     findHeader,
     parseDurationToMinutes,
     formatMinutesToIDText,
+    formatDurasi,
     dedupeRows,
     copyToClipboard,
     formatTimestampID,
+    escapeHtml,
+    showToast,
+    getNowShort,
   };
 
 })(window);

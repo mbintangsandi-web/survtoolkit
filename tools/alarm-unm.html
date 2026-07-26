@@ -3,227 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alarm Broadcast Generator</title>
-<style>
-  :root{
-    --bg:#0b0e13;
-    --panel:#12161e;
-    --panel2:#171c26;
-    --border:#232a37;
-    --text:#e6e9ef;
-    --muted:#8b94a7;
-    --accent:#3ba7ff;
-    --accent2:#ff5c5c;
-    --green:#3ddc97;
-    --amber:#ffb454;
-    --mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-    padding:24px;
-  }
-  h1{
-    font-size:20px;
-    margin:0 0 4px 0;
-    letter-spacing:0.3px;
-  }
-  .subtitle{
-    color:var(--muted);
-    font-size:13px;
-    margin-bottom:20px;
-  }
-  .layout{
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:18px;
-    max-width:1400px;
-    margin:0 auto;
-  }
-  @media (max-width: 980px){
-    .layout{grid-template-columns:1fr;}
-  }
-  .panel{
-    background:var(--panel);
-    border:1px solid var(--border);
-    border-radius:10px;
-    padding:16px;
-    display:flex;
-    flex-direction:column;
-  }
-  .panel h2{
-    font-size:13px;
-    text-transform:uppercase;
-    letter-spacing:0.8px;
-    color:var(--muted);
-    margin:0 0 10px 0;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-  }
-  textarea{
-    width:100%;
-    min-height:360px;
-    background:var(--panel2);
-    color:var(--text);
-    border:1px solid var(--border);
-    border-radius:8px;
-    padding:12px;
-    font-family:var(--mono);
-    font-size:12.5px;
-    line-height:1.5;
-    resize:vertical;
-    outline:none;
-  }
-  textarea:focus{border-color:var(--accent);}
-  .btn-row{
-    display:flex;
-    gap:8px;
-    margin-top:12px;
-    flex-wrap:wrap;
-  }
-  button{
-    background:var(--panel2);
-    color:var(--text);
-    border:1px solid var(--border);
-    border-radius:7px;
-    padding:9px 14px;
-    font-size:13px;
-    cursor:pointer;
-    transition:all .15s ease;
-  }
-  button:hover{border-color:var(--accent); color:var(--accent);}
-  button.primary{
-    background:var(--accent);
-    border-color:var(--accent);
-    color:#0b0e13;
-    font-weight:600;
-  }
-  button.primary:hover{
-    background:#5cb8ff;
-    color:#0b0e13;
-  }
-  button.danger:hover{
-    border-color:var(--accent2);
-    color:var(--accent2);
-  }
-  .output{
-    white-space:pre-wrap;
-    background:var(--panel2);
-    border:1px solid var(--border);
-    border-radius:8px;
-    padding:14px;
-    font-family:var(--mono);
-    font-size:12.5px;
-    line-height:1.55;
-    min-height:360px;
-    max-height:640px;
-    overflow-y:auto;
-  }
-  .stats{
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-bottom:12px;
-  }
-  .stat{
-    background:var(--panel2);
-    border:1px solid var(--border);
-    border-radius:7px;
-    padding:8px 12px;
-    font-size:12px;
-    color:var(--muted);
-  }
-  .stat b{
-    color:var(--text);
-    font-size:14px;
-    display:block;
-  }
-  .badge{
-    font-size:10px;
-    padding:2px 7px;
-    border-radius:20px;
-    background:rgba(59,167,255,0.12);
-    color:var(--accent);
-    border:1px solid rgba(59,167,255,0.3);
-  }
-  .toast{
-    position:fixed;
-    bottom:24px;
-    left:50%;
-    transform:translateX(-50%) translateY(20px);
-    background:var(--green);
-    color:#08130d;
-    padding:10px 18px;
-    border-radius:8px;
-    font-size:13px;
-    font-weight:600;
-    opacity:0;
-    pointer-events:none;
-    transition:all .25s ease;
-    z-index:99;
-  }
-  .toast.show{
-    opacity:1;
-    transform:translateX(-50%) translateY(0);
-  }
-  .empty-hint{
-    color:var(--muted);
-    font-size:12.5px;
-    font-style:italic;
-  }
-  .footnote{
-    color:var(--muted);
-    font-size:11px;
-    margin-top:10px;
-    line-height:1.5;
-  }
-</style>
+<title>Alarm Broadcast · UNM — SURVTOOLKIT</title>
+<link rel="stylesheet" href="../shared/theme.css">
 </head>
 <body>
 
-<a href="../index.html" style="display:inline-block;margin-bottom:10px;color:var(--muted);font-size:11px;font-family:var(--mono);text-decoration:none;">&larr; NOC TOOLKIT</a>
-<h1>🚨 Alarm Broadcast Generator</h1>
-<div class="subtitle">Paste data alarm (tab-separated) &rarr; hasilkan broadcast alarm environment per-SBU</div>
-
-<div class="layout">
-  <div class="panel">
-    <h2>Input Data <span class="badge">TSV / Paste dari Excel</span></h2>
-    <textarea id="inputData" placeholder="Paste data alarm di sini (tab-separated)..."></textarea>
-    <div class="btn-row">
-      <button class="primary" onclick="generate()">⚡ Generate Broadcast</button>
-      <button onclick="loadSample()">📋 Sample Data</button>
-      <button class="danger" onclick="resetAll()">🗑 Reset</button>
-    </div>
-    <div class="footnote">
-      Kolom yang dibaca: <b>Alarm Name</b> (kolom 4), <b>Alarm Source / Nama OLT</b> (kolom 7),
-      dan <b>Latest Occurrence Time</b> (kolom 12) — sesuai posisi standar export alarm monitoring.
-      Pengelompokan SBU otomatis diambil dari prefix nama OLT sebelum tanda "-" pertama.
-    </div>
+<div class="tool-wrap tool-wrap--wide">
+  <a class="back-link" href="alarm.html">← Alarm</a>
+  
+  <div class="tool-hero">
+    <span class="eyebrow">SURVTOOLKIT</span>
+    <h1>Alarm Broadcast · <span>UNM</span></h1>
+    <p>Paste data alarm (tab-separated) &rarr; hasilkan broadcast alarm environment per-SBU</p>
   </div>
 
-  <div class="panel">
-    <h2>Hasil Broadcast <span id="badgeCount" class="badge">0 alarm</span></h2>
-    <div class="stats" id="statsRow"></div>
-    <div class="btn-row" style="margin-top:0; margin-bottom:12px;">
-      <button class="primary" onclick="copyOutput()">📄 Copy Semua</button>
+  <div class="layout-2col">
+    <!-- Input Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        Input Data
+        <span class="badge badge--info" style="margin-left:auto">TSV / Paste dari Excel</span>
+      </div>
+      <div class="panel-body" style="padding:16px;">
+        <textarea id="inputData" placeholder="Paste data alarm di sini (tab-separated)..." style="margin-bottom: 16px;"></textarea>
+        
+        <div class="toolbar">
+          <button class="primary" onclick="generate()">⚡ Generate Broadcast</button>
+          <button class="btn" onclick="loadSample()">📋 Sample Data</button>
+          <button class="btn" onclick="resetAll()">🗑 Reset</button>
+        </div>
+        
+        <div class="footnote">
+          Kolom yang dibaca: <b>Alarm Name</b> (kolom 4), <b>Alarm Source / Nama OLT</b> (kolom 7),
+          dan <b>Latest Occurrence Time</b> (kolom 12) — sesuai posisi standar export alarm monitoring.
+          Pengelompokan SBU otomatis diambil dari prefix nama OLT sebelum tanda "-" pertama.
+        </div>
+      </div>
     </div>
-    <div class="output" id="outputBox"><span class="empty-hint">Hasil broadcast akan muncul di sini setelah klik "Generate Broadcast"...</span></div>
+
+    <!-- Output Panel -->
+    <div class="panel">
+      <div class="panel-header">
+        Hasil Broadcast
+        <span id="badgeCount" class="badge badge--info" style="margin-left:auto">0 alarm</span>
+      </div>
+      <div class="panel-body" style="padding:16px;">
+        <div class="stat-grid" id="statsRow"></div>
+        
+        <div class="toolbar" style="margin-bottom:12px;">
+          <button class="primary" onclick="copyOutput()">📄 Copy Semua</button>
+        </div>
+        
+        <div class="output-card" style="border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--bg-raised);">
+          <div class="output-box" id="outputBox">
+            <span class="empty-hint">Hasil broadcast akan muncul di sini setelah klik "Generate Broadcast"...</span>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
-<div class="toast" id="toast">Copied to clipboard!</div>
+<div class="toast" id="toast"></div>
 
 <script>
-const ALARM_LABELS = {
-  "Battery_Discharging": "Battery_Discharging",
-  "ENV_TEMP_OVER": "ENV_TEMP_OVER",
-  "ACMAINFAIL": "ACMAINFAIL"
-};
-
 function parseLine(line){
   const cols = line.split('\t');
   if(cols.length < 12) return null;
@@ -289,21 +132,25 @@ function generate(){
   badgeCount.textContent = `${parsed.length} alarm`;
 
   statsRow.innerHTML = '';
-  const totalStat = document.createElement('div');
-  totalStat.className = 'stat';
-  totalStat.innerHTML = `<b>${sbuKeys.length}</b>SBU terdampak`;
-  statsRow.appendChild(totalStat);
+  
+  const createStatCard = (label, value) => {
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.style.background = 'var(--bg-raised)';
+    card.style.border = '1.5px solid var(--border)';
+    card.style.borderRadius = 'var(--radius)';
+    card.innerHTML = `
+      <div class="stat-card__value stat-card__value--accent">${value}</div>
+      <div class="stat-card__label">${label}</div>
+    `;
+    return card;
+  };
 
-  const totalAlarm = document.createElement('div');
-  totalAlarm.className = 'stat';
-  totalAlarm.innerHTML = `<b>${parsed.length}</b>Total alarm`;
-  statsRow.appendChild(totalAlarm);
+  statsRow.appendChild(createStatCard('SBU Terdampak', sbuKeys.length));
+  statsRow.appendChild(createStatCard('Total Alarm', parsed.length));
 
   for(const sbu of sbuKeys){
-    const s = document.createElement('div');
-    s.className = 'stat';
-    s.innerHTML = `<b>${groups[sbu].length}</b>${sbu}`;
-    statsRow.appendChild(s);
+    statsRow.appendChild(createStatCard(sbu, groups[sbu].length));
   }
 }
 
@@ -312,10 +159,8 @@ function copyOutput(){
   if(!text || text.includes('akan muncul di sini') || text.includes('Tidak ada data')){
     return;
   }
-  navigator.clipboard.writeText(text).then(() => {
-    const toast = document.getElementById('toast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 1600);
+  NetopsUtils.copyToClipboard(text).then(() => {
+    NetopsUtils.showToast('Tersalin!');
   });
 }
 
@@ -344,5 +189,6 @@ function loadSample(){
 }
 </script>
 
+<script src="../shared/utils.js"></script>
 </body>
 </html>

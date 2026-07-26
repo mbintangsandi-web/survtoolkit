@@ -1,4 +1,4 @@
-# SURV TOOLKIT
+# SURVTOOLKIT
 
 Portal internal untuk tools operasional OLT & broadcast regional. Statis, tanpa backend, tanpa build step — buka `index.html` langsung di browser atau host di mana saja (GitHub Pages, server internal, atau sebagai subfolder di web tim ops).
 
@@ -14,7 +14,7 @@ Menu utama (`index.html`) punya 4 tombol, mengikuti alur kerja:
 ## Struktur folder
 
 ```
-/portal
+/survtoolkit
 ├── index.html                        ← menu utama, 4 tombol
 ├── /tools
 │   ├── report-daily-olt-down.html    ← halaman alur (3 langkah)
@@ -38,7 +38,7 @@ Menu utama (`index.html`) punya 4 tombol, mengikuti alur kerja:
    - `NetopsUtils.parseDurationToMinutes(value)` — normalisasi durasi (menit / HH:MM / teks ID)
    - `NetopsUtils.dedupeRows(rows, keyFields)` — dedup berdasarkan kombinasi field
    - `NetopsUtils.copyToClipboard(text)`
-5. Di `index.html`, tambahkan satu entri ke array `TOOLS` (cari `const TOOLS = [...]`), set `status: 'active'` dan isi `href` sesuai nama file. Tool otomatis muncul di menu.
+5. Di `index.html`, tambahkan satu entri ke array `MENU` (cari `const MENU = [...]`), set `status: 'active'` dan isi `href` sesuai nama file. Tool otomatis muncul di menu.
 
 ## Menambah region baru
 
@@ -47,4 +47,4 @@ Edit `REGION_MAP` di `shared/utils.js` — satu tempat, berlaku ke semua tool ya
 ## Deploy
 
 - **Testing cepat / akses dari HP:** push ke GitHub, aktifkan GitHub Pages dari branch utama.
-- **Server internal / masuk ke web tim ops:** copy folder `/portal` apa adanya ke subfolder web tersebut. Semua path di dalam file bersifat relatif, jadi tidak perlu diedit ulang selama struktur foldernya (index.html, /tools, /shared) tetap sejajar.
+- **Server internal / masuk ke web tim ops:** copy folder `/survtoolkit` apa adanya ke subfolder web tersebut. Semua path di dalam file bersifat relatif, jadi tidak perlu diedit ulang selama struktur foldernya (index.html, /tools, /shared) tetap sejajar.
