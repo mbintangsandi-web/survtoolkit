@@ -10,6 +10,7 @@ Menu utama (`index.html`) punya 4 tombol, mengikuti alur kerja:
 - **OLT Down Lebih Dari 8 Jam** → langsung ke `tools/outage-broadcast.html`
 - **Report Daily OLT Down** → halaman alur (`tools/report-daily-olt-down.html`) berisi 3 langkah berurutan: Split Done/Not Done → Sync → Daily Report
 - **Alarm** → halaman cabang (`tools/alarm.html`) berisi 2 pilihan sumber: UNM / NCE
+- **Daily Checklist** → langsung ke `tools/daily-checklist.html`
 
 ## Struktur folder
 

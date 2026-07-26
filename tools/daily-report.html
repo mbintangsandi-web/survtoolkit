@@ -51,7 +51,7 @@
   .header-logo {
     font-family: var(--mono);
     font-size: 11px;
-    color: var(--green);
+    color: var(--accent);
     letter-spacing: 0.12em;
     text-transform: uppercase;
     opacity: 0.7;
@@ -95,7 +95,7 @@
     font-size: 11px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--green);
+    color: var(--accent);
     margin-bottom: 8px;
     display: flex;
     align-items: center;
@@ -106,7 +106,7 @@
     display: inline-block;
     width: 6px;
     height: 6px;
-    background: var(--green);
+    background: var(--accent);
     border-radius: 50%;
     opacity: 0.6;
   }
@@ -125,7 +125,7 @@
     outline: none;
     transition: border-color 0.15s;
   }
-  textarea:focus { border-color: var(--green); }
+  textarea:focus { border-color: var(--accent); }
   textarea::placeholder { color: var(--text-dim); opacity: 0.6; }
   .col-hint {
     font-size: 11px;
@@ -156,12 +156,12 @@
     transition: background 0.12s, color 0.12s;
   }
   .btn-primary {
-    background: var(--green);
+    background: var(--accent);
     color: #ffffff;
-    border-color: var(--green);
+    border-color: var(--accent);
     font-weight: 500;
   }
-  .btn-primary:hover { background: #278258; }
+  .btn-primary:hover { background: var(--accent-deep); }
   .btn-secondary {
     background: transparent;
     color: var(--text-dim);
@@ -251,7 +251,7 @@
     min-height: 120px;
   }
   .result-box .r-total { color: var(--amber); font-weight: 500; }
-  .result-box .r-region { color: var(--green); }
+  .result-box .r-region { color: var(--accent); }
   .result-box .r-done { color: var(--green); opacity: 0.8; }
   .result-box .r-notdone { color: var(--red); }
 
@@ -261,7 +261,7 @@
     position: fixed;
     bottom: 24px;
     right: 24px;
-    background: var(--green);
+    background: var(--accent);
     color: #ffffff;
     font-family: var(--mono);
     font-size: 12px;
