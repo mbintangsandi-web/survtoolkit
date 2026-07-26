@@ -9,8 +9,17 @@
 
   .wrap { max-width: 640px; margin: 0 auto; padding: 40px 24px 60px; }
 
-
-
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+  .back:hover { color: var(--accent); }
 
   header.hero { margin-bottom: 36px; }
   header.hero .eyebrow { display: block; margin-bottom: 8px; }
@@ -78,7 +87,7 @@
 
   <div class="wrap">
 
-    <a class="back-link" href="../index.html">← Menu Utama</a>
+    <a class="back" href="../index.html">← Menu Utama</a>
 
     <header class="hero">
       <span class="eyebrow">Alur Kerja</span>
@@ -136,6 +145,8 @@
     `;
   }).join('');
 </script>
+
+<div style="text-align:center;padding:20px 0 40px;"><a href="../index.html" style="color:#5c7290;font-size:13px;text-decoration:none;">← Kembali ke Menu Utama</a></div>
 
 </body>
 </html>
