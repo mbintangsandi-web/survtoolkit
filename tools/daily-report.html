@@ -51,20 +51,25 @@
 
     /* ── Header ── */
     .header {
+      border-top: 3px solid #2f6fe4;
       border-bottom: 1px solid var(--border);
       padding: 14px 24px;
       display: flex;
       align-items: center;
       gap: 16px;
+      background: var(--bg-panel);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
     .header-logo {
       font-family: var(--mono);
       font-size: 11px;
-      color: var(--accent);
+      color: #2f6fe4;
       letter-spacing: 0.12em;
       text-transform: uppercase;
-      opacity: 0.7;
+      font-weight: 500;
     }
 
     .header-divider {
@@ -198,6 +203,7 @@
 
     .btn-primary:hover {
       background: #257d54;
+      border-color: #257d54;
     }
 
     .btn-secondary {

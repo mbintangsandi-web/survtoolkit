@@ -7,47 +7,56 @@
 <link rel="stylesheet" href="../shared/theme.css">
 <style>
 
-  /* ── Header bar (matches daily-report.html style) ── */
-  .header {
+  /* ── Header bar ── */
+  .header-bar {
+    background: var(--bg-raised);
     border-bottom: 1.5px solid var(--border);
-    padding: 14px 24px;
+    border-top: 3px solid var(--accent);
+    padding: 0 24px;
     display: flex;
     align-items: center;
     gap: 16px;
-    background: var(--panel);
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
   }
 
-  .header-logo {
+  .header-bar__logo {
     font-family: var(--font-display);
     font-size: 11px;
     font-weight: 700;
     color: var(--accent);
     letter-spacing: 0.12em;
     text-transform: uppercase;
+    text-decoration: none;
+    transition: color 0.15s;
   }
+  .header-bar__logo:hover { color: var(--accent-deep); }
 
-  .header-divider {
+  .header-bar__sep {
     width: 1px;
-    height: 18px;
+    height: 20px;
     background: var(--border-bright);
+    flex-shrink: 0;
   }
 
-  .header-title {
+  .header-bar__title {
     font-family: var(--font-display);
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--text);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.02em;
   }
 
-  .header-clock {
+  .header-bar__clock {
     margin-left: auto;
     font-family: var(--font-mono);
     font-size: 12px;
     color: var(--text-dim);
+    letter-spacing: 0.04em;
   }
 
-  /* ── Content wrap ── */
   .wrap { max-width: 640px; margin: 0 auto; padding: 32px 24px 60px; }
 
   .back {
@@ -63,20 +72,10 @@
   }
   .back:hover { color: var(--accent); }
 
-  /* ── Hero section with blue accent ── */
   header.hero { margin-bottom: 36px; }
   header.hero .eyebrow { display: block; margin-bottom: 8px; }
-  header.hero h1 { font-size: 24px; color: var(--text); }
-  header.hero h1 span { color: var(--accent); }
+  header.hero h1 { font-size: 24px; }
   header.hero p { color: var(--text-dim); font-size: 14px; margin: 8px 0 0; line-height: 1.6; }
-
-  /* ── Blue accent bar under hero ── */
-  .accent-strip {
-    height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent-dim));
-    border-radius: 2px;
-    margin-bottom: 32px;
-  }
 
   /* ---------------------------------------------------------------
      Sequential flow — numbering is meaningful here: this is a real
@@ -108,14 +107,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 8px rgba(47, 111, 228, 0.25);
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
-  .step:hover .step__num {
-    transform: scale(1.08);
-    box-shadow: 0 4px 14px rgba(47, 111, 228, 0.35);
-  }
-  .step.idle .step__num { background: var(--signal-idle); box-shadow: none; }
+  .step.idle .step__num { background: var(--signal-idle); }
   .step__line {
     width: 2px;
     flex: 1;
@@ -133,54 +126,33 @@
     justify-content: space-between;
     gap: 12px;
     transition: border-color 0.15s ease, background 0.15s ease;
-    border-left: 3px solid transparent;
   }
-  a.step__card:hover {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-    border-left-color: var(--accent);
-  }
+  a.step__card:hover { border-color: var(--accent); background: var(--accent-dim); }
   .step__card.disabled { opacity: 0.65; cursor: default; }
 
   .step__title { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--text); }
   .step__desc { font-size: 12.5px; color: var(--text-dim); margin-top: 3px; line-height: 1.5; }
-
-  .step__chevron {
-    color: var(--text-faint);
-    font-size: 18px;
-    flex-shrink: 0;
-    transition: color 0.15s, transform 0.15s;
-  }
-  a.step__card:hover .step__chevron {
-    color: var(--accent);
-    transform: translateX(3px);
-  }
 </style>
 </head>
 <body>
 
-  <!-- ── Header bar matching daily-report style ── -->
-  <div style="display:block;padding:8px 24px 0;color:var(--text-dim);font-size:11px;font-family:var(--font-display);font-weight:600;">
-    <a href="../index.html" style="color:var(--text-dim);text-decoration:none;transition:color 0.15s;"
-       onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-dim)'">&larr; Kembali ke Menu Utama</a>
-  </div>
-  <header class="header">
-    <span class="header-logo">SURVTOOLKIT</span>
-    <span class="header-divider"></span>
-    <span class="header-title">Report Daily OLT Down</span>
-    <span class="header-clock" id="clock">--:--:--</span>
-  </header>
+  <!-- Header bar -->
+  <nav class="header-bar">
+    <a class="header-bar__logo" href="../index.html">SURVTOOLKIT</a>
+    <div class="header-bar__sep"></div>
+    <span class="header-bar__title">Report Daily OLT Down</span>
+    <span class="header-bar__clock" id="clock">--:--:--</span>
+  </nav>
 
   <div class="wrap">
 
+    <a class="back" href="../index.html">← Menu Utama</a>
+
     <header class="hero">
       <span class="eyebrow">Alur Kerja</span>
-      <h1>Report Daily <span>OLT Down</span></h1>
+      <h1>Report Daily OLT Down</h1>
       <p>Tiga langkah berurutan: pisahkan status device, sinkronkan hasil, lalu susun laporan harian. Klik langkah untuk membuka tool-nya.</p>
     </header>
-
-    <!-- Blue accent strip -->
-    <div class="accent-strip"></div>
 
     <div class="flow" id="flow"></div>
 
@@ -227,12 +199,12 @@
             <div class="step__title">${s.title}</div>
             <div class="step__desc">${s.desc}</div>
           </div>
-          <div class="step__chevron">${isActive ? '›' : ''}</div>
         </${tag}>
       </div>
     `;
   }).join('');
-
+</script>
+<script>
   // live clock
   function tick() {
     const now = new Date();
