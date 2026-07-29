@@ -7,7 +7,48 @@
 <link rel="stylesheet" href="../shared/theme.css">
 <style>
 
-  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 24px 60px; }
+  /* ── Header bar (matches daily-report.html style) ── */
+  .header {
+    border-bottom: 1.5px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--panel);
+  }
+
+  .header-logo {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .header-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border-bright);
+  }
+
+  .header-title {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: 0.04em;
+  }
+
+  .header-clock {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  /* ── Content wrap ── */
+  .wrap { max-width: 640px; margin: 0 auto; padding: 32px 24px 60px; }
 
   .back {
     display: inline-flex;
@@ -18,13 +59,24 @@
     font-size: 13px;
     color: var(--text-dim);
     margin-bottom: 28px;
+    transition: color 0.15s;
   }
   .back:hover { color: var(--accent); }
 
+  /* ── Hero section with blue accent ── */
   header.hero { margin-bottom: 36px; }
   header.hero .eyebrow { display: block; margin-bottom: 8px; }
-  header.hero h1 { font-size: 24px; }
+  header.hero h1 { font-size: 24px; color: var(--text); }
+  header.hero h1 span { color: var(--accent); }
   header.hero p { color: var(--text-dim); font-size: 14px; margin: 8px 0 0; line-height: 1.6; }
+
+  /* ── Blue accent bar under hero ── */
+  .accent-strip {
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dim));
+    border-radius: 2px;
+    margin-bottom: 32px;
+  }
 
   /* ---------------------------------------------------------------
      Sequential flow — numbering is meaningful here: this is a real
@@ -56,8 +108,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: 0 2px 8px rgba(47, 111, 228, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
-  .step.idle .step__num { background: var(--signal-idle); }
+  .step:hover .step__num {
+    transform: scale(1.08);
+    box-shadow: 0 4px 14px rgba(47, 111, 228, 0.35);
+  }
+  .step.idle .step__num { background: var(--signal-idle); box-shadow: none; }
   .step__line {
     width: 2px;
     flex: 1;
@@ -75,25 +133,54 @@
     justify-content: space-between;
     gap: 12px;
     transition: border-color 0.15s ease, background 0.15s ease;
+    border-left: 3px solid transparent;
   }
-  a.step__card:hover { border-color: var(--accent); background: var(--accent-dim); }
+  a.step__card:hover {
+    border-color: var(--accent);
+    background: var(--accent-dim);
+    border-left-color: var(--accent);
+  }
   .step__card.disabled { opacity: 0.65; cursor: default; }
 
   .step__title { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--text); }
   .step__desc { font-size: 12.5px; color: var(--text-dim); margin-top: 3px; line-height: 1.5; }
+
+  .step__chevron {
+    color: var(--text-faint);
+    font-size: 18px;
+    flex-shrink: 0;
+    transition: color 0.15s, transform 0.15s;
+  }
+  a.step__card:hover .step__chevron {
+    color: var(--accent);
+    transform: translateX(3px);
+  }
 </style>
 </head>
 <body>
 
-  <div class="wrap">
+  <!-- ── Header bar matching daily-report style ── -->
+  <div style="display:block;padding:8px 24px 0;color:var(--text-dim);font-size:11px;font-family:var(--font-display);font-weight:600;">
+    <a href="../index.html" style="color:var(--text-dim);text-decoration:none;transition:color 0.15s;"
+       onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='var(--text-dim)'">&larr; Kembali ke Menu Utama</a>
+  </div>
+  <header class="header">
+    <span class="header-logo">SURVTOOLKIT</span>
+    <span class="header-divider"></span>
+    <span class="header-title">Report Daily OLT Down</span>
+    <span class="header-clock" id="clock">--:--:--</span>
+  </header>
 
-    <a class="back" href="../index.html">← Menu Utama</a>
+  <div class="wrap">
 
     <header class="hero">
       <span class="eyebrow">Alur Kerja</span>
-      <h1>Report Daily OLT Down</h1>
+      <h1>Report Daily <span>OLT Down</span></h1>
       <p>Tiga langkah berurutan: pisahkan status device, sinkronkan hasil, lalu susun laporan harian. Klik langkah untuk membuka tool-nya.</p>
     </header>
+
+    <!-- Blue accent strip -->
+    <div class="accent-strip"></div>
 
     <div class="flow" id="flow"></div>
 
@@ -140,10 +227,20 @@
             <div class="step__title">${s.title}</div>
             <div class="step__desc">${s.desc}</div>
           </div>
+          <div class="step__chevron">${isActive ? '›' : ''}</div>
         </${tag}>
       </div>
     `;
   }).join('');
+
+  // live clock
+  function tick() {
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+  tick();
+  setInterval(tick, 1000);
 </script>
 
 <div style="text-align:center;padding:20px 0 40px;"><a href="../index.html" style="color:#5c7290;font-size:13px;text-decoration:none;">← Kembali ke Menu Utama</a></div>
