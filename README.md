@@ -11,6 +11,7 @@ Menu utama (`index.html`) punya 4 tombol, mengikuti alur kerja:
 - **Report Daily OLT Down** → halaman alur (`tools/report-daily-olt-down.html`) berisi 3 langkah berurutan: Split Done/Not Done → Sync → Daily Report
 - **Alarm** → halaman cabang (`tools/alarm.html`) berisi 2 pilihan sumber: UNM / NCE
 - **Daily Checklist** → langsung ke `tools/daily-checklist.html`
+- **GPS Incident Broadcast** → langsung ke `tools/gps-incident-broadcast.html`
 
 ## Struktur folder
 

@@ -1,246 +1,135 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Report Daily OLT Down · SURVTOOLKIT</title>
-  <link rel="stylesheet" href="../shared/theme.css">
-  <style>
-    /* ── Header bar ── */
-    .header-bar {
-      background: var(--bg-raised);
-      border-bottom: 1.5px solid var(--border);
-      border-top: 3px solid var(--accent);
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      height: 52px;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Report Daily OLT Down · SURVTOOLKIT</title>
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
 
-    .header-bar__logo {
-      font-family: var(--font-display);
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--accent);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      text-decoration: none;
-      transition: color 0.15s;
-    }
+  .wrap { max-width: 640px; margin: 0 auto; padding: 40px 24px 60px; }
 
-    .header-bar__logo:hover {
-      color: var(--accent-deep);
-    }
+  .back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 28px;
+  }
+  .back:hover { color: var(--accent); }
 
-    .header-bar__sep {
-      width: 1px;
-      height: 20px;
-      background: var(--border-bright);
-      flex-shrink: 0;
-    }
+  header.hero { margin-bottom: 36px; }
+  header.hero .eyebrow { display: block; margin-bottom: 8px; }
+  header.hero h1 { font-size: 24px; }
+  header.hero p { color: var(--text-dim); font-size: 14px; margin: 8px 0 0; line-height: 1.6; }
 
-    .header-bar__title {
-      font-family: var(--font-display);
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      letter-spacing: 0.02em;
-    }
-
-    .header-bar__clock {
-      margin-left: auto;
-      font-family: var(--font-mono);
-      font-size: 12px;
-      color: var(--text-dim);
-      letter-spacing: 0.04em;
-    }
-
-    .wrap {
-      max-width: 640px;
-      margin: 0 auto;
-      padding: 32px 24px 60px;
-    }
-
-    .back {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--font-display);
-      font-weight: 600;
-      font-size: 13px;
-      color: var(--text-dim);
-      margin-bottom: 28px;
-      transition: color 0.15s;
-    }
-
-    .back:hover {
-      color: var(--accent);
-    }
-
-    header.hero {
-      margin-bottom: 36px;
-    }
-
-    header.hero .eyebrow {
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    header.hero h1 {
-      font-size: 24px;
-    }
-
-    header.hero p {
-      color: var(--text-dim);
-      font-size: 14px;
-      margin: 8px 0 0;
-      line-height: 1.6;
-    }
-
-    /* ---------------------------------------------------------------
+  /* ---------------------------------------------------------------
      Sequential flow — numbering is meaningful here: this is a real
      3-step pipeline, each step depends on the previous one's output.
      --------------------------------------------------------------- */
-    .flow {
-      display: flex;
-      flex-direction: column;
-    }
+  .flow { display: flex; flex-direction: column; }
 
-    .step {
-      display: flex;
-      align-items: flex-start;
-      gap: 18px;
-    }
+  .step {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+  }
 
-    .step__rail {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      flex-shrink: 0;
-    }
+  .step__rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .step__num {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .step.idle .step__num { background: var(--signal-idle); }
+  .step__line {
+    width: 2px;
+    flex: 1;
+    background: var(--border-bright);
+    margin: 4px 0;
+    min-height: 28px;
+  }
 
-    .step__num {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: var(--accent);
-      color: #fff;
-      font-family: var(--font-display);
-      font-weight: 800;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+  .step__card {
+    flex: 1;
+    padding: 18px 20px;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  a.step__card:hover { border-color: var(--accent); background: var(--accent-dim); }
+  .step__card.disabled { opacity: 0.65; cursor: default; }
 
-    .step.idle .step__num {
-      background: var(--signal-idle);
-    }
-
-    .step__line {
-      width: 2px;
-      flex: 1;
-      background: var(--border-bright);
-      margin: 4px 0;
-      min-height: 28px;
-    }
-
-    .step__card {
-      flex: 1;
-      padding: 18px 20px;
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      transition: border-color 0.15s ease, background 0.15s ease;
-    }
-
-    a.step__card:hover {
-      border-color: var(--accent);
-      background: var(--accent-dim);
-    }
-
-    .step__card.disabled {
-      opacity: 0.65;
-      cursor: default;
-    }
-
-    .step__title {
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--text);
-    }
-
-    .step__desc {
-      font-size: 12.5px;
-      color: var(--text-dim);
-      margin-top: 3px;
-      line-height: 1.5;
-    }
-  </style>
+  .step__title { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--text); }
+  .step__desc { font-size: 12.5px; color: var(--text-dim); margin-top: 3px; line-height: 1.5; }
+</style>
 </head>
-
 <body>
 
-  <!-- Header bar -->
-  <nav class="header-bar">
-    <a class="header-bar__logo" href="../index.html">SURVTOOLKIT</a>
-    <div class="header-bar__sep"></div>
-    <span class="header-bar__title">Report Daily OLT Down</span>
-    <span class="header-bar__clock" id="clock">--:--:--</span>
-  </nav>
-
   <div class="wrap">
+
+    <a class="back" href="../index.html">← Menu Utama</a>
 
     <header class="hero">
       <span class="eyebrow">Alur Kerja</span>
       <h1>Report Daily OLT Down</h1>
-      <p>Tiga langkah berurutan: pisahkan status device, sinkronkan hasil, lalu susun laporan harian. Klik langkah untuk
-        membuka tool-nya.</p>
+      <p>Tiga langkah berurutan: pisahkan status device, sinkronkan hasil, lalu susun laporan harian. Klik langkah untuk membuka tool-nya.</p>
     </header>
 
     <div class="flow" id="flow"></div>
 
   </div>
 
-  <script src="../shared/utils.js"></script>
-  <script>
-    const STEPS = [
-      {
-        title: 'Split Done / Not Done',
-        desc: 'Pisahkan daftar device dari data mentah berdasarkan status DONE / NOT DONE.',
-        href: 'done-notdone.html',
-        status: 'active',
-      },
-      {
-        title: 'Sync',
-        desc: 'Sinkronkan hasil split dengan sumber data pembanding (dashboard/recap).',
-        href: 'sync.html',
-        status: 'active',
-      },
-      {
-        title: 'Daily Report',
-        desc: 'Susun hasil akhir menjadi format laporan harian siap kirim.',
-        href: 'daily-report.html',
-        status: 'active',
-      },
-    ];
+<script src="../shared/utils.js"></script>
+<script>
+  const STEPS = [
+    {
+      title: 'Split Done / Not Done',
+      desc: 'Pisahkan daftar device dari data mentah berdasarkan status DONE / NOT DONE.',
+      href: 'done-notdone.html',
+      status: 'active',
+    },
+    {
+      title: 'Sync',
+      desc: 'Sinkronkan hasil split dengan sumber data pembanding (dashboard/recap).',
+      href: 'sync.html',
+      status: 'active',
+    },
+    {
+      title: 'Daily Report',
+      desc: 'Susun hasil akhir menjadi format laporan harian siap kirim.',
+      href: 'daily-report.html',
+      status: 'active',
+    },
+  ];
 
-    const flowEl = document.getElementById('flow');
-    flowEl.innerHTML = STEPS.map((s, i) => {
-      const isActive = s.status === 'active';
-      const isLast = i === STEPS.length - 1;
-      const tag = isActive ? 'a' : 'div';
-      const hrefAttr = isActive ? `href="${s.href}"` : '';
-      const cardCls = isActive ? 'step__card panel' : 'step__card panel disabled';
-      return `
+  const flowEl = document.getElementById('flow');
+  flowEl.innerHTML = STEPS.map((s, i) => {
+    const isActive = s.status === 'active';
+    const isLast = i === STEPS.length - 1;
+    const tag = isActive ? 'a' : 'div';
+    const hrefAttr = isActive ? `href="${s.href}"` : '';
+    const cardCls = isActive ? 'step__card panel' : 'step__card panel disabled';
+    return `
       <div class="step ${isActive ? '' : 'idle'}">
         <div class="step__rail">
           <div class="step__num">${i + 1}</div>
@@ -254,22 +143,10 @@
         </${tag}>
       </div>
     `;
-    }).join('');
-  </script>
-  <script>
-    // live clock
-    function tick() {
-      const now = new Date();
-      document.getElementById('clock').textContent =
-        now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    }
-    tick();
-    setInterval(tick, 1000);
-  </script>
+  }).join('');
+</script>
 
-  <div style="text-align:center;padding:20px 0 40px;"><a href="../index.html"
-      style="color:#5c7290;font-size:13px;text-decoration:none;">← Kembali ke Menu Utama</a></div>
+<div style="text-align:center;padding:20px 0 40px;"><a href="../index.html" style="color:#5c7290;font-size:13px;text-decoration:none;">← Kembali ke Menu Utama</a></div>
 
 </body>
-
 </html>
