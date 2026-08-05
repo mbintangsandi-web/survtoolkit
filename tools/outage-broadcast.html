@@ -557,7 +557,7 @@
       const head = document.getElementById('previewHead');
       const body = document.getElementById('previewBody');
 
-      const visibleCols = ["DEVICE HOSTNAME", "ID TICKET", "STATUS BLAST DOWN", "DURASI", "PIC BLAST DOWN", "POTENSIAL USER IMPACT", "ROOTCAUSE", "DEVICE DOWN TIME"];
+      const visibleCols = ["DEVICE HOSTNAME", "ID TICKET", "STATUS BLAST DOWN", "DURASI", "PIC BLAST DOWN", "POTENSIAL USER IMPACT", "ROOTCAUSE", "DEVICE DOWN TIME", "UPDATE PROGRESS"];
 
       head.innerHTML = '<tr><th>#</th>' + visibleCols.map(c => `<th>${c}</th>`).join('') + '</tr>';
 
@@ -590,13 +590,34 @@
       // Jika sudah dalam format "X Jam" atau "X Hari Y Jam"
       if (/jam|hari/i.test(durStr)) return durStr;
 
+      // Normalisasi: ganti koma desimal → titik (format Indonesia: 13,24 → 13.24)
+      const normalized = durStr.trim().replace(',', '.');
+
+      // Format desimal jam: misal 13.24 → 13 jam 14 menit (0.24 × 60)
+      const decimalMatch = normalized.match(/^(\d+)\.(\d+)$/);
+      if (decimalMatch) {
+        const jamPart = parseInt(decimalMatch[1]);
+        const menitPart = Math.round(parseFloat('0.' + decimalMatch[2]) * 60);
+        const totalMinDecimal = jamPart * 60 + menitPart;
+        const jam = Math.floor(totalMinDecimal / 60);
+        const menit = totalMinDecimal % 60;
+        if (jam >= 24) {
+          const hari = Math.floor(jam / 24);
+          const sisaJam = jam % 24;
+          const menitStr = menit > 0 ? ` ${menit} Menit` : '';
+          return sisaJam > 0 ? `${hari} Hari ${sisaJam} Jam${menitStr}` : `${hari} Hari${menitStr}`;
+        }
+        const menitStr = menit > 0 ? ` ${menit} Menit` : '';
+        return `${jam} Jam${menitStr}`;
+      }
+
       // Coba parse menit (angka bulat)
       let totalMin = null;
-      if (/^\d+$/.test(durStr.trim())) {
-        totalMin = parseInt(durStr);
+      if (/^\d+$/.test(normalized)) {
+        totalMin = parseInt(normalized);
       }
       // Format HH:MM
-      const hhmmMatch = durStr.match(/^(\d+):(\d{2})$/);
+      const hhmmMatch = normalized.match(/^(\d+):(\d{2})$/);
       if (hhmmMatch) {
         totalMin = parseInt(hhmmMatch[1]) * 60 + parseInt(hhmmMatch[2]);
       }
@@ -646,15 +667,17 @@
         const jumlahTiket = '-'; // tidak ada di kolom, biarkan strip
         const potensi = row["POTENSIAL USER IMPACT"] || '-';
         const rootcause = row["ROOTCAUSE"] || '-';
+        const updateProgress = row["UPDATE PROGRESS"] || '-';
 
         if (idx > 0) out += `\n`;
         out += `HOSTNAME OLT    : ${hostname}\n`;
         out += `NO. INCIDENT    : ${idTicket}\n`;
-        out += `NAMA PETUGAS    : ${pic}\n`;
+        out += `NAMA PETUGAS    : (AMBIL DATA DARI ICRM)\n`;
         out += `DURASI DOWN     : ${durasi}\n`;
-        out += `JUMLAH TIKET    : ${jumlahTiket}\n`;
+        out += `JUMLAH TIKET    : (AMBIL DATA DARI ICRM)\n`;
         out += `POTENSI IMPACT  : ${potensi}\n`;
         out += `PRE ROOTCAUSE   : ${rootcause}\n`;
+        out += `UPDATE PROGRESS : ${updateProgress}\n`;
       });
 
       document.getElementById('outputText').textContent = out;
