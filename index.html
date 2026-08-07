@@ -53,6 +53,40 @@
   .menu-item.disabled { opacity: 0.6; cursor: default; }
   .menu-item.disabled:hover { border-color: var(--border); background: var(--panel); transform: none; }
 
+  /* Locked — blur + coming soon badge */
+  .menu-item.locked {
+    position: relative;
+    cursor: not-allowed;
+    overflow: hidden;
+  }
+  .menu-item.locked:hover { border-color: var(--border); background: var(--panel); transform: none; }
+  .menu-item.locked .menu-item__body {
+    filter: blur(3.5px);
+    user-select: none;
+    pointer-events: none;
+  }
+  .menu-item.locked .menu-item__chevron {
+    filter: blur(3.5px);
+    pointer-events: none;
+  }
+  .menu-item.locked::after {
+    content: '🔒 Coming Soon';
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--accent);
+    background: rgba(0,0,0,0.18);
+    backdrop-filter: blur(1px);
+    -webkit-backdrop-filter: blur(1px);
+    border-radius: inherit;
+  }
+
   .menu-item__body { flex: 1; min-width: 0; }
   .menu-item__title {
     font-family: var(--font-display);
@@ -135,7 +169,7 @@
       title: 'Daily Checklist',
       desc: 'Checklist jobdesc harian per jam, tiga shift, dengan rekap skor.',
       href: 'tools/daily-checklist.html',
-      status: 'active',
+      status: 'locked',
     },
     {
       title: 'GPS Incident Broadcast',
@@ -148,9 +182,12 @@
   const menuEl = document.getElementById('menu');
   menuEl.innerHTML = MENU.map(m => {
     const isActive = m.status === 'active';
+    const isLocked = m.status === 'locked';
     const tag = isActive ? 'a' : 'div';
     const hrefAttr = isActive ? `href="${m.href}"` : '';
-    const cls = isActive ? 'menu-item panel' : 'menu-item panel disabled';
+    let cls = 'menu-item panel';
+    if (!isActive && !isLocked) cls += ' disabled';
+    if (isLocked) cls += ' locked';
     return `
       <${tag} class="${cls}" ${hrefAttr}>
         <div class="menu-item__body">
