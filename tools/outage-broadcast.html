@@ -415,11 +415,6 @@
       </div>
       <textarea class="paste-input" id="pasteInput"
         placeholder="Paste data TSV di sini (termasuk baris header)..."></textarea>
-      <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
-        <button class="btn btn-secondary" onclick="isiContoh()">📋 Isi Contoh</button>
-        <button class="btn btn-secondary" onclick="resetAll()">🗑️ Reset</button>
-        <button class="btn btn-primary" onclick="parseData()">⚡ Proses Data</button>
-      </div>
     </div>
 
     <!-- STEP 2: Header broadcast -->
@@ -449,6 +444,11 @@
           <input type="number" id="incidentBelum" placeholder="0" min="0">
         </div>
       </div>
+    </div>
+    <div style="margin-top:-10px; margin-bottom:22px; display:flex; gap:8px; flex-wrap:wrap;">
+      <button class="btn btn-secondary" onclick="isiContoh()">Isi Contoh</button>
+      <button class="btn btn-secondary" onclick="resetAll()">Reset</button>
+      <button class="btn btn-primary" onclick="parseData()">Proses Data</button>
     </div>
 
     <!-- Preview table -->
