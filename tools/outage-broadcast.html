@@ -398,17 +398,15 @@
 <body>
 
   <div class="header">
-    <div class="header-icon">🔴</div>
     <div>
       <div class="header-title">Follow Up OLT DOWN &gt; 8 Jam — Broadcast Generator</div>
-      <div class="header-sub">Paste data TSV dari sistem monitoring → generate format broadcast</div>
     </div>
   </div>
 
   <div class="main">
 
     <!-- STEP 1: Paste data -->
-    <div class="section-label">1 — Paste Data TSV (dengan header)</div>
+    <div class="section-label">1 — Ambil data dari Sheet OLT DOWN</div>
     <div class="paste-card">
       <div class="paste-hint">
         Copy satu baris penuh dari sheet OLT DOWN.
@@ -418,7 +416,7 @@
     </div>
 
     <!-- STEP 2: Header broadcast -->
-    <div class="section-label">2 — Info Header Broadcast</div>
+    <div class="section-label">2 — Set Header</div>
     <div class="paste-card">
       <div class="meta-grid">
         <div class="field-group">
@@ -464,12 +462,13 @@
       <!-- STEP 3: Generate -->
       <div class="section-label">4 — Pilih & Generate Broadcast</div>
       <div style="margin-bottom:14px;">
-        <div class="paste-hint" style="margin-bottom:8px;">Pilih baris yang ingin dimasukkan ke broadcast (klik untuk
+        <div class="paste-hint" style="margin-bottom:8px;">Pilih/filter baris data berdasarkan kategori Region yang akan
+          di broadcast (klik untuk
           toggle, atau gunakan tombol di bawah):</div>
         <div class="btn-row">
-          <button class="btn btn-secondary" onclick="pilihSemua()">☑ Pilih Semua</button>
-          <button class="btn btn-secondary" onclick="hapusPilihan()">☐ Hapus Pilihan</button>
-          <button class="btn btn-green" onclick="generateBroadcast()">📢 Generate Broadcast</button>
+          <button class="btn btn-secondary" onclick="pilihSemua()">Pilih Semua</button>
+          <button class="btn btn-secondary" onclick="hapusPilihan()">Hapus Pilihan</button>
+          <button class="btn btn-green" onclick="generateBroadcast()">Generate Broadcast</button>
         </div>
       </div>
     </div>
@@ -480,7 +479,7 @@
       <div class="output-card">
         <div class="output-topbar">
           <span class="output-topbar-title">FORMAT BROADCAST</span>
-          <button class="btn btn-green" onclick="salinOutput()">📋 Salin</button>
+          <button class="btn btn-green" onclick="salinOutput()">Salin</button>
         </div>
         <div class="output-text" id="outputText"></div>
       </div>
@@ -646,7 +645,7 @@
       if (rows.length === 0) { alert('Pilih minimal 1 baris data!'); return; }
 
       let out = '';
-      out += `🔴 List Follow Up OLT DOWN Lebih Dari 8 Jam ${waktu}\n`;
+      out += `🔴 FOLLOW UP OLT DOWN Lebih Dari 8 jam ${waktu}\n`;
       out += `--------------------------\n`;
       out += `${kodeRegion} ${jumlahOlt} OLT\n`;
       out += `--------------------------\n`;
