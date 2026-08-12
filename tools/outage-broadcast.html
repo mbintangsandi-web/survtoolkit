@@ -475,14 +475,12 @@
 
     <!-- Output -->
     <div id="outputSection" style="display:none;">
-      <div class="section-label">5 — Hasil Broadcast</div>
-      <div class="output-card">
-        <div class="output-topbar">
-          <span class="output-topbar-title">FORMAT BROADCAST</span>
-          <button class="btn btn-green" onclick="salinOutput()">Salin</button>
-        </div>
-        <div class="output-text" id="outputText"></div>
+      <div class="section-label" style="display:flex; align-items:center; justify-content:space-between;">
+        <span>5 — Hasil Broadcast</span>
+        <button class="btn btn-secondary" style="font-size:11px; padding:5px 12px;"
+          onclick="hapusSemuaBroadcast()">Hapus Semua</button>
       </div>
+      <div id="broadcastList"></div>
     </div>
 
   </div>
@@ -633,6 +631,8 @@
       return durStr;
     }
 
+    let broadcastCounter = 0;
+
     function generateBroadcast() {
       const waktu = document.getElementById('waktuBroadcast').value.trim() || 'HH:MM DD/MM/YYYY';
       const kodeRegion = document.getElementById('kodeRegion').value.trim() || '-';
@@ -675,14 +675,47 @@
         out += `UPDATE PROGRESS : ${updateProgress}\n`;
       });
 
-      document.getElementById('outputText').textContent = out;
+      // Tambahkan kartu baru ke daftar broadcast
+      broadcastCounter++;
+      const cardId = 'bc-' + broadcastCounter;
+      const card = document.createElement('div');
+      card.className = 'output-card';
+      card.id = cardId;
+      card.innerHTML = `
+        <div class="output-topbar">
+          <span class="output-topbar-title">BROADCAST #${broadcastCounter} — ${kodeRegion}</span>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-green" onclick="salinBroadcast('${cardId}')">Salin</button>
+            <button class="btn btn-secondary" onclick="hapusBroadcast('${cardId}')">Hapus</button>
+          </div>
+        </div>
+        <div class="output-text" id="text-${cardId}"></div>
+      `;
+      card.querySelector('#text-' + cardId).textContent = out;
+      document.getElementById('broadcastList').appendChild(card);
+
       document.getElementById('outputSection').style.display = '';
-      document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function salinOutput() {
-      const txt = document.getElementById('outputText').textContent;
+    function salinBroadcast(cardId) {
+      const txt = document.getElementById('text-' + cardId).textContent;
       navigator.clipboard.writeText(txt).then(() => showToast('✅ Disalin!'));
+    }
+
+    function hapusBroadcast(cardId) {
+      const card = document.getElementById(cardId);
+      if (card) card.remove();
+      // Sembunyikan section jika tidak ada kartu tersisa
+      if (document.getElementById('broadcastList').children.length === 0) {
+        document.getElementById('outputSection').style.display = 'none';
+      }
+    }
+
+    function hapusSemuaBroadcast() {
+      document.getElementById('broadcastList').innerHTML = '';
+      document.getElementById('outputSection').style.display = 'none';
+      broadcastCounter = 0;
     }
 
     function showToast(msg) {
@@ -699,7 +732,7 @@
     function resetAll() {
       document.getElementById('pasteInput').value = '';
       document.getElementById('previewSection').style.display = 'none';
-      document.getElementById('outputSection').style.display = 'none';
+      hapusSemuaBroadcast();
       parsedRows = []; selected.clear();
     }
 
