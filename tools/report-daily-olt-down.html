@@ -141,7 +141,7 @@
       <span class="eyebrow">Alur Kerja</span>
       <h1>Report Daily OLT Down</h1>
       <p>Tiga langkah berurutan: pisahkan status device, sinkronkan hasil, lalu susun laporan harian. Klik langkah untuk
-        membuka tool-nya.</p>
+        membuka tool-nya dan pastikan filter pada sheet OLT DOWN pada kolom tiket aktif dalam status OPEN</p>
     </header>
 
     <div class="flow" id="flow"></div>
@@ -153,13 +153,13 @@
     const STEPS = [
       {
         title: 'Split Done / Not Done',
-        desc: 'Pisahkan daftar device dari data mentah berdasarkan status DONE / NOT DONE.',
+        desc: 'Pisahkan daftar device berdasarkan status perangkat DONE / NOT DONE.',
         href: 'done-notdone.html',
         status: 'active',
       },
       {
         title: 'Sync',
-        desc: 'Sinkronkan hasil split dengan sumber data pembanding (dashboard/recap).',
+        desc: 'Sinkronkan hasil split dengan data yang ada di ZABBIX.',
         href: 'sync.html',
         status: 'active',
       },
