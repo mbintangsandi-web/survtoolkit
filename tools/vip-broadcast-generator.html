@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Broadcast Gangguan User VIP</title>
+<style>
+  :root{
+    --accent:#2f6fe4;
+    --bg:#f2f6fc;
+    --card:#ffffff;
+    --border:#dbe4f3;
+    --text:#1c2b3f;
+    --muted:#5b6c85;
+    --danger:#e0393e;
+    --ok:#1f9d55;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    padding:24px;
+  }
+  h1{
+    font-family:'Plus Jakarta Sans','Inter',sans-serif;
+    font-size:22px;
+    margin:0 0 4px;
+    color:var(--accent);
+  }
+  .sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
+  .wrap{max-width:920px;margin:0 auto;}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+    margin-bottom:18px;
+    box-shadow:0 1px 3px rgba(20,40,80,.05);
+  }
+  label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--muted);
+    margin-bottom:6px;
+    margin-top:14px;
+  }
+  label:first-child{margin-top:0;}
+  input, select, textarea{
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--border);
+    border-radius:9px;
+    font-size:14px;
+    font-family:inherit;
+    background:#fbfcfe;
+    color:var(--text);
+  }
+  input:focus, select:focus, textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 3px rgba(47,111,228,.12);
+  }
+  .searchbox{position:relative;}
+  .results{
+    position:absolute;
+    top:100%;left:0;right:0;
+    background:#fff;
+    border:1px solid var(--border);
+    border-top:none;
+    border-radius:0 0 9px 9px;
+    max-height:260px;
+    overflow-y:auto;
+    z-index:20;
+    box-shadow:0 8px 20px rgba(20,40,80,.12);
+    display:none;
+  }
+  .results.show{display:block;}
+  .result-item{
+    padding:9px 12px;
+    cursor:pointer;
+    border-bottom:1px solid #eef2f8;
+    font-size:13px;
+  }
+  .result-item:last-child{border-bottom:none;}
+  .result-item:hover{background:#eef4ff;}
+  .result-item b{color:var(--accent);}
+  .result-item .meta{color:var(--muted);font-size:11.5px;margin-top:2px;}
+  .selected-box{
+    margin-top:14px;
+    padding:12px 14px;
+    background:#eef4ff;
+    border:1px solid #cfe0fb;
+    border-radius:10px;
+    font-size:13px;
+    display:none;
+  }
+  .selected-box.show{display:block;}
+  .selected-box .row{margin-bottom:3px;}
+  .selected-box .lbl{color:var(--muted);display:inline-block;min-width:90px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:600px){.grid2{grid-template-columns:1fr;}}
+  button{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:11px 20px;
+    border-radius:9px;
+    font-size:14px;
+    font-weight:600;
+    cursor:pointer;
+    margin-top:18px;
+  }
+  button:hover{background:#255bc4;}
+  button.secondary{
+    background:#fff;
+    color:var(--accent);
+    border:1px solid var(--accent);
+    margin-left:8px;
+  }
+  button.secondary:hover{background:#eef4ff;}
+  .btnrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .output-wrap{position:relative;}
+  #output{
+    white-space:pre-wrap;
+    background:#0f1b2d;
+    color:#dce8ff;
+    padding:18px;
+    border-radius:12px;
+    font-family:'IBM Plex Mono',ui-monospace,monospace;
+    font-size:13px;
+    line-height:1.55;
+    min-height:80px;
+  }
+  .copy-btn{
+    position:absolute;
+    top:12px;right:12px;
+    background:#2f6fe4;
+    color:#fff;
+    border:none;
+    padding:7px 14px;
+    border-radius:7px;
+    font-size:12.5px;
+    cursor:pointer;
+    margin:0;
+  }
+  .copy-btn.copied{background:var(--ok);}
+  .hint{font-size:11.5px;color:var(--muted);margin-top:6px;}
+  .badge{
+    display:inline-block;
+    font-size:10.5px;
+    background:var(--accent);
+    color:#fff;
+    padding:2px 8px;
+    border-radius:20px;
+    margin-left:8px;
+    vertical-align:middle;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>👑 Broadcast Gangguan User VIP<span class="badge" id="countBadge"></span></h1>
+  <div class="sub">Cari user VIP (nama / ID Pelanggan), lengkapi SID, waktu down & nomor tiket, lalu generate broadcast.</div>
+
+  <div class="card">
+    <label>Cari User VIP (ketik nama atau ID Pelanggan)</label>
+    <div class="searchbox">
+      <input type="text" id="searchInput" placeholder="Contoh: Jaelani atau 121000243768" autocomplete="off">
+      <div class="results" id="results"></div>
+    </div>
+    <div class="selected-box" id="selectedBox">
+      <div class="row"><span class="lbl">ID Pelanggan</span>: <b id="selId"></b></div>
+      <div class="row"><span class="lbl">Nama</span>: <b id="selNama"></b></div>
+      <div class="row"><span class="lbl">GPON</span>: <b id="selGpon"></b></div>
+      <div class="row"><span class="lbl">OLT</span>: <b id="selOlt"></b></div>
+    </div>
+    <div class="hint">Belum ketemu usernya? Isi manual di bawah (ID/SID/Nama/Hostname bisa diedit langsung).</div>
+  </div>
+
+  <div class="card">
+    <label style="margin-top:0;">Tujuan Broadcast</label>
+    <select id="tujuanBroadcast" onchange="onTujuanChange()">
+      <option value="advance_solver">Advance Solver (ke User, dengan tag CC)</option>
+      <option value="teknisi">Teknisi Regional (minta tim turun perbaikan)</option>
+    </select>
+
+    <label>Jenis Kendala</label>
+    <select id="jenisKendala" onchange="onJenisChange()">
+      <option value="olt_down">OLT Down</option>
+      <option value="dying_gasp">Dying Gasp</option>
+      <option value="port_down">Port Down / Loss (Linkloss)</option>
+    </select>
+    <div class="hint" id="jenisHint"></div>
+
+    <label style="margin-top:14px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <input type="checkbox" id="ccToggle" checked style="width:auto;margin:0;" onchange="toggleCcBox()">
+      <span style="margin:0;">Sertakan CC di broadcast</span>
+    </label>
+    <div id="ccBoxWrap">
+      <textarea id="ccList" rows="2" style="resize:vertical;">pak @~hiltanto sidik sudrajat , pak @~Gumilang Indra Wijàya , mas @ICON+ - Ahmad Khairu Ramdani ,bu @~Yanti Y. Argadinata ,mba @~Dewi Wulandari ,mba @~Rada</textarea>
+      <div class="hint">Daftar CC bisa diedit langsung sesuai kebutuhan.</div>
+    </div>
+
+    <div class="grid2" style="margin-top:14px;">
+      <div>
+        <label style="margin-top:0;">ID Pelanggan</label>
+        <input type="text" id="idpel" placeholder="Contoh: 121000243768">
+      </div>
+      <div>
+        <label>SID</label>
+        <input type="text" id="sid" placeholder="Contoh: 010105029221">
+      </div>
+    </div>
+    <label>Nama User</label>
+    <input type="text" id="nama" placeholder="Contoh: JAELANI">
+    <label>Hostname OLT (termasuk port GPON)</label>
+    <input type="text" id="hostname" placeholder="Contoh: JABAR-KEC.BOJONG.PWK-RC-OLT-01 GPON 1/4">
+    <div class="grid2">
+      <div>
+        <label>Time Down</label>
+        <input type="text" id="timedown" placeholder="Contoh: 12/8/2026 2:30:00">
+      </div>
+      <div>
+        <label>Nomor Tiket</label>
+        <input type="text" id="tiket" placeholder="Contoh: A0536861">
+      </div>
+    </div>
+    <div class="btnrow">
+      <button onclick="generate()">Generate Broadcast</button>
+      <button class="secondary" onclick="fillSample()">Isi Contoh</button>
+      <button class="secondary" onclick="resetForm()">Reset</button>
+    </div>
+  </div>
+
+  <div class="card output-wrap">
+    <label style="margin-top:0;">Hasil Broadcast</label>
+    <button class="copy-btn" id="copyBtn" onclick="copyOutput()">Copy</button>
+    <div id="output">Isi form di atas lalu klik "Generate Broadcast".</div>
+  </div>
+</div>
+
+<script>
+const VIP_DATA = [
+["111000055999","Rosky HR","GPON 0/1/7","JKT-ATSIRI.PERMAI-HW.MA5801-OLT-01"],
+["111000106237","Dodik Ariyanto","GPON 2/4/4","JKT-MINI.KD52N.RAWA.DOMBA.FH.AN6000.2-OLT-01"],
+["111000119078","Erys Epsilon Eridani","GPON 0/2/13","JKT-PAGELARAN.CIOMAS-HW.MA5800X2-OLT-01"],
+["111000126718","Rahdiyan","GPON 0/1/4","JKT-MINI-BUMI.NARIMBANG-HW.MA5800X2-OLT-01"],
+["111000597292","Syahrial Hubbany","GPON 0/1/0","JKT-BDN.DEPOK-HW.MA5801-OLT-01"],
+["111000633927","Widy A Rachman","GPON 1/2","JKT-ZAKARIA.GANDUL-RC-OLT-01"],
+["111000777054","Dewi Sri Wahyunie","GPON 0/1/4","JKT-GIS.PONDOK.INDAH-MA5600T-OLT-01"],
+["111000794521","Sriyono","GPON 0/7/12","JKT-ODC.GUDANG.KALIABANG-MA5800-X7-OLT-01"],
+["111000855819","Wing Antariksa","GPON 0/1/5","JKT-MINI.GH.RG75-MA5800X2-OLT-01"],
+["111000880825","Noesitaindriani","GPON 0/1/11","JKT-MINI.GH.RG75-MA5800X2-OLT-01"],
+["111000889785","R Ari Wasono","GPON 0/1/0","JABAR-ODC.UP3.MAJALAYA-OLT.EA5801-01"],
+["111000896264","Binsar Siregar","GPON 0/7/4","JKT-ODC.MUSTIKA.JAYA-MA5800.X7-OLT-01"],
+["111000896472","Endah Purnama Sari","GPON 0/7/3","JKT-ODC.MUSTIKA.JAYA-MA5800.X7-OLT-01"],
+["111000897946","Henri Firdaus","GPON 0/1/1","JKT-MINI-METRO_RESIDENCE-MA5800X2-OLT-01"],
+["111000899626","Rudiantara","GPON 0/1/6","JKT-MINI.IPB2-MA5800X2-OLT-01"],
+["111000900711","Adi Priyanto","GPON 2/4/9","JKT-TAMAN.YASMIN-AN5116-06B-OLT-01"],
+["111000922628","Yuni Suryanto","GPON 0/1/6","JKT-DEPOK.CABANG-HW.MA5801-OLT-03"],
+["11100093221","Nia Asnawati","GPON 1/1/4 72","JKT-1DPK031.PLT.AIR-RC-OLT-01"],
+["111000956544","Srilasti Anggrameini","GPON 3/3","JKT-1DPK038.CMGS1-RC-OLT-01"],
+["111000975662","Nurindah","GPON 0/1/12","JKT-ODC.UP3.CEMPAKA.PUTIH-MA5800.X7-OLT-01"],
+["111000979276","Jesaya Philip","GPON 1/3","JKT-1TNA024.TNH.TNGI2-RC-OLT-01"],
+["111000983274","Bambang Waskito Bekti","GPON 0/5/3","JKT-PLN.PUSAT-MA5600T-OLT-01"],
+["111000983331","Ir Rizky Ferianto Ma","GPON 0/2/2","JKT-PLN.PUSAT-MA5600T-OLT-01"],
+["111000985723","Ratu Febriana Erawati","GPON 0/2/6","JKT-GANDUL-MA5600T-OLT-01"],
+["111000986102","Nuredy Kusuma Rianto","GPON 0/1/5","JKT-GIS.PONDOK.INDAH-MA5600T-OLT-01"],
+["111000988243","Luciana Setiawati","GPON 1/3/1","JKT-PATAL.SENAYAN-RC6820-OLT-01"],
+["111000988641","I Made Ro Sakya","GPON 0/6/7","JKT-GANDUL-MA5600T-OLT-01"],
+["111000988669","Ardian Cholid","GPON 1/9/15","JKT-MINI.BT37.SAPTA.TARUNA-FH.AN6001.G16-OLT-01"],
+["111000988821","Eko Yudo Pramono","GPON 0/4/0","JKT-GANDUL-MA5600T-OLT-01"],
+["111000991843","DR, Rochkadar Sukada","GPON 0/3/1","JKT-GANDUL-MA5600T-OLT-01"],
+["111000991947","Ismail Deu","GPON 0/1/7","JKT-GANDUL-MA5600T-OLT-01"],
+["111000991952","Syamsul Huda","GPON 1/9/8","JKT-1DPK10084.PANGKALAN.JATI-FH.AN6001-OLT-01"],
+["111000992151","Hoetomo Lembito","GPON 0/5/3","JKT-GANDUL-MA5600T-OLT-01"],
+["111000992582","I Putu Riasa","GPON 0/1/2","JKT-GANDUL-MA5600T-OLT-01"],
+["111001002889","Ameliya Sabrina","GPON 0/7/9","JKT-MINI.GH.CENDANA-MA5800X7-OLT-01"],
+["111001003254","Dina Nurul Fitria (VIP)","GPON 0/7/11","JKT-MINI.GH.CENDANA-MA5800X7-OLT-01"],
+["111001015958","Feby Joko","GPON 0/1/7","JKT-TAMAN.RASUNA-MA5600T-OLT-01"],
+["111001016659","Heri Purnomo","GPON 0/1/2","JKT-MINI.PONDOK.KOPI-HW.MA5800X2-OLT-01"],
+["111001017559","Agustri Suardi","GPON 0/1/5","JKT-ODC.UP3.PONDOK.KOPI-MA5800X7-OLT-01"],
+["111001022599","Handi Simpati","GPON 0/1/3","JKT-ODC.UP3.MARUNDA-MA5800X7-OLT-01"],
+["111001034271","Astri Kartika El Nur","GPON 0/4/4","JKT-DUREN.TIGA-MA5600T-OLT-01"],
+["111001036952","M. Dalyono","GPON 0/1/4","JKT-SHELTER.CAWANG-HW.MA5800X2-OLT-01"],
+["111001039382","IR HJ Sripeni Inten Cahyani","GPON e0/0/8","JKT-SHELTER.CILEUNGSI-ZYXEL.MGS3520-SPE-02"],
+["111001044545","Agung Siswanto","GPON 1/2/1","JKT-SHELTER.DURENTIGA-AN6002-OLT-01"],
+["111001052271","Edison Sipahutar","GPON 1/5/32","JKT-MINI.GUDANG.CURUG-AN5516.04-OLT-01"],
+["111001223031","Erwin Panigoro Panigoro","GPON 0/1/9","JKT-GRAHA.BINTARO-HW.MA5801-OLT-02"],
+["111001237952","Tasya Salim","GPON 0/4/5","JKT-PLN.PUSAT-MA5600T-OLT-01"],
+["111001412678","Firman Anindra","GPON 1/3/26","JKT-MINI.PM161A.PEJATEN-FH.AN6001.G16-OLT-01"],
+["111001641267","Bobby Mandala Putra","GPON 0/1/14","JKT-ODC.UP3.DEPOK-MA5800.X7-OLT-01"],
+["111001768449","Rida Mulyana Endang","GPON 0/1/13","JKT-PONDOK.PUCUNG-HW.MA5801-OLT-01"],
+["111001969077","Yasril Sjaf","GPON 1/9/8","JKT-1DPK10088.KP.NUSANTARA-FH.AN6001-OLT-01"],
+["111002119754","Abdul Rachman","GPON 0/1/13","JKT-1KYB10064.H.JIAN.FATMAWATI-HW.MA5801-OLT-01"],
+["111002179435","Fauline Ye Thahar","GPON 1/3/25","JKT-AP.BULUNGAN-FH.AN5116-OLT-01"],
+["111002336083","Nadira Natasya","GPON 0/2/14","JKT-PURNAWIRAWAN.KOPASSUS-HW.MA5800X2-OLT-01"],
+["111002639691","Edo Mahendra","GPON 0/1/15","JKT-1KYB10050.PINANG.KALIJATI-HW.MA5801-OLT-01"],
+["111002769175","Victoria Indrawati","GPON 1/4","JKT-1DPK029.MPG.HLS-RC-OLT-01"],
+["111002785567","Bertho Fernando","GPON 2/10/1","JKT-MINI.GHTP41.RAWASARI-FH.AN6000.2-OLT-01"],
+["111002795091","R. Bagoes Bawono K","GPON 2/5/6","JKT-MINI.PASARREBO-FH.AN6000.2-OLT-01"],
+["111002905513","Erick Bhayukrishna","GPON 0/1/13","JKT-MINI.DEPOK.SUKMA.JAYA.9803-HW.MA5801-OLT-01"],
+["111002955728","Hendrik H Ssitompul","GPON 0/2/6","JKT-TAMAN.RASUNA-MA5600T-OLT-01"],
+["111003000065","Putut Dewanto Hardo","GPON 0/5/2","JKT-GANDUL-MA5600T-OLT-01"],
+["111003205325","Fajri","GPON 1/11/1","JKT-SHELTER.DURENTIGA-AN6002-OLT-01"],
+["111003394131","Muslimin","GPON 2/9/6","JKT-MINI.PM47.SALIHARA-FH.AN6000.2-OLT-01"],
+["111004767764","Bonni Widhiya Rahayuni","GPON 1/3/14","JKT-1KYB10055.APT.MAHATA.TJ.BARAT-ZTE.C610-OLT-02"],
+["111004867922","Aditya Syarief D","GPON 0/1/4","JKT-ODC.UP3.PONDOK.KOPI-MA5800X7-OLT-01"],
+["111005113779","Taufan Marviansha Roekman","GPON 0/5/4","JKT-PLN.PUSAT-MA5600T-OLT-01"],
+["111005248744","Arham","GPON 2/14/7","JKT-MINI.PAMULANG.PARK-FH.AN6000.2-OLT-01"],
+["113000005186","Benny Pasaribu","GPON 1/11/7","JKT-MINI.PM48.KALIBATA.FH-AN6000.2-OLT-01"],
+["121000231346","Raharsiani Riska Raharsiani","GPON 0/1/0","JABAR-MINI.ODC.UP3.CIMAHI-HW-EA5801-OLT-01"],
+["121000243768","Jaelani","GPON 1/4","JABAR-KEC.BOJONG.PWK-RC-OLT-01"],
+["121000297487","Prof. Dr. Ilya Avianti S.E., M.S., AK","GPON 1/0/7/1","JABAR-ODC.BANDUNG.TIMUR-BD.GP3600-OLT-01"],
+["121000299001","Heryanto","GPON 0/8:26","JABAR-ODC.BANDUNG.TIMUR-BD.GP3600-OLT-01"],
+["121000300576","Yonna Chrisman Syah","GPON 0/1/14","JABAR-MINI.POP.PERMATA.BUAH.BATU-MA5800X2-OLT-01"],
+["121000305848","Fanny Hendrafasya","GPON 1/6/43","JABAR-BANDUNG.UTARA-AN6001.G16-OLT-01"],
+["121000666843","Syaiful Anwar","GPON 0/1/6","JABAR-MINI.POP.MJL.SUMBERJYA.2500-HW.MA5801-OLT-01"],
+["121001270825","Dahlia Febrina","GPON 0/1/12","JABAR-ODC.CJR.KARANGTENGAH.2971-HW.MA5801-OLT-01"],
+["121001399762","Rumdis Danyon | Cahya Putra Efendi","GPON 0/1/12","JABAR-ODC.CJR.CIPANAS.7835-HW.MA5801-OLT-01"],
+["121003012281","Diani","GPON 0/5/25","JABAR-ULP.CIJAWURA-BD.GP3600.16-OLT-01"],
+["121100296073","Susinta","GPON 0/1/7","JABAR-MINI.POP.GITET.TASIKMALAYA-HW.MA5801-OLT-01"],
+["121100308464","Mega Indah Mawati","GPON 0/1/9","JABAR-MINI-POP.GARUT.CITY-HUAWEI.MA5801-OLT-01"],
+["121100314516","Dadang (GI Samudra)","GPON e0/0/2","JABAR-GI.SUMADRA-ZYXEL.MGS3520-SPE-01"],
+["121200260882","Kusdiono Yoyo Kusdiono","GPON 0/1/3 15","JABAR-BOX.SMD.CILEMBU-HW.MA5801-OLT-01"],
+["121200267283","Bc Villa","GPON 0/1/3 14","JABAR-BOX.SMD.CILEMBU-HW.MA5801-OLT-01"],
+["121200323012","Ir Hudiono","GPON 0/1/3 17","JABAR-BOX.SMD.CILEMBU-HW.MA5801-OLT-01"],
+["121200312578","Tanjungsari Rais Herdian","GPON 0/1/1","JABAR-BOX.SMD.TJGSARI.KUTAMANDIRI-HW.MA5801-OLT-01"],
+["131000183336","Latifah 1 (Solo)","GPON 0/1/29","JATENG-SHELTER.PALUR-BD.GP3600-OLT-01"],
+["131000183495","Latifah 2 (Solo)","GPON 0/1/41","JATENG-SHELTER.PALUR-BD.GP3600-OLT-01"],
+["131000184623","Latifah 3 (Jebres)","GPON 0/2/14","JATENG-SHELTER.PALUR-BD.GP3600-OLT-01"],
+["141000612373","Mudi Idayanti S.Pd","GPON 0/1/0","JATIM-SIDOARJO.ODC.LEBO-HW.MA5801-OLT-01"],
+["151000964817","Ir. Ida Bagus Ari Wardana MT","GPON 1/14/1","BALI-SANUR.DANGINPURI-FH.AN6001.G16-OLT-06"],
+["151000964822","Ida Bagus Ari Wardana (Lantai 2)","GPON 1/14/2","BALI-SANUR.DANGINPURI-FH.AN6001.G16-OLT-06"],
+["151000964841","Ida Bagus Ari Wardana (Lantai 3)","GPON 1/14/3","BALI-SANUR.DANGINPURI-FH.AN6001.G16-OLT-06"],
+["151001715732","Cokorda Istri Sri Arisanti","GPON 0/1/12","BALI-DRMGWSA.TAMAN.GRIYA-HW.MA5801-OLT-01"],
+["152000000585","Ir. Ida Bagus Surya Sanjaya","GPON 0/1/5","BALI-KAPAL.PEGUYANGAN-HW.MA5801-OLT-01"],
+["211001568427","Mega Sartika","GPON 0/1/0","SBS-LUBUK.LINGGAU-HW.MA5801-OLT-05"],
+["311000700244","Uray Neldawati","GPON 1/6/5","RKAL-TAMAN.ROBAN.SKW-FH.AN6001.G16-OLT-01"],
+["411001487618","Parlindungan Sihombing","GPON 0/1/1","RIT-TOMOHON.SELATAN-HW.MA5801-OLT-01"],
+["547102641896","Andi Mujahidin","GPON 1/4/1","JKT-MIKRO.ALFA.PINANG.RANTI3-AN6001.G16-OLT-01"],
+["547300923543","Hadi (VIP)","GPON 1/1/1","JKT-MIKRO.ALFA.PINANG.RANTI3-AN6001.G16-OLT-01"]
+];
+
+document.getElementById('countBadge').textContent = VIP_DATA.length + ' User VIP';
+
+const searchInput = document.getElementById('searchInput');
+const resultsBox = document.getElementById('results');
+const selectedBox = document.getElementById('selectedBox');
+
+searchInput.addEventListener('input', () => {
+  const q = searchInput.value.trim().toLowerCase();
+  if(q.length < 2){ resultsBox.classList.remove('show'); resultsBox.innerHTML=''; return; }
+  const matches = VIP_DATA.filter(r => r[0].toLowerCase().includes(q) || r[1].toLowerCase().includes(q)).slice(0,30);
+  if(matches.length === 0){
+    resultsBox.innerHTML = '<div class="result-item" style="color:#94a3b8;">Tidak ditemukan</div>';
+    resultsBox.classList.add('show');
+    return;
+  }
+  resultsBox.innerHTML = matches.map(r => `
+    <div class="result-item" data-id="${r[0]}">
+      <b>${r[1]}</b> — ${r[0]}
+      <div class="meta">${r[3]} · ${r[2]}</div>
+    </div>
+  `).join('');
+  resultsBox.classList.add('show');
+});
+
+resultsBox.addEventListener('click', (e) => {
+  const item = e.target.closest('.result-item');
+  if(!item || !item.dataset.id) return;
+  const row = VIP_DATA.find(r => r[0] === item.dataset.id);
+  if(!row) return;
+  selectRow(row);
+  resultsBox.classList.remove('show');
+  searchInput.value = row[1];
+});
+
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.searchbox')) resultsBox.classList.remove('show');
+});
+
+function selectRow(row){
+  document.getElementById('selId').textContent = row[0];
+  document.getElementById('selNama').textContent = row[1];
+  document.getElementById('selGpon').textContent = row[2];
+  document.getElementById('selOlt').textContent = row[3];
+  selectedBox.classList.add('show');
+
+  document.getElementById('idpel').value = row[0];
+  document.getElementById('nama').value = row[1];
+  document.getElementById('hostname').value = row[3] + ' ' + row[2];
+}
+
+const KENDALA_TEMPLATES = {
+  olt_down: {
+    label: 'OLT Down',
+    hint: 'Dipakai saat gangguan disebabkan OLT down (impact massal).',
+    advance_solver: {
+      narasi: 'Kami informasikan bahwa perangkat USER VIP RETAIL terdeteksi down dikarenakan impact OLT DOWN, mohon dibantu diinformasikan ke user bahwa tim akan segera melakukan perbaikan',
+      status: 'DOWN'
+    },
+    teknisi: {
+      narasi: 'Kami informasikan bahwa perangkat USER VIP RETAIL terdeteksi DOWN dengan detail pengecekan seperti tiket terlampir, mohon dibantu kirim tim untuk segera melakukan perbaikan, terimakasih',
+      status: 'DOWN'
+    }
+  },
+  dying_gasp: {
+    label: 'Dying Gasp',
+    hint: 'Dipakai saat perangkat user terdeteksi dying-gasp (kemungkinan padam listrik/perangkat mati mendadak).',
+    advance_solver: {
+      narasi: 'Kami informasikan bahwa perangkat USER VIP RETAIL terdeteksi DYING-GASP, mohon dibantu diinformasikan ke user dan apabila user mengalami kendala akan kami bantu buatkan tiket proaktif',
+      status: 'DYING-GASP'
+    },
+    teknisi: {
+      narasi: 'Kami informasikan bahwa perangkat USER VIP RETAIL terdeteksi DYING-GASP, mohon dibantu kirim tim untuk pengecekan dan perbaikan, terimakasih',
+      status: 'DYING-GASP'
+    }
+  },
+  port_down: {
+    label: 'Port Down / Loss (Linkloss)',
+    hint: 'Dipakai saat port ONU/GPON terpantau offline/linkloss tanpa indikasi OLT down.',
+    advance_solver: {
+      narasi: 'Kami informasikan bahwa perangkat USER VIP RETAIL termonitor OFFLINE, mohon dibantu konfirmasi ke user',
+      status: 'OFFLINE'
+    },
+    teknisi: {
+      narasi: 'Kami informasikan bahwa perangkat USER VIP RETAIL terdeteksi LINKLOSS, mohon dibantu kirim tim untuk segera melakukan perbaikan, terimakasih',
+      status: 'DOWN'
+    }
+  }
+};
+
+const CC_DEFAULTS = {
+  advance_solver: 'pak @~hiltanto sidik sudrajat , pak @~Gumilang Indra Wijàya , mas @ICON+ - Ahmad Khairu Ramdani ,bu @~Yanti Y. Argadinata ,mba @~Dewi Wulandari ,mba @~Rada',
+  teknisi: 'Pak @~hiltanto sidik sudrajat , Pak @~Gumilang Indra Wijàya , mas @ICON+ - Ahmad Khairu Ramdani , @(SPV Regional)'
+};
+
+function onTujuanChange(){
+  refillCcDefault();
+}
+
+function refillCcDefault(){
+  const tujuan = document.getElementById('tujuanBroadcast').value;
+  const ccBox = document.getElementById('ccList');
+  ccBox.value = CC_DEFAULTS[tujuan];
+}
+
+function onJenisChange(){
+  const key = document.getElementById('jenisKendala').value;
+  document.getElementById('jenisHint').textContent = KENDALA_TEMPLATES[key].hint;
+}
+onJenisChange();
+
+function toggleCcBox(){
+  const on = document.getElementById('ccToggle').checked;
+  document.getElementById('ccBoxWrap').style.display = on ? 'block' : 'none';
+}
+toggleCcBox();
+
+function pad(n){ return n.toString(); }
+
+function nowFormatted(){
+  const d = new Date();
+  return `${pad(d.getDate())}/${pad(d.getMonth()+1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+function fillSample(){
+  const tujuan = document.getElementById('tujuanBroadcast').value;
+  if(tujuan === 'teknisi'){
+    const row = VIP_DATA.find(r => r[0] === "121003012281");
+    selectRow(row);
+    document.getElementById('sid').value = "";
+    document.getElementById('timedown').value = "29/7/2026 9:45";
+    document.getElementById('tiket').value = "A0529957";
+    document.getElementById('jenisKendala').value = "port_down";
+    refillCcDefault();
+  } else {
+    const row = VIP_DATA.find(r => r[0] === "121000243768");
+    selectRow(row);
+    document.getElementById('sid').value = "010105029221";
+    document.getElementById('timedown').value = "12/8/2026 2:30:00";
+    document.getElementById('tiket').value = "A0536861";
+    document.getElementById('jenisKendala').value = "olt_down";
+    refillCcDefault();
+  }
+  onJenisChange();
+  searchInput.value = document.getElementById('nama').value;
+}
+
+function resetForm(){
+  ['idpel','sid','nama','hostname','timedown','tiket'].forEach(id => document.getElementById(id).value='');
+  searchInput.value='';
+  selectedBox.classList.remove('show');
+  document.getElementById('output').textContent = 'Isi form di atas lalu klik "Generate Broadcast".';
+  resultsBox.classList.remove('show');
+  document.getElementById('tujuanBroadcast').value = "advance_solver";
+  document.getElementById('jenisKendala').value = "olt_down";
+  onJenisChange();
+  document.getElementById('ccToggle').checked = true;
+  toggleCcBox();
+  refillCcDefault();
+}
+
+function generate(){
+  const idpel = document.getElementById('idpel').value.trim() || '-';
+  const sidRaw = document.getElementById('sid').value.trim();
+  const nama = (document.getElementById('nama').value.trim() || '-').toUpperCase();
+  const hostname = document.getElementById('hostname').value.trim() || '-';
+  const timedown = document.getElementById('timedown').value.trim() || nowFormatted();
+  const tiket = document.getElementById('tiket').value.trim() || '-';
+  const jenisKey = document.getElementById('jenisKendala').value;
+  const tujuan = document.getElementById('tujuanBroadcast').value;
+  const variant = KENDALA_TEMPLATES[jenisKey][tujuan];
+  const ccOn = document.getElementById('ccToggle').checked;
+  const ccText = document.getElementById('ccList').value.trim();
+  const ccLine = (ccOn && ccText) ? `\n\ncc :  ${ccText}` : '';
+
+  const idpelLine = sidRaw ? `${idpel} / ${sidRaw}` : idpel;
+
+  let headerEmoji, headerBlock;
+  if(tujuan === 'teknisi'){
+    headerEmoji = '‼️ 👑 BROADCAST GANGGUAN USER VIP 👑 ‼️';
+    headerBlock = `Yth. Rekan Regional\n \n`;
+  } else {
+    headerEmoji = '‼️ 👑BROADCAST GANGGUAN USER VIP 👑 ‼️';
+    headerBlock = `Yth. Rekan Advance Solver CC\n@~Advance Solver \n`;
+  }
+
+  const text =
+`${headerEmoji}
+---
+${headerBlock}${variant.narasi}		
+		
+Id pel/SID	:	${idpelLine}
+Nama User	:	${nama}
+Hostname	:	${hostname}
+Status	        :	${variant.status}
+Time Down	:	${timedown}
+Nomor Tiket	:	${tiket}
+		
+Terima kasih atas perhatian dan kerja samanya.${ccLine}`;
+
+  document.getElementById('output').textContent = text;
+  document.getElementById('copyBtn').classList.remove('copied');
+  document.getElementById('copyBtn').textContent = 'Copy';
+}
+
+function copyOutput(){
+  const text = document.getElementById('output').textContent;
+  if(!text || text.startsWith('Isi form')) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent='Copy'; btn.classList.remove('copied'); }, 1800);
+  });
+}
+</script>
+</body>
+</html>
