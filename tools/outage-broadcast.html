@@ -344,9 +344,10 @@
       background: transparent;
       border: none;
       border-top: 1px solid var(--border);
-      resize: vertical;
+      resize: none;
       outline: none;
       white-space: pre;
+      overflow: hidden;
     }
 
     .output-text:focus {
@@ -702,7 +703,10 @@
         </div>
         <textarea class="output-text" id="text-${cardId}" spellcheck="false"></textarea>
       `;
-      card.querySelector('#text-' + cardId).value = out;
+      const ta = card.querySelector('#text-' + cardId);
+      ta.value = out;
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
       document.getElementById('broadcastList').appendChild(card);
 
       document.getElementById('outputSection').style.display = '';
