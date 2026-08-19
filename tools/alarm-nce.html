@@ -201,6 +201,12 @@ function getRegion(alarmSource){
   return alarmSource.substring(0, idx).trim();
 }
 
+function extractDate(dateTimeStr){
+  if(!dateTimeStr) return '';
+  const parts = dateTimeStr.trim().split(' ');
+  return parts[0] || '';
+}
+
 function extractTime(dateTimeStr){
   if(!dateTimeStr) return '';
   const parts = dateTimeStr.trim().split(' ');
@@ -262,6 +268,7 @@ function generateBroadcast(){
     }
     broadcastData[region].push({
       olt: alarmSource,
+      date: extractDate(firstOccurred),
       time: extractTime(firstOccurred),
       name: name
     });
@@ -289,7 +296,7 @@ function buildBroadcastText(region){
   const items = broadcastData[region];
   let msg = `‼️BROADCAST ALARM‼️\nYth. Rekan SBU ${region},\nTelah terdeteksi Alarm Environment pada perangkat OLT.\nDibantu untuk pengecekan\n\n`;
   items.forEach((item, idx) => {
-    msg += `${idx + 1}. ${item.olt} ${item.time} ${item.name}\n`;
+    msg += `${idx + 1}. ${item.olt} | ${item.date} | ${item.time} | ${item.name}\n`;
   });
   msg += `\n#envalarm\ncc : `;
   return msg;
