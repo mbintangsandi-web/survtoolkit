@@ -705,9 +705,9 @@
       `;
       const ta = card.querySelector('#text-' + cardId);
       ta.value = out;
+      document.getElementById('broadcastList').appendChild(card);
       ta.style.height = 'auto';
       ta.style.height = ta.scrollHeight + 'px';
-      document.getElementById('broadcastList').appendChild(card);
 
       document.getElementById('outputSection').style.display = '';
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
