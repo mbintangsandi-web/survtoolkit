@@ -66,23 +66,16 @@
       z-index: 10;
     }
 
-    .topbar-back {
-      color: var(--text-dim);
+    .topbar-logo {
+      color: var(--blue);
       text-decoration: none;
       font-size: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: color 0.15s;
+      letter-spacing: 0.08em;
+      font-family: var(--mono);
     }
 
-    .topbar-back:hover {
-      color: var(--text);
-    }
-
-    .topbar-back svg {
-      width: 14px;
-      height: 14px;
+    .topbar-logo:hover {
+      opacity: 0.8;
     }
 
     .topbar-sep {
@@ -499,26 +492,19 @@
 
 <body>
 
-  <!-- Top bar -->
-  <nav class="topbar">
-    <a class="topbar-back" href="../index.html">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M10 12L6 8l4-4" />
-      </svg>
-      SURVTOOLKIT
-    </a>
+  <div class="topbar">
+    <a class="topbar-logo" href="../index.html">◈ SURVTOOLKIT</a>
     <span class="topbar-sep">/</span>
-    <span class="topbar-title">Done / Not Done Separator</span>
-    <span class="topbar-tag">Device Status</span>
-  </nav>
+    <span class="topbar-title">done-notdone-separator</span>
+    <span class="topbar-tag">TOOL v1.0</span>
+  </div>
 
   <main class="main">
 
-    <!-- Page heading -->
     <div class="page-head">
-      <h1><span class="prompt"></span> done-notdone-separator</h1>
+      <h1><span class="prompt"></span> Done / Not Done Separator</h1>
       <p>Isi Kolom 1 dengan data dari kolom DEVICE HOSTNAME, dan Kolom 2 dengan data dari kolom STATUS BLAST UP, yang
-        diambil dari sheet OLT DOWN.</p>
+        diambil dari sheet OLT DOWN. Tool ini memisahkan data berdasarkan status perangkat secara otomatis.</p>
     </div>
 
     <!-- Input area -->

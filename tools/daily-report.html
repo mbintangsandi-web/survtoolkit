@@ -50,42 +50,74 @@
     }
 
     /* ── Header ── */
-    .header {
+    .topbar {
+      background: #ffffff;
       border-bottom: 1px solid var(--border);
-      padding: 14px 24px;
+      padding: 0 24px;
       display: flex;
       align-items: center;
       gap: 16px;
+      height: 52px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
 
-    .header-logo {
+    .topbar-logo {
       font-family: var(--mono);
-      font-size: 11px;
+      font-size: 12px;
       color: var(--accent);
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      opacity: 0.7;
+      letter-spacing: 0.08em;
+      text-decoration: none;
     }
 
-    .header-divider {
-      width: 1px;
-      height: 18px;
-      background: var(--border);
+    .topbar-logo:hover { opacity: 0.8; }
+
+    .topbar-sep {
+      color: var(--border);
+      font-size: 18px;
+      font-weight: 300;
     }
 
-    .header-title {
-      font-family: var(--mono);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-hl);
-      letter-spacing: 0.04em;
-    }
-
-    .header-clock {
-      margin-left: auto;
+    .topbar-title {
       font-family: var(--mono);
       font-size: 12px;
       color: var(--text-dim);
+      letter-spacing: 0.04em;
+    }
+
+    .topbar-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      letter-spacing: 0.06em;
+      margin-left: auto;
+    }
+
+    .page-head {
+      margin-bottom: 24px;
+    }
+
+    .page-head h1 {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 500;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .page-head h1 .icon { color: var(--accent); }
+
+    .page-head p {
+      font-size: 13px;
+      color: var(--text-dim);
+      max-width: 640px;
     }
 
     /* ── Main layout ── */
@@ -384,14 +416,19 @@
 
 <body>
 
-  <header class="header">
-    <span class="header-logo">SURVTOOLKIT</span>
-    <span class="header-divider"></span>
-    <span class="header-title">OLT Down Tracker</span>
-    <span class="header-clock" id="clock">--:--:--</span>
-  </header>
+  <div class="topbar">
+    <a class="topbar-logo" href="../index.html">◈ SURVTOOLKIT</a>
+    <span class="topbar-sep">/</span>
+    <span class="topbar-title">daily-report-olt</span>
+    <span class="topbar-tag">TOOL v1.0</span>
+  </div>
 
   <main class="main">
+
+    <div class="page-head">
+      <h1><span class="icon">📊</span> OLT Down Tracker</h1>
+      <p>Masukkan data Nama OLT dan Status dari sheet OLT DOWN untuk menghasilkan laporan harian secara otomatis. Tool ini mengelompokkan data berdasarkan region dan menghitung total OLT down per kategori.</p>
+    </div>
 
     <p class="section-label">Input Data OLT</p>
 
