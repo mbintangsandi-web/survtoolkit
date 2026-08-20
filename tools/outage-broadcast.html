@@ -339,15 +339,15 @@
       font-family: var(--mono);
       font-size: 13px;
       color: var(--text2);
-      line-height: 1.7;
+      line-height: 1.6;
       background: transparent;
       border: none;
       border-top: 1px solid var(--border);
-      resize: none;
+      resize: vertical;
       outline: none;
       white-space: pre;
-      overflow: hidden;
       overflow-x: auto;
+      overflow-y: hidden;
     }
 
     .output-text:focus {
@@ -646,8 +646,8 @@
     let broadcastCounter = 0;
 
     function autoResize(ta) {
-      ta.style.height = 'auto';
-      ta.style.height = ta.scrollHeight + 'px';
+      const lines = ta.value.split('\n').length;
+      ta.rows = lines + 1;
     }
 
     function generateBroadcast() {
