@@ -182,17 +182,34 @@
     margin-top:10px;
     line-height:1.5;
   }
+  .back{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:13px;
+    color:var(--muted);
+    margin-bottom:28px;
+    text-decoration:none;
+    transition:color .15s;
+  }
+  .back:hover{color:var(--accent);}
+  header.hero{margin-bottom:28px;}
+  header.hero .eyebrow{display:block;margin-bottom:8px;}
+  header.hero h1{font-size:24px;margin:0;}
+  header.hero p{color:var(--muted);font-size:14px;margin:8px 0 0;line-height:1.6;}
 </style>
 </head>
 <body>
 
 <div style="max-width:1400px;margin:0 auto;padding:32px 24px 0;">
-  <a href="../index.html" class="back-link">← Kembali ke Menu Utama</a>
-  <div class="tool-hero" style="margin-bottom:24px;">
-    <span class="eyebrow">Alarm · UNM</span>
+  <a href="alarm.html" class="back">← Alarm</a>
+  <header class="hero">
+    <span class="eyebrow">UNM</span>
     <h1>ALARM/UNM Broadcast Generator</h1>
-    <p style="color:var(--text-dim);font-size:14px;margin:8px 0 0;line-height:1.6;">Paste data alarm (tab-separated) → hasilkan broadcast alarm environment per-SBU</p>
-  </div>
+    <p>Paste data alarm (tab-separated) → hasilkan broadcast alarm environment per-SBU</p>
+  </header>
 </div>
 
 <div class="layout">
