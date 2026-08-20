@@ -333,19 +333,21 @@
     }
 
     .output-text {
+      display: block;
+      width: 100%;
       padding: 16px;
       font-family: var(--mono);
       font-size: 13px;
       color: var(--text2);
-      white-space: pre-wrap;
       line-height: 1.7;
-      min-height: 60px;
+      min-height: 120px;
       background: transparent;
       border: none;
       border-top: 1px solid var(--border);
       resize: vertical;
       outline: none;
       white-space: pre;
+      overflow-x: auto;
     }
 
     .output-text:focus {
@@ -699,19 +701,21 @@
             <button class="btn btn-secondary" onclick="hapusBroadcast('${cardId}')">Hapus</button>
           </div>
         </div>
-        <div class="output-text" id="text-${cardId}"></div>
+        <textarea class="output-text" id="text-${cardId}"></textarea>
       `;
-      card.querySelector('#text-' + cardId).value = out;
-      document.getElementById('broadcastList').appendChild(card);
+      const ta = card.querySelector('#text-' + cardId);
+      ta.value = out;
       ta.style.height = 'auto';
       ta.style.height = ta.scrollHeight + 'px';
+      document.getElementById('broadcastList').appendChild(card);
 
       document.getElementById('outputSection').style.display = '';
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function salinBroadcast(cardId) {
-      const txt = document.getElementById('text-' + cardId).textContent;
+      const el = document.getElementById('text-' + cardId);
+      const txt = el.value !== undefined ? el.value : el.textContent;
       navigator.clipboard.writeText(txt).then(() => showToast('✅ Disalin!'));
     }
 
