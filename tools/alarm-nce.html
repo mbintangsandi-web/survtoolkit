@@ -25,10 +25,36 @@
     background:#eef3fa;
     color:var(--text);
     font-family:var(--mono);
-    padding:24px;
+    padding:0;
     min-height:100vh;
   }
-  .wrap{max-width:1100px;margin:0 auto;}
+  .topbar{
+    background:#ffffff;
+    border-bottom:1px solid var(--border);
+    padding:0 24px;
+    display:flex;
+    align-items:center;
+    gap:16px;
+    height:48px;
+    position:sticky;
+    top:0;
+    z-index:10;
+  }
+  .topbar-logo{
+    color:var(--accent);
+    text-decoration:none;
+    font-size:12px;
+    letter-spacing:0.08em;
+    font-family:var(--mono);
+  }
+  .topbar-logo:hover{opacity:0.8;}
+  .topbar-sep{color:#b9d2ec;}
+  .topbar-title{
+    color:var(--text);
+    font-size:13px;
+    font-weight:500;
+  }
+  .wrap{max-width:1100px;margin:0 auto;padding:24px;}
   h1{
     font-size:20px;
     color:var(--accent);
@@ -139,33 +165,16 @@
     pointer-events:none;
   }
   .toast.show{opacity:1;}
-  .back{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    font-family:var(--font-display, 'Plus Jakarta Sans', sans-serif);
-    font-weight:600;
-    font-size:13px;
-    color:var(--dim);
-    margin-bottom:28px;
-    text-decoration:none;
-    transition:color .15s;
-  }
-  .back:hover{color:var(--accent);}
-  header.hero{margin-bottom:28px;}
-  header.hero .eyebrow{display:block;margin-bottom:8px;}
-  header.hero h1{font-size:24px;margin:0;color:var(--accent);}
-  header.hero p{color:var(--dim);font-size:14px;margin:8px 0 0;line-height:1.6;font-family:var(--font-body,'Inter',sans-serif);}
+
 </style>
 </head>
 <body>
+<div class="topbar">
+  <a class="topbar-logo" href="alarm.html">‹ alarm</a>
+  <span class="topbar-sep">/</span>
+  <span class="topbar-title">NCE Broadcast Generator</span>
+</div>
 <div class="wrap">
-  <a href="alarm.html" class="back">← Alarm</a>
-  <header class="hero">
-    <span class="eyebrow">NCE</span>
-    <h1>ALARM/NCE Broadcast Generator</h1>
-    <p>Paste data TSV dari sistem monitoring → generate broadcast per SBU/region</p>
-  </header>
 
   <div class="panel">
     <div class="panel-title">Input Data (TSV / Copy-Paste dari Excel)</div>
