@@ -340,13 +340,13 @@
       font-size: 13px;
       color: var(--text2);
       line-height: 1.7;
-      min-height: 120px;
       background: transparent;
       border: none;
       border-top: 1px solid var(--border);
-      resize: vertical;
+      resize: none;
       outline: none;
       white-space: pre;
+      overflow: hidden;
       overflow-x: auto;
     }
 
@@ -645,6 +645,11 @@
 
     let broadcastCounter = 0;
 
+    function autoResize(ta) {
+      ta.style.height = 'auto';
+      ta.style.height = ta.scrollHeight + 'px';
+    }
+
     function generateBroadcast() {
       const waktu = document.getElementById('waktuBroadcast').value.trim() || 'HH:MM DD/MM/YYYY';
       const kodeRegion = document.getElementById('kodeRegion').value.trim() || '-';
@@ -705,8 +710,8 @@
       `;
       const ta = card.querySelector('#text-' + cardId);
       ta.value = out;
-      ta.style.height = 'auto';
-      ta.style.height = ta.scrollHeight + 'px';
+      autoResize(ta);
+      ta.addEventListener('input', () => autoResize(ta));
       document.getElementById('broadcastList').appendChild(card);
 
       document.getElementById('outputSection').style.display = '';
