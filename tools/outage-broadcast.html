@@ -710,9 +710,9 @@
       `;
       const ta = card.querySelector('#text-' + cardId);
       ta.value = out;
-      autoResize(ta);
       ta.addEventListener('input', () => autoResize(ta));
       document.getElementById('broadcastList').appendChild(card);
+      autoResize(ta); // dipanggil setelah append agar scrollHeight terhitung di DOM
 
       document.getElementById('outputSection').style.display = '';
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
