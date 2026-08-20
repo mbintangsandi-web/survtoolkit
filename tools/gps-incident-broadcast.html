@@ -1,355 +1,399 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GPS Incident Broadcast — NOC TOOLKIT</title>
-<style>
-  :root{
-    --bg:#f4f8fd;
-    --bg-alt:#ffffff;
-    --bg-card:#ffffff;
-    --border:#d5e3f7;
-    --text:#1b2a41;
-    --text-dim:#5b7291;
-    --green:#0b63e0;
-    --green-dim:#0956c4;
-    --yellow:#d68a00;
-    --red:#e5484d;
-    --accent:#0b63e0;
-  }
-  *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--bg);
-    color:var(--text);
-    font-family:'IBM Plex Sans', -apple-system, sans-serif;
-    padding:24px;
-  }
-  h1{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:20px;
-    color:var(--green);
-    margin:0 0 4px 0;
-  }
-  .subtitle{
-    color:var(--text-dim);
-    font-size:13px;
-    margin-bottom:20px;
-    font-family:'IBM Plex Mono', monospace;
-  }
-  .container{
-    max-width:1000px;
-    margin:0 auto;
-  }
-  .meta-row{
-    display:flex;
-    gap:12px;
-    margin-bottom:20px;
-    flex-wrap:wrap;
-  }
-  .meta-field{
-    flex:1;
-    min-width:200px;
-  }
-  label{
-    display:block;
-    font-size:12px;
-    color:var(--text-dim);
-    margin-bottom:4px;
-    font-family:'IBM Plex Mono', monospace;
-  }
-  input[type=text], input[type=datetime-local]{
-    width:100%;
-    background:var(--bg-alt);
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:8px 10px;
-    border-radius:6px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:13px;
-  }
-  input[type=text]:focus, input[type=datetime-local]:focus, input[type=number]:focus{
-    outline:none;
-    border-color:var(--green-dim);
-  }
-  table{
-    width:100%;
-    border-collapse:collapse;
-    background:var(--bg-card);
-    border:1px solid var(--border);
-    border-radius:8px;
-    overflow:hidden;
-    margin-bottom:20px;
-    box-shadow:0 2px 10px rgba(11,99,224,0.08);
-  }
-  thead th{
-    background:#e8f1fd;
-    color:var(--text-dim);
-    font-family:'IBM Plex Mono', monospace;
-    font-size:12px;
-    text-transform:uppercase;
-    letter-spacing:0.5px;
-    padding:10px 8px;
-    text-align:center;
-    border-bottom:1px solid var(--border);
-  }
-  thead th.region-col{
-    text-align:left;
-    padding-left:14px;
-  }
-  tbody td{
-    padding:6px 8px;
-    border-bottom:1px solid var(--border);
-    text-align:center;
-  }
-  tbody tr:last-child td{
-    border-bottom:none;
-  }
-  tbody td.region-cell{
-    text-align:left;
-    font-family:'IBM Plex Mono', monospace;
-    font-weight:600;
-    padding-left:14px;
-    color:var(--text);
-  }
-  input[type=number]{
-    width:70px;
-    background:var(--bg);
-    border:1px solid var(--border);
-    color:var(--text);
-    padding:6px;
-    border-radius:5px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:13px;
-    text-align:center;
-  }
-  input[type=number].ok{ color:var(--green); }
-  input[type=number].warn{ color:var(--yellow); }
-  input[type=number].err{ color:var(--red); }
-  tfoot td{
-    padding:10px 8px;
-    text-align:center;
-    font-family:'IBM Plex Mono', monospace;
-    font-weight:700;
-    background:#e8f1fd;
-    border-top:2px solid var(--border);
-  }
-  tfoot td.region-cell{
-    text-align:left;
-    padding-left:14px;
-    color:var(--green);
-  }
-  .btn-row{
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-    flex-wrap:wrap;
-  }
-  button{
-    font-family:'IBM Plex Mono', monospace;
-    font-size:13px;
-    padding:10px 18px;
-    border-radius:6px;
-    border:1px solid var(--border);
-    background:var(--bg-alt);
-    color:var(--text);
-    cursor:pointer;
-    transition:all 0.15s ease;
-  }
-  button:hover{
-    border-color:var(--green-dim);
-    color:var(--green);
-  }
-  button.primary{
-    background:var(--green-dim);
-    border-color:var(--green-dim);
-    color:#ffffff;
-    font-weight:600;
-  }
-  button.primary:hover{
-    background:var(--green);
-    color:#ffffff;
-  }
-  button.copied{
-    background:var(--green);
-    color:#ffffff;
-    border-color:var(--green);
-  }
-  .output-wrap{
-    position:relative;
-  }
-  textarea{
-    width:100%;
-    min-height:340px;
-    background:var(--bg-card);
-    border:1px solid var(--border);
-    border-radius:8px;
-    color:var(--text);
-    padding:16px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:13px;
-    line-height:1.6;
-    resize:vertical;
-    white-space:pre;
-    box-shadow:0 2px 10px rgba(11,99,224,0.08);
-  }
-  .hint{
-    font-size:11px;
-    color:var(--text-dim);
-    margin-top:6px;
-  }
-</style>
-</head>
-<body>
-<div class="container">
-  <a href="../index.html" style="display:inline-block;margin-bottom:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-dim);text-decoration:none;">&larr; NOC TOOLKIT</a>
-  <h1>📡 GPS Incident Broadcast</h1>
-  <div class="subtitle">NOC TOOLKIT — Posisi Active GPS / Peta Incident</div>
 
-  <div class="meta-row">
-    <div class="meta-field">
-      <label>Waktu Update</label>
-      <input type="datetime-local" id="timestamp">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS Incident Broadcast — NOC TOOLKIT</title>
+  <style>
+    :root {
+      --bg: #f4f8fd;
+      --bg-alt: #ffffff;
+      --bg-card: #ffffff;
+      --border: #d5e3f7;
+      --text: #1b2a41;
+      --text-dim: #5b7291;
+      --green: #0b63e0;
+      --green-dim: #0956c4;
+      --yellow: #d68a00;
+      --red: #e5484d;
+      --accent: #0b63e0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+      padding: 24px;
+    }
+
+    h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+      color: var(--green);
+      margin: 0 0 4px 0;
+    }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 13px;
+      margin-bottom: 20px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .meta-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .meta-field {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 4px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    input[type=text],
+    input[type=datetime-local] {
+      width: 100%;
+      background: var(--bg-alt);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 10px;
+      border-radius: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+    }
+
+    input[type=text]:focus,
+    input[type=datetime-local]:focus,
+    input[type=number]:focus {
+      outline: none;
+      border-color: var(--green-dim);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 10px rgba(11, 99, 224, 0.08);
+    }
+
+    thead th {
+      background: #e8f1fd;
+      color: var(--text-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 10px 8px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+
+    thead th.region-col {
+      text-align: left;
+      padding-left: 14px;
+    }
+
+    tbody td {
+      padding: 6px 8px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: none;
+    }
+
+    tbody td.region-cell {
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      padding-left: 14px;
+      color: var(--text);
+    }
+
+    input[type=number] {
+      width: 70px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px;
+      border-radius: 5px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    input[type=number].ok {
+      color: var(--green);
+    }
+
+    input[type=number].warn {
+      color: var(--yellow);
+    }
+
+    input[type=number].err {
+      color: var(--red);
+    }
+
+    tfoot td {
+      padding: 10px 8px;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 700;
+      background: #e8f1fd;
+      border-top: 2px solid var(--border);
+    }
+
+    tfoot td.region-cell {
+      text-align: left;
+      padding-left: 14px;
+      color: var(--green);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      padding: 10px 18px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-alt);
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    button:hover {
+      border-color: var(--green-dim);
+      color: var(--green);
+    }
+
+    button.primary {
+      background: var(--green-dim);
+      border-color: var(--green-dim);
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    button.primary:hover {
+      background: var(--green);
+      color: #ffffff;
+    }
+
+    button.copied {
+      background: var(--green);
+      color: #ffffff;
+      border-color: var(--green);
+    }
+
+    .output-wrap {
+      position: relative;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 340px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      resize: vertical;
+      white-space: pre;
+      box-shadow: 0 2px 10px rgba(11, 99, 224, 0.08);
+    }
+
+    .hint {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>📡 GPS Incident Broadcast</h1>
+    <div class="subtitle">NOC TOOLKIT — Posisi Active GPS / Peta Incident</div>
+
+    <div class="meta-row">
+      <div class="meta-field">
+        <label>Waktu Update</label>
+        <input type="datetime-local" id="timestamp">
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th class="region-col">Region</th>
+          <th>✅ Aktif</th>
+          <th>⚠️ Warning</th>
+          <th>❌ Error</th>
+        </tr>
+      </thead>
+      <tbody id="regionBody"></tbody>
+      <tfoot>
+        <tr>
+          <td class="region-cell">NASIONAL</td>
+          <td id="totalOk" class="ok">0</td>
+          <td id="totalWarn" class="warn">0</td>
+          <td id="totalErr" class="err">0</td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="btn-row">
+      <button class="primary" id="generateBtn">Generate Broadcast</button>
+      <button id="resetBtn">Reset Semua Input</button>
+      <button id="copyBtn">Copy Output</button>
+    </div>
+
+    <div class="output-wrap">
+      <textarea id="output" readonly placeholder="Klik 'Generate Broadcast' untuk membuat teks broadcast..."></textarea>
     </div>
   </div>
 
-  <table>
-    <thead>
-      <tr>
-        <th class="region-col">Region</th>
-        <th>✅ Aktif</th>
-        <th>⚠️ Warning</th>
-        <th>❌ Error</th>
-      </tr>
-    </thead>
-    <tbody id="regionBody"></tbody>
-    <tfoot>
-      <tr>
-        <td class="region-cell">NASIONAL</td>
-        <td id="totalOk" class="ok">0</td>
-        <td id="totalWarn" class="warn">0</td>
-        <td id="totalErr" class="err">0</td>
-      </tr>
-    </tfoot>
-  </table>
+  <script>
+    const REGIONS = ["RSBU", "RSBT", "RSBS", "RJKT", "RJBB", "RJBTG", "RJBT", "RBNT", "RKAL", "RINT"];
 
-  <div class="btn-row">
-    <button class="primary" id="generateBtn">Generate Broadcast</button>
-    <button id="resetBtn">Reset Semua Input</button>
-    <button id="copyBtn">Copy Output</button>
-  </div>
-
-  <div class="output-wrap">
-    <textarea id="output" readonly placeholder="Klik 'Generate Broadcast' untuk membuat teks broadcast..."></textarea>
-  </div>
-  <div class="hint">Format angka mengikuti template broadcast Posisi Active GPS / Peta Incident.</div>
-</div>
-
-<script>
-const REGIONS = ["RSBU","RSBT","RSBS","RJKT","RJBB","RJBTG","RJBT","RBNT","RKAL","RINT"];
-
-const tbody = document.getElementById('regionBody');
-REGIONS.forEach(region => {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
+    const tbody = document.getElementById('regionBody');
+    REGIONS.forEach(region => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
     <td class="region-cell">${region}</td>
     <td><input type="number" class="ok" min="0" value="0" data-region="${region}" data-type="ok"></td>
     <td><input type="number" class="warn" min="0" value="0" data-region="${region}" data-type="warn"></td>
     <td><input type="number" class="err" min="0" value="0" data-region="${region}" data-type="err"></td>
   `;
-  tbody.appendChild(tr);
-});
+      tbody.appendChild(tr);
+    });
 
-function pad(n){ return n.toString().padStart(2,'0'); }
-function setDefaultTimestamp(){
-  const now = new Date();
-  const local = new Date(now.getTime() - now.getTimezoneOffset()*60000);
-  document.getElementById('timestamp').value = local.toISOString().slice(0,16);
-}
-setDefaultTimestamp();
+    function pad(n) { return n.toString().padStart(2, '0'); }
+    function setDefaultTimestamp() {
+      const now = new Date();
+      const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+      document.getElementById('timestamp').value = local.toISOString().slice(0, 16);
+    }
+    setDefaultTimestamp();
 
-function getVal(region, type){
-  const el = document.querySelector(`input[data-region="${region}"][data-type="${type}"]`);
-  return parseInt(el.value, 10) || 0;
-}
+    function getVal(region, type) {
+      const el = document.querySelector(`input[data-region="${region}"][data-type="${type}"]`);
+      return parseInt(el.value, 10) || 0;
+    }
 
-function updateTotals(){
-  let ok=0, warn=0, err=0;
-  REGIONS.forEach(r=>{
-    ok += getVal(r,'ok');
-    warn += getVal(r,'warn');
-    err += getVal(r,'err');
-  });
-  document.getElementById('totalOk').textContent = ok;
-  document.getElementById('totalWarn').textContent = warn;
-  document.getElementById('totalErr').textContent = err;
-}
+    function updateTotals() {
+      let ok = 0, warn = 0, err = 0;
+      REGIONS.forEach(r => {
+        ok += getVal(r, 'ok');
+        warn += getVal(r, 'warn');
+        err += getVal(r, 'err');
+      });
+      document.getElementById('totalOk').textContent = ok;
+      document.getElementById('totalWarn').textContent = warn;
+      document.getElementById('totalErr').textContent = err;
+    }
 
-tbody.addEventListener('input', updateTotals);
-updateTotals();
+    tbody.addEventListener('input', updateTotals);
+    updateTotals();
 
-function formatTimestamp(){
-  const val = document.getElementById('timestamp').value;
-  if(!val) return '';
-  const d = new Date(val);
-  const jam = pad(d.getHours()) + ':' + pad(d.getMinutes());
-  const tgl = pad(d.getDate()) + '-' + pad(d.getMonth()+1) + '-' + d.getFullYear();
-  return `${jam}, ${tgl}`;
-}
+    function formatTimestamp() {
+      const val = document.getElementById('timestamp').value;
+      if (!val) return '';
+      const d = new Date(val);
+      const jam = pad(d.getHours()) + ':' + pad(d.getMinutes());
+      const tgl = pad(d.getDate()) + '-' + pad(d.getMonth() + 1) + '-' + d.getFullYear();
+      return `${jam}, ${tgl}`;
+    }
 
-document.getElementById('generateBtn').addEventListener('click', () => {
-  const ts = formatTimestamp();
+    document.getElementById('generateBtn').addEventListener('click', () => {
+      const ts = formatTimestamp();
 
-  let lines = [];
-  lines.push(`Update Posisi Active GPS  Peta Incident (${ts})`);
+      let lines = [];
+      lines.push(`Update Posisi Active GPS  Peta Incident (${ts})`);
 
-  REGIONS.forEach((r, i) => {
-    const ok = getVal(r,'ok');
-    const warn = getVal(r,'warn');
-    const err = getVal(r,'err');
-    const num = (i+1) + '.';
-    lines.push(`${num}${i<9 ? ' ' : ''}${r} : ✅ ${ok}  ⚠️ ${warn} ❌ ${err}`);
-  });
+      REGIONS.forEach((r, i) => {
+        const ok = getVal(r, 'ok');
+        const warn = getVal(r, 'warn');
+        const err = getVal(r, 'err');
+        const num = (i + 1) + '.';
+        lines.push(`${num}${i < 9 ? ' ' : ''}${r} : ✅ ${ok}  ⚠️ ${warn} ❌ ${err}`);
+      });
 
-  let totalOk=0, totalWarn=0, totalErr=0;
-  REGIONS.forEach(r=>{
-    totalOk += getVal(r,'ok');
-    totalWarn += getVal(r,'warn');
-    totalErr += getVal(r,'err');
-  });
-  lines.push(`NASIONAL: ✅ ${totalOk} ⚠️ ${totalWarn} ❌ ${totalErr}`);
+      let totalOk = 0, totalWarn = 0, totalErr = 0;
+      REGIONS.forEach(r => {
+        totalOk += getVal(r, 'ok');
+        totalWarn += getVal(r, 'warn');
+        totalErr += getVal(r, 'err');
+      });
+      lines.push(`NASIONAL: ✅ ${totalOk} ⚠️ ${totalWarn} ❌ ${totalErr}`);
 
-  document.getElementById('output').value = lines.join('\n');
-});
+      document.getElementById('output').value = lines.join('\n');
+    });
 
-document.getElementById('resetBtn').addEventListener('click', () => {
-  document.querySelectorAll('input[type=number]').forEach(el => el.value = 0);
-  document.getElementById('output').value = '';
-  updateTotals();
-  setDefaultTimestamp();
-});
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      document.querySelectorAll('input[type=number]').forEach(el => el.value = 0);
+      document.getElementById('output').value = '';
+      updateTotals();
+      setDefaultTimestamp();
+    });
 
-document.getElementById('copyBtn').addEventListener('click', async () => {
-  const output = document.getElementById('output');
-  const text = output.value;
-  if(!text){ return; }
-  const btn = document.getElementById('copyBtn');
-  try{
-    await navigator.clipboard.writeText(text);
-    btn.textContent = '✓ Tersalin';
-    btn.classList.add('copied');
-  }catch(e){
-    output.select();
-    document.execCommand('copy');
-    btn.textContent = '✓ Tersalin';
-    btn.classList.add('copied');
-  }
-  setTimeout(()=>{
-    btn.textContent = 'Copy Output';
-    btn.classList.remove('copied');
-  }, 1500);
-});
-</script>
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      const output = document.getElementById('output');
+      const text = output.value;
+      if (!text) { return; }
+      const btn = document.getElementById('copyBtn');
+      try {
+        await navigator.clipboard.writeText(text);
+        btn.textContent = '✓ Tersalin';
+        btn.classList.add('copied');
+      } catch (e) {
+        output.select();
+        document.execCommand('copy');
+        btn.textContent = '✓ Tersalin';
+        btn.classList.add('copied');
+      }
+      setTimeout(() => {
+        btn.textContent = 'Copy Output';
+        btn.classList.remove('copied');
+      }, 1500);
+    });
+  </script>
+  <div style="text-align:center;padding:20px 0 40px;"><a href="../index.html" style="color:#5c7290;font-size:13px;text-decoration:none;">← Kembali ke Menu Utama</a></div>
 </body>
+
 </html>
