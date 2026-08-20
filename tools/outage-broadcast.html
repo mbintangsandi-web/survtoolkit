@@ -426,35 +426,6 @@
       <textarea class="paste-input" id="pasteInput"
         placeholder="Paste data di sini (termasuk baris header)..."></textarea>
     </div>
-
-    <!-- STEP 2: Header broadcast -->
-    <div class="section-label">2 — Set Header</div>
-    <div class="paste-card">
-      <div class="meta-grid">
-        <div class="field-group">
-          <label>Waktu Broadcast </label>
-          <input type="text" id="waktuBroadcast" placeholder="HH:MM DD/MM/YYYY">
-        </div>
-        <div class="field-group">
-          <label>Kode Region</label>
-          <input type="text" id="kodeRegion" placeholder="RKAL, RBNT, RJKT ...">
-        </div>
-        <div class="field-group">
-          <label>Jumlah OLT</label>
-          <input type="number" id="jumlahOlt" placeholder="0" min="0">
-        </div>
-      </div>
-      <div style="display:flex; gap:12px; flex-wrap:wrap;">
-        <div class="field-group" style="flex:1; min-width:180px;">
-          <label>Incident Sudah Ada Petugas</label>
-          <input type="number" id="incidentAda" placeholder="0" min="0">
-        </div>
-        <div class="field-group" style="flex:1; min-width:180px;">
-          <label>Incident Belum Ada Petugas</label>
-          <input type="number" id="incidentBelum" placeholder="0" min="0">
-        </div>
-      </div>
-    </div>
     <div style="margin-top:-10px; margin-bottom:22px; display:flex; gap:8px; flex-wrap:wrap;">
       <button class="btn btn-secondary" onclick="isiContoh()">Isi Contoh</button>
       <button class="btn btn-secondary" onclick="resetAll()">Reset</button>
@@ -463,7 +434,7 @@
 
     <!-- Preview table -->
     <div id="previewSection" style="display:none;">
-      <div class="section-label">3 — Preview Data (<span id="rowCountLabel">0</span> baris)</div>
+      <div class="section-label">2 — Preview Data (<span id="rowCountLabel">0</span> baris)</div>
       <div class="table-wrap">
         <table id="previewTable">
           <thead id="previewHead"></thead>
@@ -471,12 +442,40 @@
         </table>
       </div>
 
-      <!-- STEP 3: Generate -->
+      <!-- STEP 3: Set Header -->
+      <div class="section-label">3 — Set Header</div>
+      <div class="paste-card" style="margin-bottom:14px;">
+        <div class="meta-grid">
+          <div class="field-group">
+            <label>Waktu Broadcast</label>
+            <input type="text" id="waktuBroadcast" placeholder="HH:MM DD/MM/YYYY">
+          </div>
+          <div class="field-group">
+            <label>Kode Region</label>
+            <input type="text" id="kodeRegion" placeholder="RKAL, RBNT, RJKT ...">
+          </div>
+          <div class="field-group">
+            <label>Jumlah OLT</label>
+            <input type="number" id="jumlahOlt" placeholder="0" min="0">
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:12px;">
+          <div class="field-group" style="flex:1; min-width:180px;">
+            <label>Incident Sudah Ada Petugas</label>
+            <input type="number" id="incidentAda" placeholder="0" min="0">
+          </div>
+          <div class="field-group" style="flex:1; min-width:180px;">
+            <label>Incident Belum Ada Petugas</label>
+            <input type="number" id="incidentBelum" placeholder="0" min="0">
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 4: Generate -->
       <div class="section-label">4 — Pilih & Generate Broadcast</div>
       <div style="margin-bottom:14px;">
         <div class="paste-hint" style="margin-bottom:8px;">Pilih/filter baris data berdasarkan kategori Region yang akan
-          di broadcast (klik untuk
-          toggle, atau gunakan tombol di bawah):</div>
+          di broadcast (klik untuk toggle, atau gunakan tombol di bawah):</div>
         <div class="btn-row">
           <button class="btn btn-secondary" onclick="pilihSemua()">Pilih Semua</button>
           <button class="btn btn-secondary" onclick="hapusPilihan()">Hapus Pilihan</button>
