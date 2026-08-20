@@ -515,10 +515,10 @@
       const raw = document.getElementById('pasteInput').value.trim();
       if (!raw) { alert('Data kosong!'); return; }
 
-      const lines = raw.split('\n').map(l => l.trimEnd());
-      if (lines.length < 2) { alert('Minimal 2 baris (header + 1 data)'); return; }
+      const lines = raw.split('\n').map(l => l.trimEnd()).filter(l => l.trim());
+      if (lines.length < 1) { alert('Data kosong!'); return; }
 
-      // Detect header
+      // Detect header: cek apakah baris pertama mengandung nama kolom yang dikenal
       const headerLine = lines[0].split('\t').map(h => h.trim().toUpperCase());
       const colMap = {};
       COLS.forEach(c => {
@@ -526,7 +526,7 @@
         if (idx !== -1) colMap[c] = idx;
       });
 
-      // Bisa juga data tanpa header → gunakan urutan default
+      // Jika ≥3 kolom cocok → ada header; jika tidak → 1 baris data langsung tanpa header
       const hasHeader = Object.keys(colMap).length >= 3;
       const dataLines = hasHeader ? lines.slice(1) : lines;
 
