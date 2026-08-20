@@ -441,6 +441,10 @@
           <tbody id="previewBody"></tbody>
         </table>
       </div>
+      <div class="btn-row" style="margin-top:10px;">
+        <button class="btn btn-secondary" onclick="pilihSemua()">Pilih Semua</button>
+        <button class="btn btn-secondary" onclick="hapusPilihan()">Hapus Pilihan</button>
+      </div>
 
       <!-- STEP 3: Set Header -->
       <div class="section-label">3 — Set Header</div>
@@ -470,24 +474,15 @@
           </div>
         </div>
       </div>
-
-      <!-- STEP 4: Generate -->
-      <div class="section-label">4 — Pilih & Generate Broadcast</div>
-      <div style="margin-bottom:14px;">
-        <div class="paste-hint" style="margin-bottom:8px;">Pilih/filter baris data berdasarkan kategori Region yang akan
-          di broadcast (klik untuk toggle, atau gunakan tombol di bawah):</div>
-        <div class="btn-row">
-          <button class="btn btn-secondary" onclick="pilihSemua()">Pilih Semua</button>
-          <button class="btn btn-secondary" onclick="hapusPilihan()">Hapus Pilihan</button>
-          <button class="btn btn-green" onclick="generateBroadcast()">Generate Broadcast</button>
-        </div>
+      <div class="btn-row" style="margin-top:-6px;">
+        <button class="btn btn-green" onclick="generateBroadcast()">Generate Broadcast</button>
       </div>
     </div>
 
     <!-- Output -->
     <div id="outputSection" style="display:none;">
       <div class="section-label" style="display:flex; align-items:center; justify-content:space-between;">
-        <span>5 — Hasil Broadcast</span>
+        <span>4 — Hasil Broadcast</span>
         <button class="btn btn-secondary" style="font-size:11px; padding:5px 12px;"
           onclick="hapusSemuaBroadcast()">Hapus Semua</button>
       </div>
