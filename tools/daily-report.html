@@ -254,16 +254,41 @@
       background: var(--amber-dim);
     }
 
+    .btn-process {
+      background: var(--green);
+      color: #ffffff;
+      border-color: var(--green);
+      font-weight: 500;
+    }
+
+    .btn-process:hover {
+      background: #237a52;
+      border-color: #237a52;
+    }
+
+    .btn-reset {
+      background: var(--red);
+      color: #ffffff;
+      border-color: var(--red);
+      font-weight: 500;
+    }
+
+    .btn-reset:hover {
+      background: #a8302a;
+      border-color: #a8302a;
+    }
+
     .btn-sample {
-      background: transparent;
-      color: var(--text-dim);
-      border-color: var(--border);
+      background: var(--amber-dim);
+      color: #92650c;
+      border-color: var(--amber);
       font-size: 11px;
+      font-weight: 500;
     }
 
     .btn-sample:hover {
-      background: var(--bg-panel);
-      color: var(--text);
+      background: #fde89a;
+      color: #6b4b08;
     }
 
     /* ── Error ── */
@@ -451,8 +476,8 @@
     </div>
 
     <div class="toolbar">
-      <button class="btn btn-primary" onclick="proses()">▶ Proses</button>
-      <button class="btn btn-secondary" onclick="resetForm()">↺ Reset</button>
+      <button class="btn btn-process" onclick="proses()">▶ Proses</button>
+      <button class="btn btn-reset" onclick="resetForm()">↺ Reset</button>
       <button class="btn btn-sample" onclick="loadSample()">Muat Contoh Data</button>
     </div>
 
