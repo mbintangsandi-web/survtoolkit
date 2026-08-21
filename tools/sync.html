@@ -728,31 +728,28 @@ OLT-SBU-BIAK-01`;
 
       document.getElementById('stat-cards').innerHTML = `
     <div class="stat">
-      <div class="stat-label"><span class="dot dot-green"></span>IRISAN (A ∩ B)</div>
+      <div class="stat-label"><span class="dot dot-green"></span>SUDAH SINKRON</div>
       <div class="stat-val" style="color:var(--green)">${intersect.length}</div>
     </div>
     <div class="stat">
-      <div class="stat-label"><span class="dot dot-blue"></span>HANYA DI A</div>
+      <div class="stat-label"><span class="dot dot-blue"></span>BELUM DI INPUT</div>
       <div class="stat-val" style="color:var(--blue)">${onlyA.length}</div>
     </div>
     <div class="stat">
-      <div class="stat-label"><span class="dot dot-amber"></span>HANYA DI B</div>
+      <div class="stat-label"><span class="dot dot-amber"></span>BELUM DI CLEANSING</div>
       <div class="stat-val" style="color:var(--amber)">${onlyB.length}</div>
     </div>
     <div class="stat">
-      <div class="stat-label"><span class="dot" style="background:${pctColor}"></span>COVERAGE A→B</div>
+      <div class="stat-label"><span class="dot" style="background:${pctColor}"></span>SUDAH SINKRON</div>
       <div class="stat-val" style="color:${pctColor}">${matchPct}%</div>
     </div>
   `;
 
       renderVenn(listA.length, listB.length, intersect.length);
-      renderGrid('');
+      renderGrid();
 
       document.getElementById('export-row').innerHTML = `
-    <button class="btn-copy" onclick="exportData('intersect',this)">⊙ copy irisan</button>
-    <button class="btn-copy" onclick="exportData('only_a',this)">⊙ copy hanya di A</button>
-    <button class="btn-copy" onclick="exportData('only_b',this)">⊙ copy hanya di B</button>
-    <button class="btn-copy" onclick="exportData('all',this)">⊙ export TSV lengkap</button>
+    <button class="btn-copy" onclick="exportData('all',this)">⊙ export semua (TSV)</button>
   `;
 
       document.getElementById('result-area').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -784,15 +781,12 @@ OLT-SBU-BIAK-01`;
   `;
     }
 
-    function renderGrid(filter) {
+    function renderGrid() {
       const { intersect, onlyA, onlyB, dupA, dupB } = state;
-      const f = (filter || '').toLowerCase();
-      const filt = arr => f ? arr.filter(i => (typeof i === 'string' ? i : i.a).toLowerCase().includes(f)) : arr;
 
       const makeItems = (arr, cls, keyFn) => {
-        const items = filt(arr);
-        if (!items.length) return '<div class="empty-state">— tidak ada item —</div>';
-        return items.map(i => `<div class="item ${cls}">${esc(keyFn(i))}</div>`).join('');
+        if (!arr.length) return '<div class="empty-state">— tidak ada item —</div>';
+        return arr.map(i => `<div class="item ${cls}">${esc(keyFn(i))}</div>`).join('');
       };
 
       const dupSection = (dups, label) => !dups.length ? '' : `
@@ -804,24 +798,32 @@ OLT-SBU-BIAK-01`;
       document.getElementById('result-grid').innerHTML = `
     <div class="res-card">
       <div class="res-header">
-        <span class="res-title"><span class="dot dot-green"></span>IRISAN (A ∩ B)</span>
-        <span class="badge badge-green">${intersect.length}</span>
+        <span class="res-title"><span class="dot dot-green"></span>SUDAH SINKRON</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <button class="btn-copy" style="padding:3px 10px;font-size:11px;" onclick="exportData('intersect',this)">⊙ copy semua</button>
+          <span class="badge badge-green">${intersect.length}</span>
+        </span>
       </div>
-      <input class="search-input" placeholder="filter hasil..." oninput="renderGrid(this.value)">
       <div class="item-list">${makeItems(intersect, 'item-match', i => i.a)}</div>
     </div>
     <div class="res-card">
       <div class="res-header">
-        <span class="res-title"><span class="dot dot-blue"></span>HANYA DI A</span>
-        <span class="badge badge-blue">${onlyA.length}</span>
+        <span class="res-title"><span class="dot dot-blue"></span>BELUM DI INPUT</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <button class="btn-copy" style="padding:3px 10px;font-size:11px;" onclick="exportData('only_a',this)">⊙ copy semua</button>
+          <span class="badge badge-blue">${onlyA.length}</span>
+        </span>
       </div>
       <div class="item-list">${makeItems(onlyA, 'item-only-a', i => i)}</div>
       ${dupSection(dupA, 'A')}
     </div>
     <div class="res-card">
       <div class="res-header">
-        <span class="res-title"><span class="dot dot-amber"></span>HANYA DI B</span>
-        <span class="badge badge-amber">${onlyB.length}</span>
+        <span class="res-title"><span class="dot dot-amber"></span>BELUM DI CLEANSING</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <button class="btn-copy" style="padding:3px 10px;font-size:11px;" onclick="exportData('only_b',this)">⊙ copy semua</button>
+          <span class="badge badge-amber">${onlyB.length}</span>
+        </span>
       </div>
       <div class="item-list">${makeItems(onlyB, 'item-only-b', i => i)}</div>
       ${dupSection(dupB, 'B')}
