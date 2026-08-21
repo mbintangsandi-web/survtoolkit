@@ -71,7 +71,9 @@
       text-decoration: none;
     }
 
-    .topbar-logo:hover { opacity: 0.8; }
+    .topbar-logo:hover {
+      opacity: 0.8;
+    }
 
     .topbar-sep {
       color: var(--border);
@@ -112,7 +114,9 @@
       margin-bottom: 6px;
     }
 
-    .page-head h1 .icon { color: var(--accent); }
+    .page-head h1 .icon {
+      color: var(--accent);
+    }
 
     .page-head p {
       font-size: 13px;
@@ -451,27 +455,28 @@
 
     <div class="page-head">
       <h1><span class="icon">📊</span> OLT Down Tracker</h1>
-      <p>Masukkan data Nama OLT dan Status dari sheet OLT DOWN untuk menghasilkan laporan harian secara otomatis. Tool ini mengelompokkan data berdasarkan region dan menghitung total OLT down per kategori.</p>
+      <p>Masukkan data Nama OLT dan Status dari sheet OLT DOWN untuk menghasilkan laporan harian secara otomatis. Tool
+        ini mengelompokkan data berdasarkan region dan menghitung total OLT down per kategori.</p>
     </div>
 
-    <p class="section-label">Input Data OLT</p>
+    <p class="section-label">PASTIKAN JUMLAH INPUTAN TIAP KOLOM SAMA</p>
 
     <div class="input-grid">
       <div>
         <div class="col-header">Nama OLT</div>
         <textarea id="col-name"
           placeholder="SBU-OLT-GDG-01&#10;SBT-OLT-MLG-02&#10;JKT-OLT-JKT-03&#10;BALI-OLT-DPS-01"></textarea>
-        <p class="col-hint">↳ prefix sebelum &quot;-&quot; → region</p>
+
       </div>
       <div>
         <div class="col-header">Status</div>
         <textarea id="col-status" placeholder="NOT DONE&#10;DONE&#10;NOT DONE&#10;NOT DONE"></textarea>
-        <p class="col-hint">↳ DONE atau NOT DONE per baris</p>
+
       </div>
       <div>
         <div class="col-header">Durasi (jam)</div>
-        <textarea id="col-durasi" placeholder="3&#10;5&#10;2&#10;7"></textarea>
-        <p class="col-hint">↳ angka jam, satu baris per OLT</p>
+        <textarea id="col-durasi" placeholder="3,34&#10;5,12&#10;2,12&#10;7,21"></textarea>
+
       </div>
     </div>
 
