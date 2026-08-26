@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -6,14 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Follow Up Tiket SBU</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: 'Courier New', monospace;
+      font-family: "Courier New", monospace;
       background: #eef3fa;
       color: #16273c;
       min-height: 100vh;
@@ -21,404 +17,294 @@
     }
 
     h1 {
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #2f6fe4;
-      margin-bottom: 4px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #dbe6f3;
+      font-size: 14px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: #2f6fe4;
+      margin-bottom: 4px; padding-bottom: 10px; border-bottom: 1px solid #dbe6f3;
     }
 
-    .subtitle {
-      font-size: 11px;
-      color: #5c7290;
-      margin-bottom: 18px;
-      padding-top: 6px;
-    }
+    .subtitle { font-size: 11px; color: #5c7290; margin-bottom: 18px; padding-top: 6px; }
 
-    .card {
+    .split-inputs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    @media (max-width: 640px) { .split-inputs { grid-template-columns: 1fr; } }
+
+    .input-col {
       background: #ffffff;
       border: 1px solid #dbe6f3;
       border-radius: 6px;
-      padding: 16px;
-      margin-bottom: 14px;
+      padding: 14px;
     }
+    .input-col-gangguan { border-top: 3px solid #2f6fe4; }
+    .input-col-keluhan  { border-top: 3px solid #e47b2f; }
 
-    label {
-      display: block;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #5c7290;
-      margin-bottom: 6px;
-    }
+    .col-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .col-title  { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }
+    .col-title-gangguan { color: #2f6fe4; }
+    .col-title-keluhan  { color: #e47b2f; }
+    .col-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .col-dot-gangguan { background: #2f6fe4; }
+    .col-dot-keluhan  { background: #e47b2f; }
+
+    label { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: #5c7290; margin-bottom: 6px; }
 
     textarea {
-      width: 100%;
-      background: #ffffff;
-      border: 1px solid #dbe6f3;
-      border-radius: 4px;
-      color: #16273c;
-      font-family: 'Courier New', monospace;
-      font-size: 12px;
-      padding: 10px;
-      resize: vertical;
-      min-height: 220px;
-      line-height: 1.5;
-      outline: none;
-      transition: border-color 0.15s;
+      width: 100%; background: #f8fbff; border: 1px solid #dbe6f3;
+      border-radius: 4px; color: #16273c; font-family: "Courier New", monospace;
+      font-size: 12px; padding: 10px; resize: vertical; min-height: 200px;
+      line-height: 1.5; outline: none; transition: border-color 0.15s;
     }
+    textarea:focus { border-color: #2f6fe4; }
+    #inputKeluhan:focus { border-color: #e47b2f; }
+    textarea::placeholder { color: #93a8c2; }
 
-    textarea:focus {
-      border-color: #2f6fe4;
-    }
+    .format-hint { font-size: 10px; color: #93a8c2; margin-top: 8px; line-height: 1.8; }
+    .format-hint b { color: #5c7290; }
 
-    textarea::placeholder {
-      color: #93a8c2;
+    .cc-row {
+      background: #ffffff; border: 1px solid #dbe6f3; border-radius: 6px;
+      padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px;
     }
+    .cc-row label { margin-bottom: 0; white-space: nowrap; font-weight: 700; color: #2f6fe4; font-size: 12px; }
+    .cc-row input {
+      flex: 1; background: #f8fbff; border: 1px solid #dbe6f3; border-radius: 4px;
+      color: #16273c; font-family: "Courier New", monospace; font-size: 12px;
+      padding: 8px 10px; outline: none; transition: border-color 0.15s;
+    }
+    .cc-row input:focus { border-color: #2f6fe4; }
 
-    .format-hint {
-      font-size: 10px;
-      color: #93a8c2;
-      margin-top: 8px;
-      line-height: 1.8;
-    }
-
-    .format-hint b {
-      color: #5c7290;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
+    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
 
     button {
-      font-family: 'Courier New', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      padding: 7px 14px;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      transition: opacity 0.15s;
+      font-family: "Courier New", monospace; font-size: 11px; font-weight: 700;
+      letter-spacing: 0.06em; text-transform: uppercase; padding: 7px 14px;
+      border-radius: 4px; border: none; cursor: pointer; transition: opacity 0.15s;
     }
+    button:hover { opacity: 0.8; }
+    .btn-primary   { background: #2f9e6b; color: #fff; }
+    .btn-secondary { background: #f0f4fa; color: #5c7290; border: 1px solid #dbe6f3; }
+    .btn-copy      { background: #2f6fe4; color: #fff; }
 
-    button:hover {
-      opacity: 0.8;
-    }
+    #output-section { display: none; }
 
-    .btn-primary {
-      background: #2f9e6b;
-      color: #fff;
-    }
-
-    .btn-secondary {
-      background: #f0f4fa;
-      color: #5c7290;
-      border: 1px solid #dbe6f3;
-    }
-
-    .btn-copy {
-      background: #2f6fe4;
-      color: #fff;
-    }
-
-    .btn-sa {
-      background: #2f6fe4;
-      color: #fff;
-    }
-
-    .btn-sb {
-      background: #d1483f;
-      color: #fff;
-    }
-
-    #output-section {
-      display: none;
+    .card {
+      background: #ffffff; border: 1px solid #dbe6f3;
+      border-radius: 6px; padding: 16px; margin-bottom: 14px;
     }
 
     #output-box {
-      background: #ffffff;
-      border: 1px solid #dbe6f3;
-      border-radius: 4px;
-      padding: 14px;
-      font-size: 12px;
-      line-height: 1.7;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: #16273c;
+      background: #ffffff; border: 1px solid #dbe6f3; border-radius: 4px;
+      padding: 14px; font-size: 12px; line-height: 1.7;
+      white-space: pre-wrap; word-break: break-word; color: #16273c;
     }
 
-    .stat-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 10px;
-    }
-
-    .stat {
-      background: #f0f4fa;
-      border: 1px solid #dbe6f3;
-      border-radius: 4px;
-      padding: 5px 11px;
-      font-size: 11px;
-      color: #5c7290;
-    }
-
-    .stat span {
-      color: #2f6fe4;
-      font-weight: 700;
-    }
-
-    .badge {
-      display: inline-block;
-      font-size: 10px;
-      padding: 2px 7px;
-      border-radius: 3px;
-      margin-left: 6px;
-    }
-
-    .badge-a {
-      background: #2f6fe4;
-      color: #fff;
-    }
-
-    .badge-b {
-      background: #d1483f;
-      color: #fff;
-    }
+    .stat-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+    .stat { background: #f0f4fa; border: 1px solid #dbe6f3; border-radius: 4px; padding: 5px 11px; font-size: 11px; color: #5c7290; }
+    .stat span { color: #2f6fe4; font-weight: 700; }
 
     .toast {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #2f9e6b;
-      color: #fff;
-      font-size: 12px;
-      font-family: 'Courier New', monospace;
-      padding: 8px 16px;
-      border-radius: 4px;
-      opacity: 0;
-      transition: opacity 0.2s;
-      pointer-events: none;
+      position: fixed; bottom: 20px; right: 20px; background: #2f9e6b;
+      color: #fff; font-size: 12px; font-family: "Courier New", monospace;
+      padding: 8px 16px; border-radius: 4px; opacity: 0; transition: opacity 0.2s; pointer-events: none;
     }
-
-    .toast.show {
-      opacity: 1;
-    }
+    .toast.show { opacity: 1; }
   </style>
 </head>
 
 <body>
 
   <h1>Follow Up Tiket SBU Lebih Dari 3 Hari</h1>
-  <div class="subtitle">Atur kolom Tanggal Gangguan dan Region agar tetap berada di posisi kiri tabel (fix to the left)
-    sebelum data diambil sesuai format yang dibutuhkan</div>
+  <div class="subtitle">Input data tiket GANGGUAN dan KELUHAN secara terpisah, lalu klik Generate Output.</div>
 
-  <div class="card">
-    <label>Input Data Tiket</label>
-    <textarea id="inputData" placeholder="Paste data di sini..."></textarea>
-    <div class="format-hint">
-      <b>Format per Region</b> — region code header terpisah:<br>
-      &nbsp;&nbsp;RJKT<br>
-      &nbsp;&nbsp;RENVBRMB<br>
-      &nbsp;&nbsp;3 Hari 13 Jam 25 Menit<br><br>
-      <b>Format All Region</b> — durasi &amp; nama region dalam satu baris:<br>
-      &nbsp;&nbsp;RRVK6AE3<br>
-      &nbsp;&nbsp;9 Hari 1 Jam 46 Menit&nbsp;&nbsp;JAKARTA &amp; BANTEN
+  <div class="split-inputs">
+
+    <div class="input-col input-col-gangguan">
+      <div class="col-header">
+        <div class="col-dot col-dot-gangguan"></div>
+        <span class="col-title col-title-gangguan">#Gangguan</span>
+      </div>
+      <textarea id="inputGangguan" placeholder="Paste data tiket gangguan di sini..."></textarea>
+      <div class="format-hint">
+        <b>Format per Region:</b><br>
+        &nbsp;&nbsp;RJKT<br>
+        &nbsp;&nbsp;RENVBRMB<br>
+        &nbsp;&nbsp;3 Hari 13 Jam 25 Menit<br><br>
+        <b>Format All Region:</b><br>
+        &nbsp;&nbsp;RRVK6AE3<br>
+        &nbsp;&nbsp;9 Hari 1 Jam 46 Menit &nbsp; JAKARTA &amp; BANTEN
+      </div>
     </div>
-    <div class="btn-row">
-      <button class="btn-primary" onclick="processData()">▶ Generate Output</button>
-      <button class="btn-sa" onclick="fillSampleA()">◈ Sample per Region</button>
-      <button class="btn-sb" onclick="fillSampleB()">◈ Sample All Region</button>
-      <button class="btn-secondary" onclick="resetAll()">↺ Reset</button>
+
+    <div class="input-col input-col-keluhan">
+      <div class="col-header">
+        <div class="col-dot col-dot-keluhan"></div>
+        <span class="col-title col-title-keluhan">#Keluhan</span>
+      </div>
+      <textarea id="inputKeluhan" placeholder="Paste data tiket keluhan di sini..."></textarea>
+      <div class="format-hint">
+        <b>Format per Region:</b><br>
+        &nbsp;&nbsp;RJKT<br>
+        &nbsp;&nbsp;RENVBRMB<br>
+        &nbsp;&nbsp;3 Hari 13 Jam 25 Menit<br><br>
+        <b>Format All Region:</b><br>
+        &nbsp;&nbsp;RRVK6AE3<br>
+        &nbsp;&nbsp;9 Hari 1 Jam 46 Menit &nbsp; JAKARTA &amp; BANTEN
+      </div>
     </div>
+
+  </div>
+
+  <div class="cc-row">
+    <label for="inputCC">cc :</label>
+    <input type="text" id="inputCC" placeholder="Nama / nomor yang di-cc...">
+  </div>
+
+  <div class="btn-row" style="margin-bottom:14px;">
+    <button class="btn-primary" onclick="processData()">&#9654; Generate Output</button>
+    <button class="btn-secondary" onclick="resetAll()">&#8634; Reset</button>
   </div>
 
   <div class="card" id="output-section">
-    <label>Output Broadcast<span id="fmt-badge"></span></label>
+    <label>Output Broadcast</label>
     <div class="stat-row" id="stats"></div>
     <div id="output-box"></div>
     <div class="btn-row" style="margin-top:10px;">
-      <button class="btn-copy" onclick="copyOutput()">⎘ Copy Output</button>
+      <button class="btn-copy" onclick="copyOutput()">&#x2398; Copy Output</button>
     </div>
   </div>
 
-  <div class="toast" id="toast">✓ Tersalin!</div>
+  <div class="toast" id="toast">&#10003; Tersalin!</div>
 
   <script>
-    // ── Constants ──────────────────────────────────────────────────────
-    const REGION_CODES = ['RSBU', 'RSBT', 'RSBS', 'RJKT', 'RJBB', 'RJBTG', 'RJBT', 'RBNT', 'RKAL', 'RINT'];
-
-    // Maps full region name (uppercase) → short code
+    const REGION_CODES = ['RSBU','RSBT','RSBS','RJKT','RJBB','RJBTG','RJBT','RBNT','RKAL','RINT'];
     const REGION_NAME_MAP = {
-      'JAKARTA & BANTEN': 'RJKT',
-      'JAKARTA DAN BANTEN': 'RJKT',
-      'JAWA BARAT': 'RJBB',
-      'JAWA TENGAH': 'RJBTG',
-      'JAWA TIMUR': 'RJBT',
-      'SUMATERA BAGIAN UTARA': 'RSBU',
-      'SUMATERA BAGIAN SELATAN': 'RSBS',
-      'SUMATERA BAGIAN TENGAH': 'RSBT',
-      'KALIMANTAN': 'RKAL',
-      'BALINUSRA': 'RBNT',
-      'INTERNASIONAL': 'RINT',
+      'JAKARTA & BANTEN':'RJKT','JAKARTA DAN BANTEN':'RJKT',
+      'JAWA BARAT':'RJBB','JAWA TENGAH':'RJBTG','JAWA TIMUR':'RJBT',
+      'SUMATERA BAGIAN UTARA':'RSBU','SUMATERA BAGIAN SELATAN':'RSBS',
+      'SUMATERA BAGIAN TENGAH':'RSBT','KALIMANTAN':'RKAL',
+      'BALINUSRA':'RBNT','INTERNASIONAL':'RINT',
     };
-
     const DURATION_RE = /(\d+)\s*Hari(?:\s+(\d+)\s*Jam)?(?:\s+(\d+)\s*Menit)?/i;
 
     function parseDuration(str) {
       const m = str.match(DURATION_RE);
       if (!m) return null;
-      return { days: +m[1] || 0, hours: +m[2] || 0, minutes: +m[3] || 0 };
+      return { days: +m[1]||0, hours: +m[2]||0, minutes: +m[3]||0 };
     }
-
     function formatDuration(d) {
       const p = [];
-      if (d.days) p.push(`${d.days} Hari`);
-      if (d.hours) p.push(`${d.hours} Jam`);
-      if (d.minutes) p.push(`${d.minutes} Menit`);
+      if (d.days)    p.push(d.days + ' Hari');
+      if (d.hours)   p.push(d.hours + ' Jam');
+      if (d.minutes) p.push(d.minutes + ' Menit');
       return p.join(' ') || '0 Menit';
     }
-
-    function getNow() {
+    function getNowHeader() {
       const n = new Date();
-      const p = v => String(v).padStart(2, '0');
-      return `${p(n.getHours())}:${p(n.getMinutes())} ${p(n.getDate())}/${p(n.getMonth() + 1)}/${n.getFullYear()}`;
+      const DAYS = ['MINGGU','SENIN','SELASA','RABU','KAMIS','JUMAT','SABTU'];
+      const pad = v => String(v).padStart(2,'0');
+      return DAYS[n.getDay()] + ', ' + pad(n.getDate()) + '-' + pad(n.getMonth()+1) + '-' + n.getFullYear() +
+             ' PUKUL ' + pad(n.getHours()) + ':' + pad(n.getMinutes()) + ' WIB';
     }
-
-    // ── Detect format ──────────────────────────────────────────────────
-    // Format A: some lines are pure REGION_CODES
-    // Format B: no pure region-code lines; duration line also contains region name text
+    function resolveRegion(raw) {
+      if (!raw) return 'LAINNYA';
+      const key = raw.toUpperCase().trim();
+      if (REGION_NAME_MAP[key]) return REGION_NAME_MAP[key];
+      if (REGION_CODES.includes(key)) return key;
+      for (const [k,v] of Object.entries(REGION_NAME_MAP)) {
+        if (key.includes(k) || k.includes(key)) return v;
+      }
+      return raw.toUpperCase() || 'LAINNYA';
+    }
     function detectFormat(lines) {
-      const hasCodeHeader = lines.some(l => REGION_CODES.includes(l.trim().toUpperCase()));
-      return hasCodeHeader ? 'A' : 'B';
+      return lines.some(l => REGION_CODES.includes(l.trim().toUpperCase())) ? 'A' : 'B';
     }
-
-    // ── Parser A ───────────────────────────────────────────────────────
-    // Structure: REGION_CODE / DEVICE / DURATION (repeating)
     function parseFormatA(lines) {
-      const regions = {};
-      let cur = null, pendingDevice = null;
-
+      const regions = {}; let cur = null, pendingDevice = null;
       for (const raw of lines) {
         const line = raw.trim();
         if (!line) continue;
-
         if (REGION_CODES.includes(line.toUpperCase())) {
           cur = line.toUpperCase();
           if (!regions[cur]) regions[cur] = [];
           pendingDevice = null;
         } else if (cur) {
           if (DURATION_RE.test(line)) {
-            if (pendingDevice) {
-              regions[cur].push({ device: pendingDevice, duration: parseDuration(line) });
-              pendingDevice = null;
-            }
-          } else {
-            pendingDevice = line;
-          }
+            if (pendingDevice) { regions[cur].push({ device: pendingDevice, duration: parseDuration(line) }); pendingDevice = null; }
+          } else { pendingDevice = line; }
         }
       }
       return regions;
     }
-
-    // ── Parser B ───────────────────────────────────────────────────────
-    // Structure per pair of lines:
-    //   Line 1: DEVICE_CODE
-    //   Line 2: DURATION_STRING  REGION_NAME   (tab or multiple spaces as separator)
     function parseFormatB(lines) {
-      const regions = {};
-      let i = 0;
-
+      const regions = {}; let i = 0;
       while (i < lines.length) {
         const line = lines[i].trim();
         if (!line) { i++; continue; }
-
-        // Check if next line is a duration+region line
-        const nextLine = (lines[i + 1] || '').trim();
+        const nextLine = (lines[i+1]||'').trim();
         if (nextLine && DURATION_RE.test(nextLine)) {
-          const device = line;
-
-          // Split nextLine into duration part and region part
-          // Duration is everything up to and including the last duration token
-          // Region is the remainder after the duration match
           const durMatch = nextLine.match(DURATION_RE);
-          const durStr = durMatch ? durMatch[0] : '';
-          // Region name = everything after the duration string, stripped
-          const afterDur = nextLine.slice(nextLine.indexOf(durStr) + durStr.length).trim();
-          // afterDur may contain leading whitespace/tabs already trimmed
-          const regionRaw = afterDur.replace(/^\s+/, '').trim();
-
+          const durStr   = durMatch ? durMatch[0] : '';
+          const regionRaw = nextLine.slice(nextLine.indexOf(durStr)+durStr.length).trim();
           const dur = parseDuration(durStr);
           if (dur) {
             const code = resolveRegion(regionRaw);
             if (!regions[code]) regions[code] = [];
-            regions[code].push({ device, duration: dur });
+            regions[code].push({ device: line, duration: dur });
           }
           i += 2;
-        } else {
-          i++;
-        }
+        } else { i++; }
       }
       return regions;
     }
-
-    function resolveRegion(raw) {
-      if (!raw) return 'LAINNYA';
-      const key = raw.toUpperCase().trim();
-      if (REGION_NAME_MAP[key]) return REGION_NAME_MAP[key];
-      if (REGION_CODES.includes(key)) return key;
-      // Partial match
-      for (const [k, v] of Object.entries(REGION_NAME_MAP)) {
-        if (key.includes(k) || k.includes(key)) return v;
-      }
-      return raw.toUpperCase() || 'LAINNYA';
+    function parseInput(rawText) {
+      if (!rawText.trim()) return {};
+      const lines = rawText.split('\n');
+      const fmt = detectFormat(lines.map(l => l.trim()).filter(Boolean));
+      return fmt === 'B' ? parseFormatB(lines) : parseFormatA(lines);
     }
-
-    // ── Build output ───────────────────────────────────────────────────
-    function buildOutput(regions) {
+    function buildSection(regions) {
       const ordered = [
-        ...REGION_CODES.filter(r => regions[r]?.length),
-        ...Object.keys(regions).filter(r => !REGION_CODES.includes(r) && regions[r]?.length),
+        ...REGION_CODES.filter(r => regions[r] && regions[r].length),
+        ...Object.keys(regions).filter(r => !REGION_CODES.includes(r) && regions[r] && regions[r].length),
       ];
-      let out = `Follow Up Tiket SBU Lebih Dari 3 Hari\n${getNow()}\n`;
-      let no = 1, total = 0;
+      let block = ''; let no = 1, total = 0;
       for (const region of ordered) {
         const tickets = regions[region];
         total += tickets.length;
-        out += `\n${no}. ${region} : ${tickets.length} Tiket\n`;
-        for (const t of tickets) out += `${t.device}  (${formatDuration(t.duration)})\n`;
+        block += no + '. ' + region + ' : ' + tickets.length + ' Tiket\n';
+        for (const t of tickets) block += t.device + '  (' + formatDuration(t.duration) + ')\n';
         no++;
       }
-      return { text: out.trim(), ordered, total };
+      return { block: block.trim(), total };
     }
 
-    // ── Main ───────────────────────────────────────────────────────────
     function processData() {
-      const raw = document.getElementById('inputData').value;
-      const lines = raw.split('\n');
-      const nonEmpty = lines.map(l => l.trim()).filter(Boolean);
-      if (!nonEmpty.length) { alert('Data kosong!'); return; }
+      const rawG = document.getElementById('inputGangguan').value;
+      const rawK = document.getElementById('inputKeluhan').value;
+      const cc   = document.getElementById('inputCC').value.trim();
 
-      const fmt = detectFormat(nonEmpty);
-      const regions = fmt === 'B' ? parseFormatB(lines) : parseFormatA(lines);
-      const { text, ordered, total } = buildOutput(regions);
+      if (!rawG.trim() && !rawK.trim()) {
+        alert('Isi minimal salah satu inputan (Gangguan atau Keluhan)!');
+        return;
+      }
 
-      document.getElementById('output-box').textContent = text;
-      document.getElementById('fmt-badge').innerHTML =
-        `<span class="badge badge-${fmt.toLowerCase()}">Format ${fmt}</span>`;
+      const secG = buildSection(parseInput(rawG));
+      const secK = buildSection(parseInput(rawK));
+
+      let out = '\uD83D\uDD34 Follow Up Tiket SBU Lebih Dari 3 Hari\n';
+      out += '\uD83D\uDCC5 ' + getNowHeader() + '\n';
+      out += '\n#GANGGUAN\n' + (secG.block || '(tidak ada data)') + '\n';
+      out += '\n#KELUHAN\n'  + (secK.block || '(tidak ada data)') + '\n';
+      out += '\ncc : ' + (cc || '');
+
+      document.getElementById('output-box').textContent = out.trim();
       document.getElementById('stats').innerHTML =
-        `<div class="stat">Terdeteksi: <span>Format ${fmt}</span></div>` +
-        `<div class="stat">Region: <span>${ordered.length}</span></div>` +
-        `<div class="stat">Total Tiket: <span>${total}</span></div>`;
+        '<div class="stat">Gangguan: <span>' + secG.total + ' tiket</span></div>' +
+        '<div class="stat">Keluhan: <span>'  + secK.total + ' tiket</span></div>' +
+        '<div class="stat">Total: <span>'    + (secG.total + secK.total) + ' tiket</span></div>';
 
       const sec = document.getElementById('output-section');
       sec.style.display = 'block';
@@ -434,59 +320,16 @@
       setTimeout(() => t.classList.remove('show'), 1800);
     }
     function resetAll() {
-      document.getElementById('inputData').value = '';
+      document.getElementById('inputGangguan').value = '';
+      document.getElementById('inputKeluhan').value  = '';
+      document.getElementById('inputCC').value       = '';
       document.getElementById('output-section').style.display = 'none';
     }
-
-    // ── Samples ────────────────────────────────────────────────────────
-    const SAMPLE_A = `RJKT
-RENVBRMB
-3 Hari 13 Jam 25 Menit
-RENVBU76
-3 Hari 13 Jam 4 Menit
-RENVLVGU
-4 Hari 23 Jam 22 Menit
-RENV5FZM
-7 Hari 10 Jam 47 Menit
-
-RJBB
-RENVBN8U
-3 Hari 9 Jam 39 Menit
-
-RSBU
-RENV8JMY
-4 Hari 15 Jam 48 Menit
-RENCNF95
-19 Hari 13 Jam 25 Menit
-
-RINT
-RENVBEA2
-3 Hari 13 Jam 39 Menit`;
-
-    const SAMPLE_B = `RRVK6AE3
-9 Hari 1 Jam 46 Menit	JAKARTA & BANTEN
-RRVKLAB3
-7 Hari 22 Jam 32 Menit	KALIMANTAN
-RRV7RG47
-3 Hari 20 Jam 23 Menit	JAKARTA & BANTEN
-RRV7W6W8
-4 Hari 11 Jam 56 Menit	JAKARTA & BANTEN
-RRV7RQ6Q
-3 Hari 23 Jam 2 Menit	SUMATERA BAGIAN UTARA
-RRV7E7W2
-4 Hari 40 Menit	SUMATERA BAGIAN UTARA
-RRV7QMRF
-4 Hari 18 Jam 50 Menit	SUMATERA BAGIAN UTARA
-RRVKCFH7
-6 Hari 18 Jam 45 Menit	SUMATERA BAGIAN UTARA
-RRVKMZGK
-5 Hari 2 Jam 2 Menit	SUMATERA BAGIAN UTARA`;
-
-    function fillSampleA() { document.getElementById('inputData').value = SAMPLE_A; }
-    function fillSampleB() { document.getElementById('inputData').value = SAMPLE_B; }
   </script>
-  <div style="text-align:center;padding:20px 0 40px;"><a href="../index.html"
-      style="color:#5c7290;font-size:13px;text-decoration:none;">← Kembali ke Menu Utama</a></div>
-</body>
 
+  <div style="text-align:center;padding:20px 0 40px;">
+    <a href="../index.html" style="color:#5c7290;font-size:13px;text-decoration:none;">&#8592; Kembali ke Menu Utama</a>
+  </div>
+
+</body>
 </html>
