@@ -248,14 +248,25 @@
     }
 
     .btn-copy {
-      background: transparent;
-      color: var(--amber);
-      border-color: var(--amber-dim);
+      background: var(--amber);
+      color: #ffffff;
+      border-color: var(--amber);
       margin-left: auto;
+      font-weight: 500;
+      box-shadow: 0 2px 8px rgba(217, 154, 43, 0.30);
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
     }
 
     .btn-copy:hover {
-      background: var(--amber-dim);
+      background: #b87d1a;
+      border-color: #b87d1a;
+      box-shadow: 0 4px 14px rgba(217, 154, 43, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-copy:active {
+      transform: translateY(0);
+      box-shadow: none;
     }
 
     .btn-process {
@@ -417,18 +428,27 @@
 
     /* copy toast */
     .toast {
-      display: none;
       position: fixed;
       bottom: 24px;
       right: 24px;
-      background: var(--accent);
+      background: var(--amber);
       color: #ffffff;
       font-family: var(--mono);
       font-size: 12px;
-      padding: 8px 16px;
+      padding: 10px 20px;
       border-radius: var(--radius);
       font-weight: 500;
       z-index: 999;
+      box-shadow: 0 4px 16px rgba(217, 154, 43, 0.45);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     @media (max-width: 680px) {
@@ -615,8 +635,8 @@
       const text = box.innerText || box.textContent;
       navigator.clipboard.writeText(text).then(() => {
         const t = document.getElementById('toast');
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 2000);
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 2000);
       });
     }
 
