@@ -345,16 +345,13 @@
       return alarmSource.substring(0, idx).trim();
     }
 
-    function extractDate(dateTimeStr) {
+    function formatDateTime(dateTimeStr) {
       if (!dateTimeStr) return '';
-      const parts = dateTimeStr.trim().split(' ');
-      return parts[0] || '';
-    }
-
-    function extractTime(dateTimeStr) {
-      if (!dateTimeStr) return '';
-      const parts = dateTimeStr.trim().split(' ');
-      return parts.length > 1 ? parts[1] : dateTimeStr.trim();
+      const str = dateTimeStr.trim();
+      // Input format: YYYY-MM-DD HH:MM:SS
+      const m = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}:\d{2}:\d{2})$/);
+      if (m) return `${m[3]}/${m[2]}/${m[1]} ${m[4]}`;
+      return str;
     }
 
     function findCol(headers, ...names) {
@@ -412,8 +409,7 @@
         }
         broadcastData[region].push({
           olt: alarmSource,
-          date: extractDate(firstOccurred),
-          time: extractTime(firstOccurred),
+          datetime: formatDateTime(firstOccurred),
           name: name
         });
       }
@@ -440,7 +436,7 @@
       const items = broadcastData[region];
       let msg = `‼️BROADCAST ALARM‼️\nYth. Rekan SBU ${region},\nTelah terdeteksi Alarm Environment pada perangkat OLT.\nDibantu untuk pengecekan\n\n`;
       items.forEach((item, idx) => {
-        msg += `${idx + 1}. ${item.olt} | ${item.date} | ${item.time} | ${item.name}\n`;
+        msg += `${idx + 1}. ${item.olt} | ${item.datetime} | ${item.name}\n`;
       });
       msg += `\n#envalarm\ncc : `;
       return msg;

@@ -291,12 +291,21 @@
   <div class="toast" id="toast">Copied to clipboard!</div>
 
   <script>
+    function formatDateTime(dateTimeStr) {
+      if (!dateTimeStr) return '';
+      const str = dateTimeStr.trim();
+      // Input format: YYYY-MM-DD HH:MM:SS
+      const m = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}:\d{2}:\d{2})$/);
+      if (m) return `${m[3]}/${m[2]}/${m[1]} ${m[4]}`;
+      return str;
+    }
+
     function parseLine(line) {
       const cols = line.split('\t');
       if (cols.length < 12) return null;
       const alarmName = (cols[3] || '').trim();
       const olt = (cols[6] || '').trim();
-      const latestTime = (cols[11] || '').trim();
+      const latestTime = formatDateTime((cols[11] || '').trim());
       if (!olt || !alarmName) return null;
       return { olt, alarmName, latestTime };
     }
