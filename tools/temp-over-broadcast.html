@@ -7,13 +7,13 @@
   <title>Temp Over Broadcast Generator</title>
   <style>
     :root {
-      --accent: #e05a2b;
-      --accent-light: #ff7043;
-      --bg: #fdf4f0;
+      --accent: #2f6fe4;
+      --accent-light: #4f8ff7;
+      --bg: #f2f6fc;
       --card: #ffffff;
-      --border: #f3ddd4;
-      --text: #2b1a10;
-      --muted: #7a5a4a;
+      --border: #dbe4f3;
+      --text: #1c2b3f;
+      --muted: #5b6c85;
       --danger: #e0393e;
       --ok: #1f9d55;
     }
@@ -88,7 +88,7 @@
     textarea:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(224, 90, 43, .12);
+      box-shadow: 0 0 0 3px rgba(47, 111, 228, .12);
     }
 
     .searchbox {
@@ -107,7 +107,7 @@
       max-height: 260px;
       overflow-y: auto;
       z-index: 20;
-      box-shadow: 0 8px 20px rgba(80, 30, 10, .12);
+      box-shadow: 0 8px 20px rgba(20, 40, 80, .12);
       display: none;
     }
 
@@ -127,7 +127,7 @@
     }
 
     .result-item:hover {
-      background: #fff1ec;
+      background: #eef4ff;
     }
 
     .result-item b {
@@ -143,8 +143,8 @@
     .selected-box {
       margin-top: 14px;
       padding: 12px 14px;
-      background: #fff1ec;
-      border: 1px solid #f5d0c0;
+      background: #eef4ff;
+      border: 1px solid #cfe0fb;
       border-radius: 10px;
       font-size: 13px;
       display: none;
@@ -189,7 +189,7 @@
     }
 
     button:hover {
-      background: #c44b20;
+      background: #255bc4;
     }
 
     button.secondary {
@@ -200,7 +200,7 @@
     }
 
     button.secondary:hover {
-      background: #fff1ec;
+      background: #eef4ff;
     }
 
     .btnrow {
@@ -532,8 +532,7 @@
       const ccText = document.getElementById('ccList').value.trim();
       const ccLine = (ccOn && ccText) ? '\n\ncc : ' + ccText : '';
 
-      const overVal = suhu.replace(/[^0-9.,]/g, '') || suhu;
-      const overStr = overVal ? overVal + '\u00b0C' : '-';
+      const overStr = suhu || '-';
 
       const text = [
         '---',
@@ -578,7 +577,7 @@
   </script>
 
   <div style="text-align:center;padding:20px 0 40px;"><a href="../index.html"
-      style="color:#7a5a4a;font-size:13px;text-decoration:none;">&larr; Kembali ke Menu Utama</a></div>
+      style="color:#5c7290;font-size:13px;text-decoration:none;">&larr; Kembali ke Menu Utama</a></div>
 </body>
 
 </html>
