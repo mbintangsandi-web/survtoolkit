@@ -267,7 +267,8 @@
 <body>
   <div class="wrap">
     <h1>&#127777;&#65039; Temp Over Broadcast Generator<span class="badge" id="countBadge"></span></h1>
-    <div class="sub">Broadcast alarm suhu BNG/INETGW/CGNAT yang melebihi threshold. Cari hostname, lengkapi detail alarm, lalu generate broadcast.</div>
+    <div class="sub">Broadcast alarm suhu BNG/INETGW/CGNAT yang melebihi threshold. Cari hostname, lengkapi detail
+      alarm, lalu generate broadcast.</div>
 
     <div class="card">
       <label>Cari Hostname (ketik sebagian nama)</label>
@@ -299,7 +300,7 @@
       </div>
 
       <label>Lokasi</label>
-      <input type="text" id="lokasi" placeholder="Contoh: Waru, Sidoarjo">
+      <input type="text" id="lokasi" placeholder="Contoh: RSBU,RJBT,RINT">
 
       <label>SBU Terkait</label>
       <input type="text" id="sbu" placeholder="Contoh: JATIM">
@@ -309,7 +310,8 @@
         <span style="margin:0;">Sertakan CC di broadcast</span>
       </label>
       <div id="ccBoxWrap">
-        <textarea id="ccList" rows="2" style="resize:vertical;">pak @~Gumilang Indra Wijàya , mas @ICON+ - Ahmad Khairu Ramdani ,@(spv/manager SBU terkait),@~NOC RETAIL FM 1 ,@~NOC RETAIL FM 2</textarea>
+        <textarea id="ccList" rows="2"
+          style="resize:vertical;">pak @~Gumilang Indra Wijàya , mas @ICON+ - Ahmad Khairu Ramdani ,@(spv/manager SBU terkait),@~NOC RETAIL FM 1 ,@~NOC RETAIL FM 2</textarea>
         <div class="hint">Daftar CC bisa diedit langsung sesuai kebutuhan.</div>
       </div>
 
@@ -439,7 +441,7 @@
     document.getElementById('countBadge').textContent = HOSTNAME_LIST.length + ' Hostname';
 
     const searchInput = document.getElementById('searchInput');
-    const resultsBox  = document.getElementById('results');
+    const resultsBox = document.getElementById('results');
     const selectedBox = document.getElementById('selectedBox');
 
     searchInput.addEventListener('input', () => {
@@ -460,7 +462,7 @@
       resultsBox.classList.add('show');
     });
 
-    resultsBox.addEventListener('click', function(e) {
+    resultsBox.addEventListener('click', function (e) {
       const item = e.target.closest('.result-item');
       if (!item || !item.dataset.hostname) return;
       const row = HOSTNAME_LIST.find(r => r.hostname === item.dataset.hostname);
@@ -470,14 +472,14 @@
       searchInput.value = row.hostname;
     });
 
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       if (!e.target.closest('.searchbox')) resultsBox.classList.remove('show');
     });
 
     function selectRow(row) {
       document.getElementById('selHostname').textContent = row.hostname;
-      document.getElementById('selRegion').textContent   = row.region;
-      document.getElementById('selJenis').textContent    = row.jenis;
+      document.getElementById('selRegion').textContent = row.region;
+      document.getElementById('selJenis').textContent = row.jenis;
       selectedBox.classList.add('show');
       document.getElementById('hostname').value = row.hostname;
       const prefix = row.hostname.split('-')[0];
@@ -501,13 +503,13 @@
     function fillSample() {
       const sample = HOSTNAME_LIST.find(r => r.hostname === 'JATIM-WARU-NE8000.BNG-CPE-01');
       if (sample) { selectRow(sample); searchInput.value = sample.hostname; }
-      document.getElementById('waktu').value  = nowFormatted();
-      document.getElementById('suhu').value   = '75';
+      document.getElementById('waktu').value = nowFormatted();
+      document.getElementById('suhu').value = '75';
       document.getElementById('lokasi').value = 'Waru, Sidoarjo';
     }
 
     function resetForm() {
-      ['hostname', 'waktu', 'suhu', 'lokasi', 'sbu'].forEach(function(id) {
+      ['hostname', 'waktu', 'suhu', 'lokasi', 'sbu'].forEach(function (id) {
         document.getElementById(id).value = '';
       });
       searchInput.value = '';
@@ -521,17 +523,17 @@
 
     function generate() {
       const hostname = document.getElementById('hostname').value.trim() || '-';
-      const waktu    = document.getElementById('waktu').value.trim()    || nowFormatted();
-      const suhu     = document.getElementById('suhu').value.trim()     || '-';
-      const lokasi   = document.getElementById('lokasi').value.trim()   || '-';
-      const sbuRaw   = document.getElementById('sbu').value.trim();
-      const sbuTag   = sbuRaw ? '@' + sbuRaw : '@(SBU terkait)';
-      const ccOn     = document.getElementById('ccToggle').checked;
-      const ccText   = document.getElementById('ccList').value.trim();
-      const ccLine   = (ccOn && ccText) ? '\n\ncc : ' + ccText : '';
+      const waktu = document.getElementById('waktu').value.trim() || nowFormatted();
+      const suhu = document.getElementById('suhu').value.trim() || '-';
+      const lokasi = document.getElementById('lokasi').value.trim() || '-';
+      const sbuRaw = document.getElementById('sbu').value.trim();
+      const sbuTag = sbuRaw ? '@' + sbuRaw : '@(SBU terkait)';
+      const ccOn = document.getElementById('ccToggle').checked;
+      const ccText = document.getElementById('ccList').value.trim();
+      const ccLine = (ccOn && ccText) ? '\n\ncc : ' + ccText : '';
 
-      const overVal  = suhu.replace(/[^0-9.,]/g, '') || suhu;
-      const overStr  = overVal ? overVal + '\u00b0C' : '-';
+      const overVal = suhu.replace(/[^0-9.,]/g, '') || suhu;
+      const overStr = overVal ? overVal + '\u00b0C' : '-';
 
       const text = [
         '---',
@@ -566,11 +568,11 @@
     function copyOutput() {
       const text = document.getElementById('output').textContent;
       if (!text || text.startsWith('Isi form')) return;
-      navigator.clipboard.writeText(text).then(function() {
+      navigator.clipboard.writeText(text).then(function () {
         const btn = document.getElementById('copyBtn');
         btn.textContent = 'Copied!';
         btn.classList.add('copied');
-        setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+        setTimeout(function () { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
       });
     }
   </script>
