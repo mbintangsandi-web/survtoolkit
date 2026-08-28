@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Temp Over Broadcast Generator</title>
+  <style>
+    :root {
+      --accent: #e05a2b;
+      --accent-light: #ff7043;
+      --bg: #fdf4f0;
+      --card: #ffffff;
+      --border: #f3ddd4;
+      --text: #2b1a10;
+      --muted: #7a5a4a;
+      --danger: #e0393e;
+      --ok: #1f9d55;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 24px;
+    }
+
+    h1 {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      font-size: 22px;
+      margin: 0 0 4px;
+      color: var(--accent);
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    .wrap {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 18px;
+      box-shadow: 0 1px 3px rgba(80, 30, 10, .06);
+    }
+
+    label {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 6px;
+      margin-top: 14px;
+    }
+
+    label:first-child {
+      margin-top: 0;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      font-size: 14px;
+      font-family: inherit;
+      background: #fffaf8;
+      color: var(--text);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(224, 90, 43, .12);
+    }
+
+    .searchbox {
+      position: relative;
+    }
+
+    .results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-top: none;
+      border-radius: 0 0 9px 9px;
+      max-height: 260px;
+      overflow-y: auto;
+      z-index: 20;
+      box-shadow: 0 8px 20px rgba(80, 30, 10, .12);
+      display: none;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .result-item {
+      padding: 9px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #f5ede9;
+      font-size: 13px;
+    }
+
+    .result-item:last-child {
+      border-bottom: none;
+    }
+
+    .result-item:hover {
+      background: #fff1ec;
+    }
+
+    .result-item b {
+      color: var(--accent);
+    }
+
+    .result-item .meta {
+      color: var(--muted);
+      font-size: 11.5px;
+      margin-top: 2px;
+    }
+
+    .selected-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #fff1ec;
+      border: 1px solid #f5d0c0;
+      border-radius: 10px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .selected-box.show {
+      display: block;
+    }
+
+    .selected-box .row {
+      margin-bottom: 3px;
+    }
+
+    .selected-box .lbl {
+      color: var(--muted);
+      display: inline-block;
+      min-width: 80px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    @media(max-width:600px) {
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    button {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 11px 20px;
+      border-radius: 9px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 18px;
+    }
+
+    button:hover {
+      background: #c44b20;
+    }
+
+    button.secondary {
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      margin-left: 8px;
+    }
+
+    button.secondary:hover {
+      background: #fff1ec;
+    }
+
+    .btnrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .output-wrap {
+      position: relative;
+    }
+
+    #output {
+      white-space: pre-wrap;
+      background: #ffffff;
+      color: #2b1a10;
+      padding: 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      min-height: 80px;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 7px;
+      font-size: 12.5px;
+      cursor: pointer;
+      margin: 0;
+    }
+
+    .copy-btn.copied {
+      background: var(--ok);
+    }
+
+    .hint {
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 10.5px;
+      background: var(--accent);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 20px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>&#127777;&#65039; Temp Over Broadcast Generator<span class="badge" id="countBadge"></span></h1>
+    <div class="sub">Broadcast alarm suhu BNG/INETGW/CGNAT yang melebihi threshold. Cari hostname, lengkapi detail alarm, lalu generate broadcast.</div>
+
+    <div class="card">
+      <label>Cari Hostname (ketik sebagian nama)</label>
+      <div class="searchbox">
+        <input type="text" id="searchInput" placeholder="Contoh: JATIM-WARU atau CGNAT" autocomplete="off">
+        <div class="results" id="results"></div>
+      </div>
+      <div class="selected-box" id="selectedBox">
+        <div class="row"><span class="lbl">Hostname</span>: <b id="selHostname"></b></div>
+        <div class="row"><span class="lbl">Region</span>: <b id="selRegion"></b></div>
+        <div class="row"><span class="lbl">Jenis</span>: <b id="selJenis"></b></div>
+      </div>
+      <div class="hint">Belum ketemu? Isi manual hostname di bawah.</div>
+    </div>
+
+    <div class="card">
+      <label style="margin-top:0;">Hostname Perangkat</label>
+      <input type="text" id="hostname" placeholder="Contoh: JATIM-WARU-NE8000.BNG-CPE-01">
+
+      <div class="grid2" style="margin-top:14px;">
+        <div>
+          <label style="margin-top:0;">Tanggal &amp; Waktu</label>
+          <input type="text" id="waktu" placeholder="Contoh: 28/08/2026 18:00:00">
+        </div>
+        <div>
+          <label style="margin-top:0;">Suhu (Nilai Over)</label>
+          <input type="text" id="suhu" placeholder="Contoh: 75">
+        </div>
+      </div>
+
+      <label>Lokasi</label>
+      <input type="text" id="lokasi" placeholder="Contoh: Waru, Sidoarjo">
+
+      <label>SBU Terkait</label>
+      <input type="text" id="sbu" placeholder="Contoh: JATIM">
+
+      <label style="margin-top:14px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="ccToggle" checked style="width:auto;margin:0;" onchange="toggleCcBox()">
+        <span style="margin:0;">Sertakan CC di broadcast</span>
+      </label>
+      <div id="ccBoxWrap">
+        <textarea id="ccList" rows="2" style="resize:vertical;">pak @~Gumilang Indra Wijàya , mas @ICON+ - Ahmad Khairu Ramdani ,@(spv/manager SBU terkait),@~NOC RETAIL FM 1 ,@~NOC RETAIL FM 2</textarea>
+        <div class="hint">Daftar CC bisa diedit langsung sesuai kebutuhan.</div>
+      </div>
+
+      <div class="btnrow">
+        <button onclick="generate()">Generate Broadcast</button>
+        <button class="secondary" onclick="fillSample()">Isi Contoh</button>
+        <button class="secondary" onclick="resetForm()">Reset</button>
+      </div>
+    </div>
+
+    <div class="card output-wrap">
+      <label style="margin-top:0;">Hasil Broadcast</label>
+      <button class="copy-btn" id="copyBtn" onclick="copyOutput()">Copy</button>
+      <div id="output">Isi form di atas lalu klik "Generate Broadcast".</div>
+    </div>
+  </div>
+
+  <script>
+    function deriveJenis(h) {
+      if (/INET\.GW|INETGW/i.test(h)) return 'INETGW';
+      if (/CGNAT/i.test(h)) return 'CGNAT';
+      return 'BNG';
+    }
+
+    function deriveRegion(h) {
+      const prefix = h.split('-')[0];
+      const MAP = {
+        SBT: 'Sumatera Bagian Tengah',
+        SBU: 'Sumatera Bagian Utara',
+        SBS: 'Sumatera Bagian Selatan',
+        JABAR: 'Jawa Barat',
+        JATENG: 'Jawa Tengah',
+        JATIM: 'Jawa Timur',
+        JKT: 'Jakarta',
+        BALI: 'Bali',
+        RKAL: 'Regional Kalimantan',
+        RIT: 'Regional Indonesia Timur',
+      };
+      return MAP[prefix] || prefix;
+    }
+
+    const RAW_HOSTNAMES = [
+      'SBT-GARUDASAKTI-MX204.BNG-CPE-01',
+      'BALI-GI.MAULAFA-MX204.BNG-CPE-01',
+      'JKT-DURI.KOSAMBI-NE8000.BNG-CPE-01',
+      'JABAR-SHELTER.SUNYARAGI.BARU-MX204.BNG-CPE-01',
+      'JKT-SHELTER.GI.SERANG-NE8000.BNG-CPE-01',
+      'RKAL-ULIN-INET.GW-PTX10004-01',
+      'RKAL-WILAYAH.PONTIANAK-NE8000.BNG-CPE-01',
+      'SBS-NATAR-MX204.BNG-CPE-01',
+      'SBS-RANTING.MENTOK-NE8000.BNG-CPE-01',
+      'JABAR-SHELTER.GI.GARUT-MX204.BNG-CPE-01',
+      'JABAR-SHELTER.KOSAMBI.BARU-HW.NE8000.M8.BNG-CPE-01',
+      'JATIM-PROBOLINGGO-HW.NE8000.M8.BNG-CPE-01',
+      'JATIM-SHELTER.GI.MANISREJO-NE8000.BNG-CPE-01',
+      'RKAL-ULIN-NE8000.BNG-CPE-01',
+      'SBS-SHELTER.MUARA.BUNGO-HUAWEI.NE8000.M8.BNG-CPE-01',
+      'SBT-PEKANBARU-NE8000.BNG-CPE-01',
+      'SBU-RANTAUPRAPAT-MX204.BNG-CPE-01',
+      'SBU-SHELTER.TARUTUNG-HW.NE80000.M8.BNG-CPE-01',
+      'JATENG-SHELTER.JAJAR-HW.NE8000.M8.BNG-CPE-01',
+      'JATENG-SHELTER.KUDUS-HW.NE8000.M8.BNG-CPE-01',
+      'JATENG-UNGARAN-INET.GW.PTX10004-01',
+      'JATIM-SHELTER.GI.BANARAN-MX204.BNG-CPE-01',
+      'RIT-TELLO-NE8000.BNG-CPE-01',
+      'SBS-AURDURI-MX204.BNG-CPE-01',
+      'SBU-TEBINGTINGGI-MX204.BNG-CPE-01',
+      'BALI-MTRM.PLN.CAB-MX204.BNG-CPE-01',
+      'JABAR-SHELTER.CIANJUR-MX204.BNG-CPE-01',
+      'JABAR-UJUNGBERUNG-INET.GW-PTX10004-01',
+      'JKT-GANDUL-NE8000.BNG-CPE-01',
+      'RIT-SHELTER.GI.TELLO-MX204.BNG-CPE-02',
+      'SBS-SUKAMERINDU-MX204.BNG-CPE-01',
+      'SBT-PAYAKUMBUH-MX204.BNG-CPE-01',
+      'BALI-GIANYAR-HW.NE8000.M8.BNG-CPE-01',
+      'JATENG-SHELTER.RAWALO-MX204.BNG-CPE-01',
+      'JATENG-WELERI-MX204.BNG-CPE-01',
+      'JATIM-WARU-NE8000.BNG-CPE-02',
+      'JKT-SHELTER.CAWANG-MX204.BNG-CPE-01',
+      'SBT-DURI-HW.NE8000.M8.BNG-CPE-01',
+      'SBT-GRAHAPENA-CGNATF5-CPE-03',
+      'SBT-GRAHAPENA-MX204.BNG-CPE-01',
+      'SBT-KILIRANJAO-HUAWEI.NE8000.M8.BNG-CPE-01',
+      'BALI-KAPAL-INET.GW-PTX10004-01',
+      'BALI-KAPAL-NE8000.BNG-CPE-01',
+      'JABAR-UJUNGBERUNG-NE8000.BNG-CPE-01',
+      'JATENG-YOGYA.KENTUNGAN-NE8000.BNG-CPE-01',
+      'JATIM-GI.KEBON.AGUNG-MX204.BNG-CPE-01',
+      'JATIM-WARU-INET.GW-PTX10004-01',
+      'JATIM-WARU-NE8000.BNG-CPE-01',
+      'JKT-GANDUL.NAP-PTX10004-01',
+      'JKT-SHELTER.APD.GAMBIR-HW.NE8000.M8.BNG-CPE-01',
+      'RKAL-KARANG.JOANG-MX204.BNG-CPE-01',
+      'SBU-GLUGUR-NE8000.BNG-CPE-01',
+      'JABAR-SHELTER.ACC.CIGERELENG-MX204.BNG-CPE-01',
+      'JKT-BOGOR.BARU-HW.NE8000.M8.BNG-CPE-01',
+      'RIT-SHELTER.PLN.WILAYAH.SULUTENGGO-NE8000.BNG-CPE-01',
+      'RIT-SULUTENGGO-CGNATF5-CPE-01',
+      'RKAL-GI.PALANGKARAYA-MX204.BNG-CPE-01',
+      'SBT-PAUHLIMO-NE8000.BNG-CPE-01',
+      'BALI-SHELTER.PEMECUTAN-HW.NE8000.M8.BNG-CPE-01',
+      'JATENG-UNGARAN-NE8000.BNG-CPE-01',
+      'JATIM-GI.BABAT-MX204.BNG-CPE-01',
+      'JKT-SHELTER.BINTARO-NE8000.BNG-CPE-01',
+      'RIT-GI.TALISE-MX204.BNG-CPE-01',
+      'SBS-PAYOSELINCAH-NE8000.BNG-CPE-01',
+      'SBU-TITIKUNING-MX204.BNG-CPE-01',
+      'JABAR-SHELTER.CIAMIS-HW-NE8000.M8.BNG-CPE-01',
+      'JKT-JABABEKA-NE8000.BNG-CPE-01',
+      'SBS-PAYOSELINCAH-INET.GW-MX204-CPE-01',
+      'BALI-SHELTER.PESANGGARAN-MX204.BNG-CPE-01',
+      'JATENG-PEMALANG-MX204.BNG-CPE-01',
+      'JATIM-SAWAHAN-MX204.BNG-CPE-01',
+      'RIT-TELLO-INET.GW-PTX10004-01',
+      'SBS-BUKITSIGUNTANG-MX204.BNG-CPE-01',
+      'SBU-SHELTER.SIDEMPUAN-HW.NE8000.M8.BNG-CPE-01',
+      'SBT-PLN.AREA.PEKANBARU-INET.GW-MX480-01',
+      'SBU-GI.ACEH-MX204.BNG-CPE-01',
+    ];
+
+    const HOSTNAME_LIST = RAW_HOSTNAMES.map(h => ({
+      hostname: h,
+      region: deriveRegion(h),
+      jenis: deriveJenis(h)
+    }));
+
+    document.getElementById('countBadge').textContent = HOSTNAME_LIST.length + ' Hostname';
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsBox  = document.getElementById('results');
+    const selectedBox = document.getElementById('selectedBox');
+
+    searchInput.addEventListener('input', () => {
+      const q = searchInput.value.trim().toLowerCase();
+      if (q.length < 2) { resultsBox.classList.remove('show'); resultsBox.innerHTML = ''; return; }
+      const matches = HOSTNAME_LIST.filter(r => r.hostname.toLowerCase().includes(q)).slice(0, 30);
+      if (matches.length === 0) {
+        resultsBox.innerHTML = '<div class="result-item" style="color:#94a3b8;">Tidak ditemukan</div>';
+        resultsBox.classList.add('show');
+        return;
+      }
+      resultsBox.innerHTML = matches.map(r =>
+        '<div class="result-item" data-hostname="' + r.hostname + '">' +
+        '<b>' + r.hostname + '</b>' +
+        '<div class="meta">' + r.region + ' &middot; ' + r.jenis + '</div>' +
+        '</div>'
+      ).join('');
+      resultsBox.classList.add('show');
+    });
+
+    resultsBox.addEventListener('click', function(e) {
+      const item = e.target.closest('.result-item');
+      if (!item || !item.dataset.hostname) return;
+      const row = HOSTNAME_LIST.find(r => r.hostname === item.dataset.hostname);
+      if (!row) return;
+      selectRow(row);
+      resultsBox.classList.remove('show');
+      searchInput.value = row.hostname;
+    });
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.searchbox')) resultsBox.classList.remove('show');
+    });
+
+    function selectRow(row) {
+      document.getElementById('selHostname').textContent = row.hostname;
+      document.getElementById('selRegion').textContent   = row.region;
+      document.getElementById('selJenis').textContent    = row.jenis;
+      selectedBox.classList.add('show');
+      document.getElementById('hostname').value = row.hostname;
+      const prefix = row.hostname.split('-')[0];
+      document.getElementById('sbu').value = prefix;
+    }
+
+    function toggleCcBox() {
+      const on = document.getElementById('ccToggle').checked;
+      document.getElementById('ccBoxWrap').style.display = on ? 'block' : 'none';
+    }
+    toggleCcBox();
+
+    function pad2(n) { return n.toString().padStart(2, '0'); }
+
+    function nowFormatted() {
+      const d = new Date();
+      return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear() +
+        ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes()) + ':' + pad2(d.getSeconds());
+    }
+
+    function fillSample() {
+      const sample = HOSTNAME_LIST.find(r => r.hostname === 'JATIM-WARU-NE8000.BNG-CPE-01');
+      if (sample) { selectRow(sample); searchInput.value = sample.hostname; }
+      document.getElementById('waktu').value  = nowFormatted();
+      document.getElementById('suhu').value   = '75';
+      document.getElementById('lokasi').value = 'Waru, Sidoarjo';
+    }
+
+    function resetForm() {
+      ['hostname', 'waktu', 'suhu', 'lokasi', 'sbu'].forEach(function(id) {
+        document.getElementById(id).value = '';
+      });
+      searchInput.value = '';
+      selectedBox.classList.remove('show');
+      resultsBox.classList.remove('show');
+      document.getElementById('output').textContent = 'Isi form di atas lalu klik "Generate Broadcast".';
+      document.getElementById('ccToggle').checked = true;
+      document.getElementById('ccList').value = 'pak @~Gumilang Indra Wijàya , mas @ICON+ - Ahmad Khairu Ramdani ,@(spv/manager SBU terkait),@~NOC RETAIL FM 1 ,@~NOC RETAIL FM 2';
+      toggleCcBox();
+    }
+
+    function generate() {
+      const hostname = document.getElementById('hostname').value.trim() || '-';
+      const waktu    = document.getElementById('waktu').value.trim()    || nowFormatted();
+      const suhu     = document.getElementById('suhu').value.trim()     || '-';
+      const lokasi   = document.getElementById('lokasi').value.trim()   || '-';
+      const sbuRaw   = document.getElementById('sbu').value.trim();
+      const sbuTag   = sbuRaw ? '@' + sbuRaw : '@(SBU terkait)';
+      const ccOn     = document.getElementById('ccToggle').checked;
+      const ccText   = document.getElementById('ccList').value.trim();
+      const ccLine   = (ccOn && ccText) ? '\n\ncc : ' + ccText : '';
+
+      const overVal  = suhu.replace(/[^0-9.,]/g, '') || suhu;
+      const overStr  = overVal ? overVal + '\u00b0C' : '-';
+
+      const text = [
+        '---',
+        '\u203c\ufe0f BROADCAST ALARM \u203c\ufe0f',
+        '---',
+        '',
+        'Yth. Rekan SBU',
+        sbuTag,
+        '',
+        'Telah terdeteksi Alarm Environment pada perangkat BNG Berikut informasi yang dapat disampaikan :',
+        '',
+        'Hostname          : ' + hostname,
+        'Tanggal & Waktu   : ' + waktu,
+        'Lokasi            : ' + lokasi,
+        'Jenis Alarm       : Temperature Increase',
+        'Severity          : Warning',
+        'Evidence          : Capture Kondisi Suhu (OVER ' + overStr + ')',
+        '',
+        'Rekomendasi Tindak Lanjut :',
+        'Masih dalam monitoring, mohon diinformasikan apabila terdapat aktifitas/kegiatan pada lokasi perangkat',
+        '',
+        'Terima kasih atas perhatian dan kerja samanya.',
+        '',
+        '#envalarm' + ccLine
+      ].join('\n');
+
+      document.getElementById('output').textContent = text;
+      document.getElementById('copyBtn').classList.remove('copied');
+      document.getElementById('copyBtn').textContent = 'Copy';
+    }
+
+    function copyOutput() {
+      const text = document.getElementById('output').textContent;
+      if (!text || text.startsWith('Isi form')) return;
+      navigator.clipboard.writeText(text).then(function() {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+      });
+    }
+  </script>
+
+  <div style="text-align:center;padding:20px 0 40px;"><a href="../index.html"
+      style="color:#7a5a4a;font-size:13px;text-decoration:none;">&larr; Kembali ke Menu Utama</a></div>
+</body>
+
+</html>
