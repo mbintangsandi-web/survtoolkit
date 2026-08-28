@@ -285,7 +285,13 @@
     </div>
 
     <div class="card">
-      <label style="margin-top:0;">Hostname Perangkat</label>
+      <label style="margin-top:0;">Jenis Broadcast</label>
+      <select id="jenisBroadcast" onchange="onJenisChange()">
+        <option value="over">Over Temp — Alarm Suhu Melebihi Threshold</option>
+        <option value="resolve">Resolve Alarm — Suhu Kembali Normal</option>
+      </select>
+
+      <label>Hostname Perangkat</label>
       <input type="text" id="hostname" placeholder="Contoh: JATIM-WARU-NE8000.BNG-CPE-01">
 
       <div class="grid2" style="margin-top:14px;">
@@ -293,7 +299,7 @@
           <label style="margin-top:0;">Tanggal &amp; Waktu</label>
           <input type="text" id="waktu" placeholder="Contoh: 28/08/2026 18:00:00">
         </div>
-        <div>
+        <div id="suhuWrap">
           <label style="margin-top:0;">Suhu (Nilai Over)</label>
           <input type="text" id="suhu" placeholder="Contoh: 75">
         </div>
@@ -508,6 +514,12 @@
       document.getElementById('lokasi').value = 'Waru, Sidoarjo';
     }
 
+    function onJenisChange() {
+      const isOver = document.getElementById('jenisBroadcast').value === 'over';
+      document.getElementById('suhuWrap').style.display = isOver ? '' : 'none';
+    }
+    onJenisChange();
+
     function resetForm() {
       ['hostname', 'waktu', 'suhu', 'lokasi', 'sbu'].forEach(function (id) {
         document.getElementById(id).value = '';
@@ -518,13 +530,15 @@
       document.getElementById('output').textContent = 'Isi form di atas lalu klik "Generate Broadcast".';
       document.getElementById('ccToggle').checked = true;
       document.getElementById('ccList').value = 'pak @~Gumilang Indra Wijàya , mas @ICON+ - Ahmad Khairu Ramdani ,@(spv/manager SBU terkait),@~NOC RETAIL FM 1 ,@~NOC RETAIL FM 2';
+      document.getElementById('jenisBroadcast').value = 'over';
+      onJenisChange();
       toggleCcBox();
     }
 
     function generate() {
+      const jenis = document.getElementById('jenisBroadcast').value;
       const hostname = document.getElementById('hostname').value.trim() || '-';
       const waktu = document.getElementById('waktu').value.trim() || nowFormatted();
-      const suhu = document.getElementById('suhu').value.trim() || '-';
       const lokasi = document.getElementById('lokasi').value.trim() || '-';
       const sbuRaw = document.getElementById('sbu').value.trim();
       const sbuTag = sbuRaw ? '@' + sbuRaw : '@(SBU terkait)';
@@ -532,32 +546,57 @@
       const ccText = document.getElementById('ccList').value.trim();
       const ccLine = (ccOn && ccText) ? '\n\ncc : ' + ccText : '';
 
-      const overStr = suhu || '-';
+      let text;
 
-      const text = [
-        '---',
-        '\u203c\ufe0f BROADCAST ALARM \u203c\ufe0f',
-        '---',
-        '',
-        'Yth. Rekan SBU',
-        sbuTag,
-        '',
-        'Telah terdeteksi Alarm Environment pada perangkat BNG Berikut informasi yang dapat disampaikan :',
-        '',
-        'Hostname          : ' + hostname,
-        'Tanggal & Waktu   : ' + waktu,
-        'Lokasi            : ' + lokasi,
-        'Jenis Alarm       : Temperature Increase',
-        'Severity          : Warning',
-        'Evidence          : Capture Kondisi Suhu (OVER ' + overStr + ')',
-        '',
-        'Rekomendasi Tindak Lanjut :',
-        'Masih dalam monitoring, mohon diinformasikan apabila terdapat aktifitas/kegiatan pada lokasi perangkat',
-        '',
-        'Terima kasih atas perhatian dan kerja samanya.',
-        '',
-        '#envalarm' + ccLine
-      ].join('\n');
+      if (jenis === 'over') {
+        const suhu = document.getElementById('suhu').value.trim() || '-';
+        text = [
+          '---',
+          '\u203c\ufe0f BROADCAST ALARM \u203c\ufe0f',
+          '---',
+          '',
+          'Yth. Rekan SBU',
+          sbuTag,
+          '',
+          'Telah terdeteksi Alarm Environment pada perangkat BNG Berikut informasi yang dapat disampaikan :',
+          '',
+          'Hostname          : ' + hostname,
+          'Tanggal & Waktu   : ' + waktu,
+          'Lokasi            : ' + lokasi,
+          'Jenis Alarm       : Temperature Increase',
+          'Severity          : Warning',
+          'Evidence          : Capture Kondisi Suhu (OVER ' + suhu + ')',
+          '',
+          'Rekomendasi Tindak Lanjut :',
+          'Masih dalam monitoring, mohon diinformasikan apabila terdapat aktifitas/kegiatan pada lokasi perangkat',
+          '',
+          'Terima kasih atas perhatian dan kerja samanya.',
+          '',
+          '#envalarm' + ccLine
+        ].join('\n');
+      } else {
+        text = [
+          '------------------------------------',
+          '\u203c\ufe0f BROADCAST ALARM \u203c\ufe0f',
+          '------------------------------------',
+          '',
+          'Yth. Rekan SBU,',
+          sbuTag,
+          '',
+          'Kami informasikan bahwa alarm environment pada perangkat BNG terkait Temperature Increase telah kembali Normal dengan detail informasi sebagai berikut :',
+          '',
+          'Hostname          : ' + hostname,
+          'Tanggal & Waktu   : ' + waktu,
+          'Lokasi            : ' + lokasi,
+          'Jenis Alarm       : Temperature Normal',
+          'Severity          : Normal',
+          '',
+          'Terima kasih atas perhatian dan kerja samanya.',
+          '',
+          '',
+          '#resolvealarm' + ccLine
+        ].join('\n');
+      }
 
       document.getElementById('output').textContent = text;
       document.getElementById('copyBtn').classList.remove('copied');
