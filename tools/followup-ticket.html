@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="id">
 
 <head>
@@ -265,6 +265,9 @@
       const fmt = detectFormat(lines.map(l => l.trim()).filter(Boolean));
       return fmt === 'B' ? parseFormatB(lines) : parseFormatA(lines);
     }
+    function durationToMinutes(d) {
+      return (d.days * 24 * 60) + (d.hours * 60) + d.minutes;
+    }
     function buildSection(regions) {
       const ordered = [
         ...REGION_CODES.filter(r => regions[r] && regions[r].length),
@@ -272,7 +275,8 @@
       ];
       let block = ''; let no = 1, total = 0;
       for (const region of ordered) {
-        const tickets = regions[region];
+        // Sort tickets from longest duration to shortest (terlama dulu)
+        const tickets = regions[region].slice().sort((a, b) => durationToMinutes(b.duration) - durationToMinutes(a.duration));
         total += tickets.length;
         block += no + '. ' + region + ' : ' + tickets.length + ' Tiket\n';
         for (const t of tickets) block += t.device + '  (' + formatDuration(t.duration) + ')\n';
