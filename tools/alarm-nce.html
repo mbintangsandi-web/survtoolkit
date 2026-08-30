@@ -391,8 +391,8 @@
 
       for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split('\t');
-        const alarmSource = (cols[colAlarmSource] || '').trim();
-        const name = (cols[colName] || '').trim();
+        const alarmSource   = (cols[colAlarmSource]   || '').trim();
+        const name          = (cols[colName]          || '').trim();
         const firstOccurred = (cols[colFirstOccurred] || '').trim();
         if (!alarmSource || !name || !firstOccurred) continue;
 
@@ -403,20 +403,29 @@
         uniqueAlarms++;
 
         const region = getRegion(alarmSource);
+        const dateObj = parseRawDateTime(firstOccurred);
         if (!broadcastData[region]) {
-          broadcastData[region] = [];
+          broadcastData[region] = {};
           regionOrder.push(region);
         }
-        broadcastData[region].push({
-          olt: alarmSource,
-          datetime: formatDateTime(firstOccurred),
-          name: name
-        });
+        if (!broadcastData[region][name]) broadcastData[region][name] = [];
+        broadcastData[region][name].push({ olt: alarmSource, dateObj });
       }
 
       if (regionOrder.length === 0) {
         alert('Tidak ada data valid yang bisa diproses.');
         return;
+      }
+
+      // Sort each alarm group: oldest (smallest dateObj) first
+      for (const region of regionOrder) {
+        for (const alarmName of Object.keys(broadcastData[region])) {
+          broadcastData[region][alarmName].sort((a, b) => {
+            const ta = a.dateObj ? a.dateObj.getTime() : Infinity;
+            const tb = b.dateObj ? b.dateObj.getTime() : Infinity;
+            return ta - tb;
+          });
+        }
       }
 
       renderStats(totalRows, uniqueAlarms, regionOrder.length);
@@ -432,13 +441,49 @@
   `;
     }
 
-    function buildBroadcastText(region) {
-      const items = broadcastData[region];
-      let msg = `‼️BROADCAST ALARM‼️\nYth. Rekan SBU ${region},\nTelah terdeteksi Alarm Environment pada perangkat OLT.\nDibantu untuk pengecekan\n\n`;
-      items.forEach((item, idx) => {
-        msg += `${idx + 1}. ${item.olt} | ${item.datetime} | ${item.name}\n`;
-      });
-      msg += `\n#envalarm\ncc : `;
+    function parseRawDateTime(str) {
+      if (!str) return null;
+      const m = str.trim().match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/);
+      if (!m) return null;
+      return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+    }
+
+    function fmtDisplay(dateObj) {
+      if (!dateObj) return '';
+      const p = n => String(n).padStart(2,'0');
+      return `${dateObj.getFullYear()}-${p(dateObj.getMonth()+1)}-${p(dateObj.getDate())} ${p(dateObj.getHours())}:${p(dateObj.getMinutes())}:${p(dateObj.getSeconds())}`;
+    }
+
+    function getRegionLabel(sbu) {
+      const MAP = {
+        'RSBU':'RSBU','RSBT':'RSBT','RSBS':'RSBS',
+        'RJKT':'RJKT','RJBB':'RJBB','RJBTG':'RJBTG','RJBT':'RJBT',
+        'RBNT':'RBNT','RKAL':'RKAL','RINT':'RINT',
+        'SBU':'RSBU','SBT':'RSBT','SBS':'RSBS',
+        'JKTBNT':'RJKT','JKT':'RJKT',
+        'JATIM':'RJBT','JABAR':'RJBB','JATENG':'RJBTG',
+        'BALI':'RBNT','KAL':'RKAL',
+      };
+      return MAP[sbu.toUpperCase()] || sbu;
+    }
+
+    function buildBroadcastText(region, alarmGroups) {
+      const regionLabel = getRegionLabel(region);
+      let msg = `---\n‼️ BROADCAST ALARM ‼️\n---\n`;
+      msg += `\nYth. Rekan ${regionLabel}\n`;
+      msg += `\n@~MOD ${region}\n`;
+      msg += `\nTelah terdeteksi Alarm Environment pada perangkat OLT. Dibantu untuk pengecekan\n`;
+
+      for (const [alarmName, items] of Object.entries(alarmGroups)) {
+        msg += `\nHostname OLT :\n`;
+        for (const item of items) {
+          msg += `\n${item.olt}\n`;
+          msg += `Last Occurrence Time : ${fmtDisplay(item.dateObj)}\n`;
+        }
+        msg += `\nJenis Alarm : ${alarmName}\n`;
+      }
+
+      msg += `\n#envalarm`;
       return msg;
     }
 
@@ -447,9 +492,10 @@
       document.getElementById('emptyPanel').style.display = 'none';
 
       const tabsEl = document.getElementById('regionTabs');
-      tabsEl.innerHTML = regionOrder.map(r =>
-        `<div class="region-tab" onclick="scrollToRegion('${r}')">${r} (${broadcastData[r].length})</div>`
-      ).join('');
+      tabsEl.innerHTML = regionOrder.map(r => {
+        const total = Object.values(broadcastData[r]).reduce((s,a)=>s+a.length,0);
+        return `<div class="region-tab" onclick="scrollToRegion('${r}')">${r} (${total})</div>`;
+      }).join('');
 
       const container = document.getElementById('outputContainer');
       container.innerHTML = regionOrder.map(region => `
@@ -458,7 +504,7 @@
         <span>SBU ${region}</span>
         <button class="copy" onclick="copyRegion('${region}')">📋 Copy</button>
       </div>
-      <div>${escapeHtml(buildBroadcastText(region))}</div>
+      <div>${escapeHtml(buildBroadcastText(region, broadcastData[region]))}</div>
     </div>
   `).join('');
     }
@@ -480,7 +526,7 @@
     }
 
     function copyAll() {
-      let all = regionOrder.map(r => buildBroadcastText(r)).join('\n\n' + '─'.repeat(40) + '\n\n');
+      let all = regionOrder.map(r => buildBroadcastText(r, broadcastData[r])).join('\n\n' + '─'.repeat(40) + '\n\n');
       navigator.clipboard.writeText(all).then(() => showToast('Semua broadcast disalin!'));
     }
 

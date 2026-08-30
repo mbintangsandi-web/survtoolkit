@@ -291,29 +291,70 @@
   <div class="toast" id="toast">Copied to clipboard!</div>
 
   <script>
-    function formatDateTime(dateTimeStr) {
-      if (!dateTimeStr) return '';
-      const str = dateTimeStr.trim();
-      // Input format: YYYY-MM-DD HH:MM:SS
-      const m = str.match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}:\d{2}:\d{2})$/);
-      if (m) return `${m[3]}/${m[2]}/${m[1]} ${m[4]}`;
-      return str;
+    // --- helpers ---
+    function parseRawDateTime(str) {
+      // YYYY-MM-DD HH:MM:SS  →  Date object
+      if (!str) return null;
+      const m = str.trim().match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/);
+      if (!m) return null;
+      return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+    }
+
+    function fmtDisplay(dateObj) {
+      if (!dateObj) return '';
+      const p = n => String(n).padStart(2,'0');
+      return `${dateObj.getFullYear()}-${p(dateObj.getMonth()+1)}-${p(dateObj.getDate())} ${p(dateObj.getHours())}:${p(dateObj.getMinutes())}:${p(dateObj.getSeconds())}`;
     }
 
     function parseLine(line) {
       const cols = line.split('\t');
       if (cols.length < 12) return null;
       const alarmName = (cols[3] || '').trim();
-      const olt = (cols[6] || '').trim();
-      const latestTime = formatDateTime((cols[11] || '').trim());
+      const olt       = (cols[6] || '').trim();
+      const rawTime   = (cols[11] || '').trim();
       if (!olt || !alarmName) return null;
-      return { olt, alarmName, latestTime };
+      const dateObj = parseRawDateTime(rawTime);
+      return { olt, alarmName, dateObj, rawTime };
     }
 
     function getSBU(oltName) {
       const idx = oltName.indexOf('-');
       if (idx === -1) return oltName.trim();
       return oltName.substring(0, idx).trim();
+    }
+
+    function getRegionLabel(sbu) {
+      const MAP = {
+        'RSBU': 'RSBU', 'RSBT': 'RSBT', 'RSBS': 'RSBS',
+        'RJKT': 'RJKT', 'RJBB': 'RJBB', 'RJBTG': 'RJBTG', 'RJBT': 'RJBT',
+        'RBNT': 'RBNT', 'RKAL': 'RKAL', 'RINT': 'RINT',
+        'SBU': 'RSBU', 'SBT': 'RSBT', 'SBS': 'RSBS',
+        'JKTBNT': 'RJKT', 'JKT': 'RJKT',
+        'JATIM': 'RJBT', 'JABAR': 'RJBB', 'JATENG': 'RJBTG',
+        'BALI': 'RBNT', 'KAL': 'RKAL',
+      };
+      return MAP[sbu.toUpperCase()] || sbu;
+    }
+
+    function buildBroadcastText(sbu, alarmGroups) {
+      // alarmGroups: { alarmName: [ {olt, dateObj} ] } sorted oldest first
+      const regionLabel = getRegionLabel(sbu);
+      let msg = `---\n‼️ BROADCAST ALARM ‼️\n---\n`;
+      msg += `\nYth. Rekan ${regionLabel}\n`;
+      msg += `\n@~MOD ${sbu}\n`;
+      msg += `\nTelah terdeteksi Alarm Environment pada perangkat OLT. Dibantu untuk pengecekan\n`;
+
+      for (const [alarmName, items] of Object.entries(alarmGroups)) {
+        msg += `\nHostname OLT :\n`;
+        for (const item of items) {
+          msg += `\n${item.olt}\n`;
+          msg += `Last Occurrence Time : ${fmtDisplay(item.dateObj)}\n`;
+        }
+        msg += `\nJenis Alarm : ${alarmName}\n`;
+      }
+
+      msg += `\n#envalarm`;
+      return msg;
     }
 
     function generate() {
@@ -326,8 +367,8 @@
         if (row) parsed.push(row);
       }
 
-      const outputBox = document.getElementById('outputBox');
-      const statsRow = document.getElementById('statsRow');
+      const outputBox  = document.getElementById('outputBox');
+      const statsRow   = document.getElementById('statsRow');
       const badgeCount = document.getElementById('badgeCount');
 
       if (parsed.length === 0) {
@@ -337,29 +378,30 @@
         return;
       }
 
-      // group by SBU
-      const groups = {};
+      // Group by SBU → alarm name → items, then sort oldest first
+      const sbuMap = {};
       for (const row of parsed) {
         const sbu = getSBU(row.olt);
-        if (!groups[sbu]) groups[sbu] = [];
-        groups[sbu].push(row);
+        if (!sbuMap[sbu]) sbuMap[sbu] = {};
+        if (!sbuMap[sbu][row.alarmName]) sbuMap[sbu][row.alarmName] = [];
+        sbuMap[sbu][row.alarmName].push(row);
       }
 
-      const sbuKeys = Object.keys(groups).sort();
+      const sbuKeys = Object.keys(sbuMap).sort();
 
-      let blocks = [];
+      // Sort items within each alarm group: oldest (smallest timestamp) first
       for (const sbu of sbuKeys) {
-        const items = groups[sbu];
-        let block = `‼️BROADCAST ALARM‼️\n`;
-        block += `Yth. Rekan SBU ${sbu},\n`;
-        block += `Telah terdeteksi Alarm Environment pada perangkat OLT. Dibantu untuk pengecekan :\n\n`;
-        items.forEach((item, i) => {
-          block += `${i + 1}. ${item.olt} | ${item.latestTime} | ${item.alarmName}\n`;
-        });
-        block += `\n#envalarm\ncc : `;
-        blocks.push(block);
+        for (const alarmName of Object.keys(sbuMap[sbu])) {
+          sbuMap[sbu][alarmName].sort((a, b) => {
+            const ta = a.dateObj ? a.dateObj.getTime() : Infinity;
+            const tb = b.dateObj ? b.dateObj.getTime() : Infinity;
+            return ta - tb; // ascending = terlama dulu
+          });
+        }
       }
 
+      const blocks = sbuKeys.map(sbu => buildBroadcastText(sbu, sbuMap[sbu]));
+      outputBox.style.display = '';
       outputBox.textContent = blocks.join('\n\n' + '─'.repeat(40) + '\n\n');
 
       badgeCount.textContent = `${parsed.length} alarm`;
@@ -376,10 +418,11 @@
       statsRow.appendChild(totalAlarm);
 
       for (const sbu of sbuKeys) {
-        const s = document.createElement('div');
-        s.className = 'stat';
-        s.innerHTML = `<b>${groups[sbu].length}</b>${sbu}`;
-        statsRow.appendChild(s);
+        const totalInSbu = Object.values(sbuMap[sbu]).reduce((s,arr)=>s+arr.length,0);
+        const el = document.createElement('div');
+        el.className = 'stat';
+        el.innerHTML = `<b>${totalInSbu}</b>${sbu}`;
+        statsRow.appendChild(el);
       }
     }
 
