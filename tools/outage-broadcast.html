@@ -450,10 +450,6 @@
       <div class="paste-card" style="margin-bottom:14px;">
         <div class="meta-grid">
           <div class="field-group">
-            <label>Waktu Broadcast</label>
-            <input type="text" id="waktuBroadcast" placeholder="HH:MM DD/MM/YYYY">
-          </div>
-          <div class="field-group">
             <label>Kode Region</label>
             <input type="text" id="kodeRegion" placeholder="RKAL, RBNT, RJKT ...">
           </div>
@@ -643,8 +639,14 @@
       ta.rows = lines + 1;
     }
 
+    function getNowHeader() {
+      const DAYS = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+      const n = new Date();
+      const p = v => String(v).padStart(2,'0');
+      return `${DAYS[n.getDay()]}, ${p(n.getDate())}-${p(n.getMonth()+1)}-${n.getFullYear()} PUKUL ${p(n.getHours())}:${p(n.getMinutes())} WIB`;
+    }
+
     function generateBroadcast() {
-      const waktu = document.getElementById('waktuBroadcast').value.trim() || 'HH:MM DD/MM/YYYY';
       const kodeRegion = document.getElementById('kodeRegion').value.trim() || '-';
       const jumlahOlt = document.getElementById('jumlahOlt').value.trim() || '-';
       const incidentAda = document.getElementById('incidentAda').value.trim() || '-';
@@ -654,8 +656,17 @@
       const rows = parsedRows.filter((_, i) => selected.has(i));
       if (rows.length === 0) { alert('Pilih minimal 1 baris data!'); return; }
 
+      broadcastCounter++;
+      const isFirst = broadcastCounter === 1;
+
       let out = '';
-      out += `🔴 FOLLOW UP OLT DOWN Lebih Dari 8 jam ${waktu}\n`;
+
+      if (isFirst) {
+        // Header utama hanya muncul pada generate pertama
+        out += `🔴 FOLLOW UP OLT DOWN Lebih Dari 8 jam\n`;
+        out += `🗓️ ${getNowHeader()}\n`;
+      }
+
       out += `--------------------------\n`;
       out += `${kodeRegion} ${jumlahOlt} OLT\n`;
       out += `--------------------------\n`;
@@ -669,7 +680,6 @@
         const idTicket = row["ID TICKET"] || '-';
         const pic = row["PIC BLAST DOWN"] || '-';
         const durasi = formatDurasi(row["DURASI"]);
-        const jumlahTiket = '-'; // tidak ada di kolom, biarkan strip
         const potensi = row["POTENSIAL USER IMPACT"] || '-';
         const rootcause = row["ROOTCAUSE"] || '-';
         const updateProgress = row["UPDATE PROGRESS"] || '-';
@@ -686,7 +696,6 @@
       });
 
       // Tambahkan kartu baru ke daftar broadcast
-      broadcastCounter++;
       const cardId = 'bc-' + broadcastCounter;
       const card = document.createElement('div');
       card.className = 'output-card';
@@ -705,7 +714,7 @@
       ta.value = out;
       ta.addEventListener('input', () => autoResize(ta));
       document.getElementById('broadcastList').appendChild(card);
-      autoResize(ta); // dipanggil setelah append agar scrollHeight terhitung di DOM
+      autoResize(ta);
 
       document.getElementById('outputSection').style.display = '';
       card.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -759,7 +768,6 @@
       ].map(r => r.join('\t'));
       document.getElementById('pasteInput').value = [header, ...rows].join('\n');
       // Auto isi header
-      document.getElementById('waktuBroadcast').value = '08:00 29/06/2025';
       document.getElementById('kodeRegion').value = 'RKAL, RBNT, RJKT';
       document.getElementById('jumlahOlt').value = '3';
       document.getElementById('incidentAda').value = '1';
