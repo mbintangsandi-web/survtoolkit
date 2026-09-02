@@ -521,7 +521,7 @@
     }
 
     function copyRegion(region) {
-      const text = buildBroadcastText(region);
+      const text = buildBroadcastText(region, broadcastData[region]);
       navigator.clipboard.writeText(text).then(() => showToast(`Broadcast SBU ${region} disalin!`));
     }
 
