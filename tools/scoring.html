@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scoring — SURVTOOLKIT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/theme.css">
+<style>
+/* ─────────────────────────────────────────────────────────────────────────
+   PAGE OVERRIDES & SCORING-SPECIFIC STYLES
+───────────────────────────────────────────────────────────────────────── */
+body { min-height: 100vh; }
+
+/* ── LOGIN OVERLAY ─────────────────────────────────────────────────────── */
+#loginOverlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px;
+}
+.login-card {
+  background: var(--panel);
+  border: 1.5px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(22,39,60,0.10);
+  padding: 40px 44px;
+  width: 100%; max-width: 380px;
+  text-align: center;
+}
+.login-card .eyebrow { display: block; margin-bottom: 12px; }
+.login-card h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 4px;
+}
+.login-card .login-sub {
+  font-size: 13px; color: var(--text-dim);
+  margin: 0 0 28px;
+}
+.login-fields { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+.login-fields label {
+  font-family: var(--font-display);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-dim);
+  display: block; margin-bottom: 4px;
+}
+.login-fields input {
+  width: 100%;
+  font-family: var(--font-body);
+  font-size: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  transition: border-color 0.15s;
+}
+.login-fields input:focus { outline: none; border-color: var(--accent); }
+.login-btn {
+  margin-top: 20px;
+  width: 100%;
+  padding: 13px;
+  font-size: 14px;
+  font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  transition: background 0.15s, transform 0.12s;
+}
+.login-btn:hover { background: var(--accent-deep); }
+.login-btn:active { transform: scale(0.98); }
+#loginError {
+  margin-top: 14px;
+  font-size: 12px; color: var(--signal-crit);
+  font-family: var(--font-display);
+  min-height: 18px;
+}
+.login-lock-icon {
+  font-size: 36px; margin-bottom: 14px; display: block;
+  filter: drop-shadow(0 2px 6px rgba(47,111,228,0.18));
+}
+
+/* ── MAIN WRAP ─────────────────────────────────────────────────────────── */
+#mainApp { display: none; }
+.tool-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 60px; }
+
+/* ── UPLOAD ZONE ───────────────────────────────────────────────────────── */
+.upload-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 24px;
+}
+@media (max-width: 720px) { .upload-grid { grid-template-columns: 1fr; } }
+
+.upload-zone {
+  border: 2px dashed var(--border-bright);
+  border-radius: var(--radius);
+  background: var(--bg);
+  padding: 28px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.18s, background 0.18s;
+  position: relative;
+  display: block;
+}
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+}
+.upload-zone.loaded {
+  border-color: var(--signal-ok);
+  background: var(--signal-ok-bg);
+}
+.upload-zone input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  width: 100%; height: 100%; border: none; padding: 0;
+}
+.upload-zone__icon { font-size: 30px; margin-bottom: 10px; display: block; line-height: 1; }
+.upload-zone__label {
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.upload-zone__sub { font-size: 11.5px; color: var(--text-dim); }
+.upload-zone__filename {
+  margin-top: 10px;
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+  color: var(--signal-ok);
+  display: none;
+  font-weight: 600;
+}
+.upload-zone.loaded .upload-zone__filename { display: block; }
+
+/* ── CONTROL BAR ───────────────────────────────────────────────────────── */
+.control-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.process-btn {
+  padding: 13px 28px;
+  font-size: 14px; font-weight: 700;
+  background: var(--accent);
+  color: #fff;
+  border: none; border-radius: 10px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: background 0.15s, transform 0.12s;
+}
+.process-btn:hover { background: var(--accent-deep); }
+.process-btn:active { transform: scale(0.98); }
+.process-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── FORMULA PANEL ─────────────────────────────────────────────────────── */
+.formula-panel {
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.formula-panel summary {
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer;
+  font-family: var(--font-display);
+  font-size: 13px; font-weight: 700;
+  color: var(--text);
+  background: var(--panel);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  list-style: none;
+  user-select: none;
+  transition: background 0.15s;
+}
+.formula-panel summary::-webkit-details-marker { display: none; }
+.formula-panel[open] summary { border-radius: var(--radius) var(--radius) 0 0; }
+.formula-panel summary:hover { background: var(--accent-dim); }
+.formula-panel summary .chevron { margin-left: auto; color: var(--text-faint); transition: transform 0.18s; }
+.formula-panel[open] summary .chevron { transform: rotate(90deg); }
+
+.formula-body {
+  background: var(--panel);
+  border: 1.5px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius);
+  padding: 20px 22px;
+}
+.formula-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-top: 12px;
+}
+.formula-table th {
+  text-align: left; font-family: var(--font-display);
+  font-size: 11px; font-weight: 600; letter-spacing: 0.06em;
+  text-transform: uppercase; color: var(--text-dim);
+  padding: 8px 10px;
+  background: var(--bg);
+  border-bottom: 1.5px solid var(--border);
+}
+.formula-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  line-height: 1.5;
+  vertical-align: top;
+}
+.formula-table tr:last-child td { border-bottom: none; }
+.param-sym {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 12px;
+}
+.param-sym.plus  { color: var(--signal-ok); }
+.param-sym.minus { color: var(--signal-crit); }
+
+.formula-code {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 2;
+  margin-top: 6px;
+  white-space: pre-wrap;
+}
+
+/* ── PROCESS LOG ──────────────────────────────────────────────────────── */
+#processLog {
+  background: var(--bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-dim);
+  line-height: 1.9;
+  display: none;
+  margin-bottom: 20px;
+  max-height: 180px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+#processLog .log-ok   { color: var(--signal-ok); }
+#processLog .log-warn { color: var(--signal-warn); }
+#processLog .log-err  { color: var(--signal-crit); }
+#processLog .log-info { color: var(--accent); }
+
+/* ── RESULT STATS ──────────────────────────────────────────────────────── */
+#resultSection { display: none; }
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.kpi-card {
+  background: var(--panel);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 16px;
+  text-align: center;
+}
+.kpi-card__value {
+  font-family: var(--font-display);
+  font-size: 26px; font-weight: 800;
+  color: var(--text);
+  line-height: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.kpi-card__label {
+  font-family: var(--font-display);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+.kpi-card__value.ok    { color: var(--signal-ok); }
+.kpi-card__value.warn  { color: var(--signal-warn); }
+.kpi-card__value.crit  { color: var(--signal-crit); }
+.kpi-card__value.accent { color: var(--accent); }
+.kpi-card.highlight { border-color: var(--accent); background: var(--accent-dim); }
+.kpi-card.highlight .kpi-card__value { color: var(--accent-deep); font-size: 20px; }
+
+/* ── SCORE TABLE ───────────────────────────────────────────────────────── */
+.score-table-wrap {
+  overflow-x: auto;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--panel);
+  margin-bottom: 20px;
+}
+.score-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.score-table thead th {
+  padding: 11px 13px;
+  text-align: left;
+  font-family: var(--font-display);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-dim);
+  background: var(--bg);
+  border-bottom: 1.5px solid var(--border);
+  white-space: nowrap;
+}
+.score-table thead th.num { text-align: right; }
+.score-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+.score-table tbody tr:last-child { border-bottom: none; }
+.score-table tbody tr:hover td { background: var(--accent-dim); }
+.score-table tbody td { padding: 10px 13px; color: var(--text); white-space: nowrap; }
+.score-table tbody td.num { text-align: right; font-family: var(--font-mono); }
+.score-table tbody td.name-col { font-family: var(--font-display); font-weight: 600; }
+.score-table tbody td.rank-col { text-align: center; min-width: 44px; }
+
+.rank-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-family: var(--font-display);
+  font-size: 12px; font-weight: 800;
+}
+.rank-badge.r1 { background: #fff3d6; color: #b36a00; }
+.rank-badge.r2 { background: #f0f0f0; color: #555; }
+.rank-badge.r3 { background: #fdeee3; color: #a0522d; }
+.rank-badge.rn { background: var(--bg); color: var(--text-faint); font-size: 11px; font-weight: 600; }
+
+.score-bar-cell { min-width: 120px; }
+.score-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.score-bar-track {
+  flex: 1; height: 6px; border-radius: 3px;
+  background: var(--border);
+  overflow: hidden; min-width: 60px;
+}
+.score-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s cubic-bezier(.25,.8,.25,1); }
+.score-bar-fill.ok   { background: var(--signal-ok); }
+.score-bar-fill.warn { background: var(--signal-warn); }
+.score-bar-fill.crit { background: var(--signal-crit); }
+.score-bar-fill.accent { background: var(--accent); }
+
+.score-num {
+  font-family: var(--font-mono);
+  font-size: 12.5px; font-weight: 600;
+  min-width: 46px; text-align: right; display: inline-block;
+}
+.score-num.pos { color: var(--signal-ok); }
+.score-num.neg { color: var(--signal-crit); }
+.score-num.neutral { color: var(--text-dim); }
+
+/* ── DETAIL EXPAND ─────────────────────────────────────────────────────── */
+.detail-row td {
+  background: var(--bg) !important;
+  padding: 0 !important;
+  border-bottom: 1.5px solid var(--border-bright) !important;
+}
+.detail-inner {
+  padding: 14px 16px 16px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px;
+}
+.detail-stat .ds-label {
+  font-family: var(--font-display);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 2px;
+}
+.detail-stat .ds-value {
+  font-family: var(--font-mono);
+  font-size: 15px; font-weight: 600;
+  color: var(--text);
+}
+.detail-stat .ds-value.pos { color: var(--signal-ok); }
+.detail-stat .ds-value.neg { color: var(--signal-crit); }
+.detail-stat .ds-value.accent { color: var(--accent); }
+
+.expand-btn {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-faint); font-size: 16px; font-weight: 700;
+  padding: 2px 6px; border-radius: 4px;
+  transition: color 0.15s, background 0.12s, transform 0.15s;
+  line-height: 1;
+}
+.expand-btn:hover { color: var(--accent); background: var(--accent-dim); }
+.expand-btn.open { transform: rotate(90deg); color: var(--accent); }
+
+/* ── EXPORT BAR ────────────────────────────────────────────────────────── */
+.export-bar {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 32px; align-items: center;
+}
+
+/* ── COLUMN MAP HELPER ─────────────────────────────────────────────────── */
+.colmap-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.colmap-item { display: flex; flex-direction: column; gap: 4px; }
+.colmap-item label {
+  font-family: var(--font-display);
+  font-size: 10.5px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.colmap-item select {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--border);
+  background: var(--bg-raised);
+  color: var(--text);
+}
+.colmap-item select:focus { outline: none; border-color: var(--accent); }
+
+#colmapSection { display: none; margin-bottom: 20px; }
+
+/* ── NOTE BOX ──────────────────────────────────────────────────────────── */
+.note-box {
+  background: var(--accent-dim);
+  border: 1.5px solid var(--border-bright);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  font-size: 12px; color: var(--accent-deep);
+  line-height: 1.7; margin-bottom: 20px;
+}
+.note-box b { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     LOGIN OVERLAY
+══════════════════════════════════════════════════════════════ -->
+<div id="loginOverlay">
+  <div class="login-card">
+    <span class="login-lock-icon">&#x1F510;</span>
+    <span class="eyebrow">SURVTOOLKIT</span>
+    <h2>Menu Scoring</h2>
+    <p class="login-sub">Akses terbatas. Masuk untuk melanjutkan.</p>
+    <div class="login-fields">
+      <div>
+        <label for="loginUser">Username</label>
+        <input type="text" id="loginUser" autocomplete="username" placeholder="admin" spellcheck="false">
+      </div>
+      <div>
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;">
+      </div>
+    </div>
+    <button class="login-btn" id="loginBtn">Masuk &rarr;</button>
+    <div id="loginError"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     MAIN APP
+══════════════════════════════════════════════════════════════ -->
+<div id="mainApp">
+<div class="tool-wrap">
+
+  <a href="../index.html" class="back-link">&#8249; SURVTOOLKIT</a>
+
+  <div class="tool-hero">
+    <span class="eyebrow">SURVEILLANCE FM</span>
+    <h1>Scoring <span>PIC</span></h1>
+    <p>Hitung produktivitas harian tiap PIC dari data tiket gangguan dan jadwal piket &mdash; otomatis, adil, per hari kerja aktif.</p>
+  </div>
+
+  <!-- ── FORMULA ACCORDION ────────────────────────────────────── -->
+  <details class="formula-panel panel" id="formulaAccordion">
+    <summary>
+      <span>&#x1F4D0;</span>
+      <span>Rumus &amp; Keterangan Parameter</span>
+      <span class="chevron">&#8250;</span>
+    </summary>
+    <div class="formula-body">
+      <div class="section-label" style="margin-bottom:8px;">Formula Total Poin</div>
+      <div class="formula-code">Total Poin  =  (+1 &times; I)  +  (+1 &times; C_valid)  +  (-1 &times; C_kosong)  +  (+3 &times; HK)  +  (-3 &times; M)
+Poin / HK   =  Total Poin &divide; Hari Kerja Aktif</div>
+
+      <table class="formula-table" style="margin-top:18px;">
+        <thead>
+          <tr>
+            <th>Simbol</th>
+            <th>Parameter</th>
+            <th>Poin</th>
+            <th>Keterangan</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="param-sym plus">I</span></td>
+            <td>Input On-Shift</td>
+            <td><span class="param-sym plus">+1</span></td>
+            <td>Tiket gangguan padam yang diinput PIC pada shift dan jam kerja aktifnya sendiri.</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym plus">C_valid</span></td>
+            <td>Close Valid</td>
+            <td><span class="param-sym plus">+1</span></td>
+            <td>Tiket berstatus CLOSE dengan Root Cause yang telah diperbarui ke penyebab final.</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym minus">C_kosong</span></td>
+            <td>Close Kosong/Default</td>
+            <td><span class="param-sym minus">&minus;1</span></td>
+            <td>Tiket CLOSE langsung ditutup tanpa mengganti status bawaan form ("SEDANG DITANYAKAN"). Dibebankan ke PIC BLAST UP.</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym plus">HK</span></td>
+            <td>Housekeeping</td>
+            <td><span class="param-sym plus">+3</span></td>
+            <td>Inisiatif menyisir dan menginput tiket padam yang terlewat dari shift sebelumnya.</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym minus">M</span></td>
+            <td>Missed Incident</td>
+            <td><span class="param-sym minus">&minus;3</span></td>
+            <td>Gangguan padam di luar toleransi transisi 30 menit yang lolos dari pengawasan shift yang sedang berdinas. Dibebankan per personel bertugas.</td>
+          </tr>
+          <tr>
+            <td>HK Aktif</td>
+            <td>Hari Kerja Aktif</td>
+            <td>&mdash;</td>
+            <td>Total shift operasional (PAGI/SIANG/MALAM) yang dijalani masing-masing PIC berdasarkan lembar jadwal SUMMARY LINE-UP.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="section-label" style="margin-top:18px;margin-bottom:8px;">Aturan Validasi Teknis</div>
+      <ul style="font-size:12.5px;color:var(--text-dim);line-height:2;margin:0;padding-left:18px;">
+        <li><strong>On-Shift vs Backlog:</strong> Jika DEVICE DOWN TIME di luar rentang shift PIC penginput &rarr; otomatis diklasifikasikan sebagai HK.</li>
+        <li><strong>Toleransi 30 Menit:</strong> Insiden di 30 menit awal shift (07:00&ndash;07:30, 15:00&ndash;15:30, 23:00&ndash;23:30) tidak dihitung sebagai kelalaian (M).</li>
+        <li><strong>Eksklusi Shift Malam:</strong> Waktu respons &amp; SLA kecepatan blast awal hanya dihitung untuk shift Pagi dan Siang.</li>
+      </ul>
+    </div>
+  </details>
+
+  <!-- ── FILE UPLOAD ───────────────────────────────────────────── -->
+  <div class="section-label">Upload File</div>
+  <div class="upload-grid">
+
+    <!-- Tiket Data -->
+    <div>
+      <div style="font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.04em;">&#9312; DATA TIKET GANGGUAN</div>
+      <label class="upload-zone" id="zoneTicket">
+        <span class="upload-zone__icon">&#x1F4C4;</span>
+        <div class="upload-zone__label">Klik atau seret file ke sini</div>
+        <div class="upload-zone__sub">Format: Excel (.xlsx), TSV (.tsv), atau CSV (.csv)</div>
+        <div class="upload-zone__filename" id="fileTicketName"></div>
+        <input type="file" id="fileTicket" accept=".xlsx,.xls,.tsv,.csv,.txt">
+      </label>
+    </div>
+
+    <!-- Jadwal -->
+    <div>
+      <div style="font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.04em;">&#9313; JADWAL PIKET (SUMMARY LINE-UP)</div>
+      <label class="upload-zone" id="zoneSchedule">
+        <span class="upload-zone__icon">&#x1F4C5;</span>
+        <div class="upload-zone__label">Klik atau seret file ke sini</div>
+        <div class="upload-zone__sub">Format: Excel (.xlsx), TSV (.tsv), atau CSV (.csv)</div>
+        <div class="upload-zone__filename" id="fileScheduleName"></div>
+        <input type="file" id="fileSchedule" accept=".xlsx,.xls,.tsv,.csv,.txt">
+      </label>
+    </div>
+
+  </div>
+
+  <!-- ── COLUMN MAPPING ────────────────────────────────────────── -->
+  <div id="colmapSection">
+    <div class="section-label">Pemetaan Kolom &mdash; Data Tiket</div>
+    <div class="note-box">
+      Sistem mencoba mendeteksi kolom secara otomatis. Verifikasi atau koreksi pemetaan di bawah sebelum memproses.
+    </div>
+    <div class="colmap-grid" id="colmapGrid"></div>
+
+    <div class="section-label" style="margin-top:4px;">Pemetaan Kolom &mdash; Jadwal Piket</div>
+    <div class="colmap-grid" id="colmapGridSched"></div>
+  </div>
+
+  <!-- ── PROCESS BUTTON ────────────────────────────────────────── -->
+  <div class="control-bar">
+    <button class="process-btn" id="btnProcess" disabled>
+      <span>&#x2699;</span> Proses &amp; Hitung Skor
+    </button>
+    <button class="btn" id="btnReset" style="display:none;">&#x1F504; Reset</button>
+  </div>
+
+  <!-- ── PROCESS LOG ───────────────────────────────────────────── -->
+  <div id="processLog"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       RESULT SECTION
+  ══════════════════════════════════════════════════════════════ -->
+  <div id="resultSection">
+
+    <div class="section-label">Ringkasan Global</div>
+    <div class="kpi-grid" id="kpiGrid"></div>
+
+    <div class="section-label">Peringkat Produktivitas PIC</div>
+    <div class="note-box" id="periodNote"></div>
+
+    <div class="score-table-wrap">
+      <table class="score-table" id="scoreTable">
+        <thead>
+          <tr>
+            <th style="width:44px;text-align:center;">#</th>
+            <th>Nama PIC</th>
+            <th class="num" title="Hari Kerja Aktif">HK</th>
+            <th class="num" title="Input On-Shift">I</th>
+            <th class="num" title="Close Valid">C&#x2713;</th>
+            <th class="num" title="Close Kosong">C&#x2717;</th>
+            <th class="num" title="Housekeeping">HK</th>
+            <th class="num" title="Missed Incident">M</th>
+            <th class="num">Total Poin</th>
+            <th style="min-width:160px;">Poin/HK</th>
+            <th style="width:36px;"></th>
+          </tr>
+        </thead>
+        <tbody id="scoreTbody"></tbody>
+      </table>
+    </div>
+
+    <!-- ── MISSED INCIDENTS ──────────────────────────────────── -->
+    <div id="missedSection" style="display:none;margin-bottom:24px;">
+      <div class="section-label">Detail Missed Incidents (M)</div>
+      <div class="score-table-wrap">
+        <table class="score-table" id="missedTable">
+          <thead>
+            <tr>
+              <th>Waktu Incident</th>
+              <th>Perangkat / Lokasi</th>
+              <th>Shift Berdinas</th>
+              <th>PIC Terkena</th>
+              <th class="num">Poin Potongan</th>
+            </tr>
+          </thead>
+          <tbody id="missedTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── HOUSEKEEPING ──────────────────────────────────────── -->
+    <div id="hkSection" style="display:none;margin-bottom:24px;">
+      <div class="section-label">Detail Housekeeping (HK)</div>
+      <div class="score-table-wrap">
+        <table class="score-table" id="hkTable">
+          <thead>
+            <tr>
+              <th>No Tiket</th>
+              <th>PIC Input</th>
+              <th>Waktu Padam</th>
+              <th>Waktu Input</th>
+              <th>Shift Padam</th>
+              <th>Shift Input</th>
+              <th class="num">Poin</th>
+            </tr>
+          </thead>
+          <tbody id="hkTbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ── EXPORT ────────────────────────────────────────────── -->
+    <div class="export-bar">
+      <button class="btn primary" id="btnExportCSV">&#x2B07; Export CSV</button>
+      <button class="btn" id="btnExportText">&#x1F4CB; Copy Rekap Teks</button>
+    </div>
+
+  </div><!-- /resultSection -->
+
+</div><!-- /tool-wrap -->
+</div><!-- /mainApp -->
+
+<div class="toast" id="toast"></div>
+
+<!-- SheetJS for .xlsx parsing -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
+<script>
+'use strict';
+/* =========================================================
+   AUTH
+========================================================= */
+const AUTH = { user: 'admin', pass: 'survnoc' };
+const SESSION_KEY = 'survtoolkit_scoring_auth_v1';
+
+function checkSession() { return sessionStorage.getItem(SESSION_KEY) === '1'; }
+
+const loginOverlay = document.getElementById('loginOverlay');
+const mainApp      = document.getElementById('mainApp');
+const loginBtn     = document.getElementById('loginBtn');
+const loginError   = document.getElementById('loginError');
+
+if (checkSession()) {
+  loginOverlay.style.display = 'none';
+  mainApp.style.display = 'block';
+}
+
+loginBtn.addEventListener('click', doLogin);
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && loginOverlay.style.display !== 'none') doLogin();
+});
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (u === AUTH.user && p === AUTH.pass) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    loginOverlay.style.display = 'none';
+    mainApp.style.display = 'block';
+    loginError.textContent = '';
+  } else {
+    loginError.textContent = 'Username atau password salah.';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+  }
+}
+
+/* =========================================================
+   FILE UPLOAD STATE
+========================================================= */
+let ticketRows = [], scheduleRows = [];
+let ticketCols = [], scheduleCols = [];
+
+let colMap = {
+  noTiket:'', picInput:'', picBlastup:'',
+  deviceDownTime:'', inputTime:'', closeTime:'',
+  status:'', rootCause:'', device:'',
+};
+let schedColMap = { picName:'', tanggal:'', shift:'' };
+
+/* =========================================================
+   FILE ZONE SETUP
+========================================================= */
+function setupZone(zoneId, inputId, nameId, onLoad) {
+  const zone   = document.getElementById(zoneId);
+  const input  = document.getElementById(inputId);
+  const nameEl = document.getElementById(nameId);
+
+  input.addEventListener('change', () => {
+    if (input.files[0]) handleFile(input.files[0], zone, nameEl, onLoad);
+  });
+  zone.addEventListener('dragover',  e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0], zone, nameEl, onLoad);
+  });
+}
+
+async function handleFile(file, zone, nameEl, onLoad) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  try {
+    let rows = [];
+    if (ext === 'xlsx' || ext === 'xls') {
+      rows = await readExcel(file);
+    } else {
+      const text = await file.text();
+      const sep  = ext === 'tsv' ? '\t' : detectSep(text);
+      rows = parseDelimited(text, sep);
+    }
+    if (!rows.length) throw new Error('File kosong atau format tidak dikenali.');
+    zone.classList.add('loaded');
+    nameEl.style.display = 'block';
+    nameEl.textContent = '\u2713 ' + file.name + ' \u2014 ' + rows.length + ' baris';
+    onLoad(rows);
+    checkReady();
+  } catch (err) {
+    showToast('Gagal membaca: ' + err.message, 'warn');
+  }
+}
+
+function detectSep(text) {
+  const s = text.slice(0, 2000);
+  const t = (s.match(/\t/g)||[]).length, c = (s.match(/,/g)||[]).length, sc = (s.match(/;/g)||[]).length;
+  if (t >= c && t >= sc) return '\t';
+  if (sc > c) return ';';
+  return ',';
+}
+
+function parseDelimited(text, sep) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  if (!lines.length) return [];
+  const headers = lines[0].split(sep).map(h => h.trim().replace(/^["']|["']$/g,''));
+  return lines.slice(1).map(line => {
+    const vals = splitLine(line, sep);
+    const obj  = {};
+    headers.forEach((h, i) => { obj[h] = (vals[i]||'').trim().replace(/^["']|["']$/g,''); });
+    return obj;
+  }).filter(r => Object.values(r).some(v => v));
+}
+
+function splitLine(line, sep) {
+  const res = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') { inQ = !inQ; continue; }
+    if (c === sep && !inQ) { res.push(cur); cur = ''; } else cur += c;
+  }
+  res.push(cur);
+  return res;
+}
+
+async function readExcel(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, { type:'array', cellDates:true });
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        resolve(XLSX.utils.sheet_to_json(ws, { defval:'', raw:false }));
+      } catch(err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+setupZone('zoneTicket', 'fileTicket', 'fileTicketName', rows => {
+  ticketRows = rows; ticketCols = Object.keys(rows[0]||{});
+  autoDetectTicketCols(); renderColmap();
+});
+setupZone('zoneSchedule', 'fileSchedule', 'fileScheduleName', rows => {
+  scheduleRows = rows; scheduleCols = Object.keys(rows[0]||{});
+  autoDetectScheduleCols(); renderColmapSched();
+});
+
+/* =========================================================
+   AUTO-DETECT COLUMNS
+========================================================= */
+function findCol(cols, patterns) {
+  for (const p of patterns) {
+    const re = new RegExp(p, 'i');
+    const f  = cols.find(c => re.test(c));
+    if (f) return f;
+  }
+  return cols[0] || '';
+}
+
+function autoDetectTicketCols() {
+  colMap.noTiket        = findCol(ticketCols, ['no.*tiket','tiket.*no','ticket.*id','no_tiket','id']);
+  colMap.picInput       = findCol(ticketCols, ['pic.*input','input.*pic','created.*by','inputter','dibuat.*oleh']);
+  colMap.picBlastup     = findCol(ticketCols, ['pic.*blast','blast.*up','blastup','pic.*close','closer','penutup']);
+  colMap.deviceDownTime = findCol(ticketCols, ['device.*down','down.*time','waktu.*padam','padam','downtime']);
+  colMap.inputTime      = findCol(ticketCols, ['input.*time','waktu.*input','created.*at','created_at','dibuat']);
+  colMap.closeTime      = findCol(ticketCols, ['close.*time','waktu.*close','closed.*at','selesai']);
+  colMap.status         = findCol(ticketCols, ['status','state']);
+  colMap.rootCause      = findCol(ticketCols, ['root.*cause','rootcause','akar.*masalah','cause','penyebab']);
+  colMap.device         = findCol(ticketCols, ['device','perangkat','olt','lokasi','location']);
+}
+
+function autoDetectScheduleCols() {
+  schedColMap.picName = findCol(scheduleCols, ['nama','name','pic','petugas','personel']);
+  schedColMap.tanggal = findCol(scheduleCols, ['tanggal','date','tgl','hari']);
+  schedColMap.shift   = findCol(scheduleCols, ['shift','jadwal','sesi']);
+}
+
+/* =========================================================
+   COLMAP UI
+========================================================= */
+const COLMAP_FIELDS = [
+  { key:'noTiket',        label:'No Tiket' },
+  { key:'picInput',       label:'PIC Input' },
+  { key:'picBlastup',     label:'PIC Blast Up / Close' },
+  { key:'deviceDownTime', label:'Device Down Time (Waktu Padam)' },
+  { key:'inputTime',      label:'Waktu Input' },
+  { key:'closeTime',      label:'Waktu Close' },
+  { key:'status',         label:'Status Tiket' },
+  { key:'rootCause',      label:'Root Cause' },
+  { key:'device',         label:'Perangkat / Lokasi' },
+];
+const SCHED_FIELDS = [
+  { key:'picName', label:'Nama PIC' },
+  { key:'tanggal', label:'Tanggal' },
+  { key:'shift',   label:'Shift (PAGI/SIANG/MALAM)' },
+];
+
+function renderColmap() {
+  document.getElementById('colmapSection').style.display = 'block';
+  document.getElementById('colmapGrid').innerHTML = COLMAP_FIELDS.map(f => `
+    <div class="colmap-item">
+      <label>${f.label}</label>
+      <select id="cm_${f.key}">
+        ${ticketCols.map(c => `<option value="${esc(c)}"${c===colMap[f.key]?' selected':''}>${esc(c)}</option>`).join('')}
+      </select>
+    </div>`).join('');
+}
+
+function renderColmapSched() {
+  document.getElementById('colmapGridSched').innerHTML = SCHED_FIELDS.map(f => `
+    <div class="colmap-item">
+      <label>${f.label}</label>
+      <select id="scm_${f.key}">
+        ${scheduleCols.map(c => `<option value="${esc(c)}"${c===schedColMap[f.key]?' selected':''}>${esc(c)}</option>`).join('')}
+      </select>
+    </div>`).join('');
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function checkReady() {
+  document.getElementById('btnProcess').disabled = !(ticketRows.length && scheduleRows.length);
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+document.getElementById('btnReset').addEventListener('click', () => {
+  ticketRows = []; scheduleRows = []; ticketCols = []; scheduleCols = [];
+  ['fileTicket','fileSchedule'].forEach(id => { document.getElementById(id).value = ''; });
+  ['zoneTicket','zoneSchedule'].forEach(id => document.getElementById(id).classList.remove('loaded'));
+  ['fileTicketName','fileScheduleName'].forEach(id => {
+    const el = document.getElementById(id); el.textContent = ''; el.style.display = 'none';
+  });
+  document.getElementById('colmapSection').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('missedSection').style.display = 'none';
+  document.getElementById('hkSection').style.display     = 'none';
+  document.getElementById('processLog').style.display    = 'none';
+  document.getElementById('processLog').innerHTML        = '';
+  document.getElementById('btnReset').style.display      = 'none';
+  document.getElementById('btnProcess').disabled         = true;
+});
+
+/* =========================================================
+   PROCESSING ENGINE
+========================================================= */
+document.getElementById('btnProcess').addEventListener('click', processData);
+
+function log(msg, type) {
+  const el = document.getElementById('processLog');
+  el.style.display = 'block';
+  const cls = type ? ` class="log-${type}"` : '';
+  el.innerHTML += `<span${cls}>${msg}</span>\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function parseDate(str) {
+  if (!str) return null;
+  str = String(str).trim();
+  let d = new Date(str);
+  if (!isNaN(d)) return d;
+  // dd/mm/yyyy [hh:mm:ss]
+  const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:[T\s](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (m) {
+    d = new Date(+m[3], +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0), +(m[6]||0));
+    if (!isNaN(d)) return d;
+  }
+  return null;
+}
+
+function getShift(h) {
+  if (h >= 7  && h < 15) return 'PAGI';
+  if (h >= 15 && h < 23) return 'SIANG';
+  return 'MALAM';
+}
+
+function inTransition(dt) {
+  if (!dt) return false;
+  const mins = dt.getHours()*60 + dt.getMinutes();
+  // 06:30-07:30, 14:30-15:30, 22:30-23:30
+  return (mins>=390&&mins<=450)||(mins>=870&&mins<=930)||(mins>=1350&&mins<=1410);
+}
+
+function processData() {
+  document.getElementById('processLog').innerHTML = '';
+  document.getElementById('processLog').style.display = 'none';
+  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('missedSection').style.display = 'none';
+  document.getElementById('hkSection').style.display     = 'none';
+
+  // Read colmap from UI
+  COLMAP_FIELDS.forEach(f => { const e=document.getElementById('cm_'+f.key);  if(e) colMap[f.key]=e.value; });
+  SCHED_FIELDS .forEach(f => { const e=document.getElementById('scm_'+f.key); if(e) schedColMap[f.key]=e.value; });
+
+  log('Memulai proses...', 'info');
+  log('Tiket: ' + ticketRows.length + ' baris | Jadwal: ' + scheduleRows.length + ' baris');
+
+  /* 1. Build schedule lookup */
+  const picSchedule = {}; // name -> Set of "YYYY-MM-DD_SHIFT"
+  const picWorkdays = {}; // name -> count
+
+  scheduleRows.forEach(r => {
+    const name  = String(r[schedColMap.picName]||'').trim();
+    const tgl   = String(r[schedColMap.tanggal]||'').trim();
+    const shift = String(r[schedColMap.shift]  ||'').trim().toUpperCase();
+    if (!name || !tgl || !shift) return;
+    const d = parseDate(tgl);
+    if (!d) return;
+    const dk  = d.toISOString().slice(0,10);
+    const sn  = ['PAGI','SIANG','MALAM'].find(s => shift.includes(s));
+    if (!sn) return;
+    if (!picSchedule[name]) picSchedule[name] = new Set();
+    picSchedule[name].add(dk+'_'+sn);
+    picWorkdays[name] = (picWorkdays[name]||0)+1;
+  });
+
+  const allPICs = Object.keys(picWorkdays);
+  log('PIC dari jadwal: ' + allPICs.length + ' orang', 'ok');
+  if (!allPICs.length) { log('Tidak ada PIC terdeteksi. Periksa pemetaan kolom jadwal.', 'err'); return; }
+
+  function onShiftAt(name, dt) {
+    if (!dt || !picSchedule[name]) return false;
+    return picSchedule[name].has(dt.toISOString().slice(0,10)+'_'+getShift(dt.getHours()));
+  }
+
+  /* 2. Parse tiket */
+  const scores = {};
+  allPICs.forEach(p => { scores[p] = {I:0,Cv:0,Ck:0,HK:0,M:0}; });
+
+  const hkList     = [];
+  const missedList = [];
+  // track earliest input per (date, shift) to detect missed
+  const shiftInputMap = {}; // "datekey_shift" -> min inputTime in ms
+
+  let parsed=0, skipped=0;
+
+  ticketRows.forEach(r => {
+    const noTiket  = String(r[colMap.noTiket]       ||'').trim();
+    const picInput = String(r[colMap.picInput]       ||'').trim();
+    const picBlast = String(r[colMap.picBlastup]     ||'').trim();
+    const status   = String(r[colMap.status]         ||'').trim().toUpperCase();
+    const rc       = String(r[colMap.rootCause]      ||'').trim().toUpperCase();
+    const device   = String(r[colMap.device]         ||'').trim();
+
+    const downTime  = parseDate(r[colMap.deviceDownTime]);
+    const inputTime = parseDate(r[colMap.inputTime]);
+    const closeTime = parseDate(r[colMap.closeTime]);
+
+    if (!picInput && !picBlast) { skipped++; return; }
+    parsed++;
+
+    /* I / HK classification */
+    if (picInput && inputTime) {
+      if (onShiftAt(picInput, inputTime)) {
+        if (!scores[picInput]) scores[picInput]={I:0,Cv:0,Ck:0,HK:0,M:0};
+        scores[picInput].I++;
+        // track for missed detection
+        const dk = inputTime.toISOString().slice(0,10)+'_'+getShift(inputTime.getHours());
+        if (!shiftInputMap[dk] || inputTime.getTime() < shiftInputMap[dk]) {
+          shiftInputMap[dk] = inputTime.getTime();
+        }
+      } else {
+        // Housekeeping
+        if (!scores[picInput]) scores[picInput]={I:0,Cv:0,Ck:0,HK:0,M:0};
+        scores[picInput].HK++;
+        hkList.push({ noTiket, picInput, device, downTime, inputTime,
+          shiftDown: downTime ? getShift(downTime.getHours()) : '?',
+          shiftInput: getShift(inputTime.getHours()) });
+      }
+    }
+
+    /* C_valid / C_kosong */
+    if (status.includes('CLOSE') || status.includes('CLOSED')) {
+      const isKosong = rc==='' || rc.includes('SEDANG DITANYAKAN') || rc==='DEFAULT' || rc==='SEDANG DITANYAKAN';
+      const target   = picBlast || picInput;
+      if (target) {
+        if (!scores[target]) scores[target]={I:0,Cv:0,Ck:0,HK:0,M:0};
+        if (isKosong) scores[target].Ck++;
+        else          scores[target].Cv++;
+      }
+    }
+
+    /* Missed incident candidate */
+    if (downTime && !inTransition(downTime)) {
+      const shiftD = getShift(downTime.getHours());
+      const dk     = downTime.toISOString().slice(0,10)+'_'+shiftD;
+      // Check if inputTime is within 30 min of downTime
+      const withinWindow = inputTime && (inputTime.getTime()-downTime.getTime() <= 30*60*1000);
+      if (!withinWindow) {
+        // Potential missed — resolved after full scan
+        const dutys = allPICs.filter(p => picSchedule[p] && picSchedule[p].has(dk));
+        if (dutys.length) {
+          missedList.push({ dk, downTime, device, shiftD, dutys, resolved:false });
+        }
+      }
+    }
+  });
+
+  /* De-duplicate missed by dk and resolve */
+  const seenMissed = new Set();
+  const finalMissed = [];
+  missedList.forEach(m => {
+    if (seenMissed.has(m.dk+m.downTime)) return;
+    seenMissed.add(m.dk+m.downTime);
+    // A missed is confirmed if NO input occurred within 30 min of downTime on that shift
+    // We check shiftInputMap vs downTime
+    const earliest = shiftInputMap[m.dk];
+    const covered  = earliest && (earliest - m.downTime.getTime()) <= 30*60*1000;
+    if (!covered) {
+      m.dutys.forEach(p => { if(scores[p]) scores[p].M++; });
+      finalMissed.push(m);
+    }
+  });
+
+  log('Diproses: '+parsed+' tiket, dilewati: '+skipped, 'ok');
+  log('HK terdeteksi: '+hkList.length, 'ok');
+  log('Missed incident: '+finalMissed.length, finalMissed.length>0?'warn':'ok');
+
+  /* 3. Compute final */
+  const results = allPICs.map(name => {
+    const s   = scores[name]||{I:0,Cv:0,Ck:0,HK:0,M:0};
+    const tot = s.I + s.Cv - s.Ck + 3*s.HK - 3*s.M;
+    const hk  = picWorkdays[name]||1;
+    return { name, ...s, total:tot, hk, pph:tot/hk };
+  }).sort((a,b)=>b.pph-a.pph);
+
+  log('Selesai! Menampilkan hasil...', 'ok');
+  renderResults(results, hkList, finalMissed);
+  document.getElementById('btnReset').style.display = 'inline-flex';
+  document.getElementById('btnProcess').disabled = true;
+}
+
+/* =========================================================
+   RENDER
+========================================================= */
+function fmtDate(d) {
+  if (!d) return '\u2014';
+  return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})+' '+
+         d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+}
+
+function renderResults(results, hkList, missedList) {
+  const n    = results.length;
+  const totI = results.reduce((s,r)=>s+r.I,0);
+  const totHK= results.reduce((s,r)=>s+r.HK,0);
+  const totM = results.reduce((s,r)=>s+r.M,0);
+  const avg  = n ? results.reduce((s,r)=>s+r.pph,0)/n : 0;
+  const best = results[0]||{};
+
+  document.getElementById('kpiGrid').innerHTML = `
+    <div class="kpi-card"><div class="kpi-card__value accent">${n}</div><div class="kpi-card__label">Total PIC</div></div>
+    <div class="kpi-card"><div class="kpi-card__value ok">${totI}</div><div class="kpi-card__label">Input On-Shift</div></div>
+    <div class="kpi-card"><div class="kpi-card__value ok">${totHK}</div><div class="kpi-card__label">Housekeeping</div></div>
+    <div class="kpi-card"><div class="kpi-card__value ${totM>0?'crit':'ok'}">${totM}</div><div class="kpi-card__label">Missed Incident</div></div>
+    <div class="kpi-card highlight"><div class="kpi-card__value">${avg.toFixed(2)}</div><div class="kpi-card__label">Rata-rata Poin/HK</div></div>
+    <div class="kpi-card highlight"><div class="kpi-card__value">${esc(best.name||'\u2014')}</div><div class="kpi-card__label">&#x1F3C6; Terproduktif</div></div>
+  `;
+
+  document.getElementById('periodNote').innerHTML =
+    '<b>Catatan:</b> Pembagian <em>Total Poin &divide; Hari Kerja Aktif</em> memastikan penilaian adil bagi PIC yang memiliki jumlah shift berbeda. ' +
+    'Semakin tinggi <b>Poin/HK</b>, semakin produktif PIC tersebut secara relatif.';
+
+  const maxPPH = Math.max(...results.map(r=>Math.abs(r.pph)),0.1);
+  const tbody  = document.getElementById('scoreTbody');
+  tbody.innerHTML = '';
+
+  results.forEach((r, idx) => {
+    const rank = idx+1;
+    const rCls = rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
+    const pphC = r.pph>=avg ? 'ok' : r.pph>=0 ? 'warn' : 'crit';
+    const barW = Math.min(100, Math.abs(r.pph)/maxPPH*100);
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td class="rank-col"><span class="rank-badge ${rCls}">${rank}</span></td>
+      <td class="name-col">${esc(r.name)}</td>
+      <td class="num">${r.hk}</td>
+      <td class="num"><span class="score-num pos">+${r.I}</span></td>
+      <td class="num"><span class="score-num pos">+${r.Cv}</span></td>
+      <td class="num"><span class="score-num ${r.Ck>0?'neg':'neutral'}">${r.Ck>0?'\u2212'+r.Ck:r.Ck}</span></td>
+      <td class="num"><span class="score-num pos">+${r.HK}</span></td>
+      <td class="num"><span class="score-num ${r.M>0?'neg':'neutral'}">${r.M>0?'\u2212'+r.M:r.M}</span></td>
+      <td class="num"><span class="score-num ${r.total>=0?'pos':'neg'}" style="font-size:13px;">${r.total>=0?'+':''}${r.total}</span></td>
+      <td class="score-bar-cell">
+        <div class="score-bar-wrap">
+          <div class="score-bar-track">
+            <div class="score-bar-fill ${pphC}" id="bar_${idx}" style="width:0%"></div>
+          </div>
+          <span class="score-num ${pphC}" style="font-size:13.5px;">${r.pph>=0?'+':''}${r.pph.toFixed(2)}</span>
+        </div>
+      </td>
+      <td><button class="expand-btn" id="expbtn_${idx}" onclick="toggleDetail(${idx})">&#8250;</button></td>
+    `;
+    tbody.appendChild(tr);
+
+    const dtTr = document.createElement('tr');
+    dtTr.style.display = 'none';
+    dtTr.id = 'detail_'+idx;
+    dtTr.innerHTML = `<td colspan="11"><div class="detail-inner">
+      <div class="detail-stat"><div class="ds-label">Input On-Shift (I)</div><div class="ds-value pos">+${r.I} poin</div></div>
+      <div class="detail-stat"><div class="ds-label">Close Valid (C&#x2713;)</div><div class="ds-value pos">+${r.Cv} poin</div></div>
+      <div class="detail-stat"><div class="ds-label">Close Kosong (C&#x2717;)</div><div class="ds-value ${r.Ck>0?'neg':''}">\u2212${r.Ck} poin</div></div>
+      <div class="detail-stat"><div class="ds-label">Housekeeping (HK)</div><div class="ds-value pos">+${r.HK*3} poin (${r.HK}&times;3)</div></div>
+      <div class="detail-stat"><div class="ds-label">Missed Incident (M)</div><div class="ds-value ${r.M>0?'neg':''}">\u2212${r.M*3} poin (${r.M}&times;3)</div></div>
+      <div class="detail-stat"><div class="ds-label">Total Poin</div><div class="ds-value ${r.total>=0?'pos':'neg'}">${r.total>=0?'+':''}${r.total}</div></div>
+      <div class="detail-stat"><div class="ds-label">Hari Kerja Aktif</div><div class="ds-value accent">${r.hk} shift</div></div>
+      <div class="detail-stat"><div class="ds-label">Poin/HK (Skor Akhir)</div><div class="ds-value ${pphC}" style="font-size:18px;">${r.pph>=0?'+':''}${r.pph.toFixed(3)}</div></div>
+    </div></td>`;
+    tbody.appendChild(dtTr);
+  });
+
+  // animate bars
+  setTimeout(() => {
+    results.forEach((r,idx) => {
+      const maxPPH2 = Math.max(...results.map(x=>Math.abs(x.pph)),0.1);
+      const bar = document.getElementById('bar_'+idx);
+      if (bar) bar.style.width = Math.min(100, Math.abs(r.pph)/maxPPH2*100)+'%';
+    });
+  }, 80);
+
+  /* Missed table */
+  if (missedList.length) {
+    document.getElementById('missedSection').style.display = 'block';
+    document.getElementById('missedTbody').innerHTML = missedList.map(m => `
+      <tr>
+        <td>${fmtDate(m.downTime)}</td>
+        <td>${esc(m.device||'\u2014')}</td>
+        <td><span class="badge badge--warn">${m.shiftD}</span></td>
+        <td>${m.dutys.map(esc).join(', ')}</td>
+        <td class="num"><span class="score-num neg">\u2212${3*m.dutys.length}</span></td>
+      </tr>`).join('');
+  }
+
+  /* HK table */
+  if (hkList.length) {
+    document.getElementById('hkSection').style.display = 'block';
+    document.getElementById('hkTbody').innerHTML = hkList.map(h => `
+      <tr>
+        <td class="mono">${esc(h.noTiket||'\u2014')}</td>
+        <td>${esc(h.picInput)}</td>
+        <td>${fmtDate(h.downTime)}</td>
+        <td>${fmtDate(h.inputTime)}</td>
+        <td><span class="badge badge--info">${h.shiftDown}</span></td>
+        <td><span class="badge badge--ok">${h.shiftInput}</span></td>
+        <td class="num"><span class="score-num pos">+3</span></td>
+      </tr>`).join('');
+  }
+
+  document.getElementById('resultSection').style.display = 'block';
+
+  document.getElementById('btnExportCSV').onclick  = () => exportCSV(results);
+  document.getElementById('btnExportText').onclick = () => exportText(results);
+}
+
+function toggleDetail(idx) {
+  const row = document.getElementById('detail_'+idx);
+  const btn = document.getElementById('expbtn_'+idx);
+  if (!row) return;
+  const open = row.style.display === 'table-row';
+  row.style.display = open ? 'none' : 'table-row';
+  if (btn) btn.classList.toggle('open', !open);
+}
+
+/* =========================================================
+   EXPORT
+========================================================= */
+function exportCSV(results) {
+  const header = 'Nama PIC,Hari Kerja,I,C_valid,C_kosong,HK,M,Total Poin,Poin per HK';
+  const rows   = results.map(r =>
+    `"${r.name}",${r.hk},${r.I},${r.Cv},${r.Ck},${r.HK},${r.M},${r.total},${r.pph.toFixed(3)}`);
+  const blob = new Blob([[header,...rows].join('\r\n')], {type:'text/csv;charset=utf-8;'});
+  const a = Object.assign(document.createElement('a'),{href:URL.createObjectURL(blob),download:'scoring_pic_'+new Date().toISOString().slice(0,10)+'.csv'});
+  a.click(); URL.revokeObjectURL(a.href);
+  showToast('File CSV diunduh.');
+}
+
+function exportText(results) {
+  let txt = 'REKAP SKOR PRODUKTIVITAS PIC\n' + '='.repeat(50) + '\n';
+  txt += 'Dibuat: '+new Date().toLocaleString('id-ID')+'\n\n';
+  results.forEach((r,i) => {
+    txt += `${i+1}. ${r.name}\n`;
+    txt += `   Hari Kerja : ${r.hk} shift\n`;
+    txt += `   Total Poin : ${r.total>=0?'+':''}${r.total}\n`;
+    txt += `   Poin/HK    : ${r.pph>=0?'+':''}${r.pph.toFixed(3)}\n`;
+    txt += `   Detail     : I=${r.I} | C_valid=${r.Cv} | C_kosong=${r.Ck} | HK=${r.HK} | M=${r.M}\n\n`;
+  });
+  navigator.clipboard.writeText(txt).then(() => showToast('Teks rekap tersalin!'));
+}
+
+/* =========================================================
+   TOAST
+========================================================= */
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type==='warn'?' warn':'');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+</script>
+</body>
+</html>
