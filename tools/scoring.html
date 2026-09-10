@@ -10,76 +10,43 @@
 <style>
 body { min-height: 100vh; }
 
-/* ── LOGIN OVERLAY ─────────────────────────────────────────────────────── */
+/* ── LOGIN ──────────────────────────────────────────────────────────────── */
 #loginOverlay {
   position: fixed; inset: 0; z-index: 9999;
   background: var(--bg);
-  display: flex; align-items: center; justify-content: center;
-  padding: 24px;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
 }
 .login-card {
-  background: var(--panel);
-  border: 1.5px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 8px 40px rgba(22,39,60,0.10);
-  padding: 40px 44px;
-  width: 100%; max-width: 380px;
-  text-align: center;
+  background: var(--panel); border: 1.5px solid var(--border);
+  border-radius: 16px; box-shadow: 0 8px 40px rgba(22,39,60,0.10);
+  padding: 40px 44px; width: 100%; max-width: 380px; text-align: center;
 }
 .login-card .eyebrow { display: block; margin-bottom: 12px; }
 .login-card h2 { font-family: var(--font-display); font-size: 22px; font-weight: 800; color: var(--text); margin: 0 0 4px; }
 .login-card .login-sub { font-size: 13px; color: var(--text-dim); margin: 0 0 28px; }
 .login-fields { display: flex; flex-direction: column; gap: 12px; text-align: left; }
-.login-fields label {
-  font-family: var(--font-display); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim);
-  display: block; margin-bottom: 4px;
-}
-.login-fields input {
-  width: 100%; font-family: var(--font-body); font-size: 14px;
-  padding: 12px 14px; border-radius: 8px; border: 1.5px solid var(--border);
-  background: var(--bg); color: var(--text); transition: border-color 0.15s;
-}
+.login-fields label { font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); display: block; margin-bottom: 4px; }
+.login-fields input { width: 100%; font-family: var(--font-body); font-size: 14px; padding: 12px 14px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); color: var(--text); transition: border-color 0.15s; }
 .login-fields input:focus { outline: none; border-color: var(--accent); }
-.login-btn {
-  margin-top: 20px; width: 100%; padding: 13px;
-  font-size: 14px; font-weight: 700; background: var(--accent); color: #fff;
-  border: none; border-radius: 10px; cursor: pointer;
-  font-family: var(--font-display); letter-spacing: 0.02em;
-  transition: background 0.15s, transform 0.12s;
-}
+.login-btn { margin-top: 20px; width: 100%; padding: 13px; font-size: 14px; font-weight: 700; background: var(--accent); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-family: var(--font-display); letter-spacing: 0.02em; transition: background 0.15s, transform 0.12s; }
 .login-btn:hover { background: var(--accent-deep); }
 .login-btn:active { transform: scale(0.98); }
 #loginError { margin-top: 14px; font-size: 12px; color: var(--signal-crit); font-family: var(--font-display); min-height: 18px; }
 .login-lock-icon { font-size: 36px; margin-bottom: 14px; display: block; filter: drop-shadow(0 2px 6px rgba(47,111,228,0.18)); }
 
-/* ── MAIN ──────────────────────────────────────────────────────────────── */
+/* ── MAIN ───────────────────────────────────────────────────────────────── */
 #mainApp { display: none; }
 .tool-wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 60px; }
 
-/* ── PIC ROSTER CHIP ───────────────────────────────────────────────────── */
-.pic-roster {
-  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px;
-}
-.pic-chip {
-  display: inline-flex; align-items: center; gap: 6px;
-  background: var(--accent-dim); color: var(--accent-deep);
-  border: 1.5px solid var(--border-bright);
-  border-radius: 20px; padding: 4px 12px;
-  font-family: var(--font-display); font-size: 12px; font-weight: 600;
-}
+/* ── PIC ROSTER ─────────────────────────────────────────────────────────── */
+.pic-roster { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.pic-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--accent-dim); color: var(--accent-deep); border: 1.5px solid var(--border-bright); border-radius: 20px; padding: 4px 12px; font-family: var(--font-display); font-size: 12px; font-weight: 600; }
 .pic-chip::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
 
-/* ── UPLOAD ZONE ───────────────────────────────────────────────────────── */
+/* ── UPLOAD ZONE ─────────────────────────────────────────────────────────── */
 .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
 @media (max-width: 720px) { .upload-grid { grid-template-columns: 1fr; } }
-
-.upload-zone {
-  border: 2px dashed var(--border-bright); border-radius: var(--radius);
-  background: var(--bg); padding: 28px 20px; text-align: center;
-  cursor: pointer; transition: border-color 0.18s, background 0.18s;
-  position: relative; display: block;
-}
+.upload-zone { border: 2px dashed var(--border-bright); border-radius: var(--radius); background: var(--bg); padding: 28px 20px; text-align: center; cursor: pointer; transition: border-color 0.18s, background 0.18s; position: relative; display: block; }
 .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: var(--accent-dim); }
 .upload-zone.loaded { border-color: var(--signal-ok); background: var(--signal-ok-bg); }
 .upload-zone input[type=file] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; border: none; padding: 0; }
@@ -89,67 +56,40 @@ body { min-height: 100vh; }
 .upload-zone__filename { margin-top: 10px; font-size: 11.5px; font-family: var(--font-mono); color: var(--signal-ok); display: none; font-weight: 600; }
 .upload-zone.loaded .upload-zone__filename { display: block; }
 
-/* ── CONTROL BAR ───────────────────────────────────────────────────────── */
+/* ── CONTROL BAR ────────────────────────────────────────────────────────── */
 .control-bar { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
-.process-btn {
-  padding: 13px 28px; font-size: 14px; font-weight: 700; background: var(--accent); color: #fff;
-  border: none; border-radius: 10px; cursor: pointer;
-  font-family: var(--font-display); display: inline-flex; align-items: center; gap: 8px;
-  transition: background 0.15s, transform 0.12s;
-}
+.process-btn { padding: 13px 28px; font-size: 14px; font-weight: 700; background: var(--accent); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-family: var(--font-display); display: inline-flex; align-items: center; gap: 8px; transition: background 0.15s, transform 0.12s; }
 .process-btn:hover { background: var(--accent-deep); }
 .process-btn:active { transform: scale(0.98); }
 .process-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
-/* ── FORMULA PANEL ─────────────────────────────────────────────────────── */
+/* ── FORMULA PANEL ──────────────────────────────────────────────────────── */
 .formula-panel { border-radius: var(--radius); margin-bottom: 24px; overflow: hidden; }
-.formula-panel summary {
-  padding: 14px 18px; display: flex; align-items: center; gap: 10px; cursor: pointer;
-  font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--text);
-  background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--radius);
-  list-style: none; user-select: none; transition: background 0.15s;
-}
+.formula-panel summary { padding: 14px 18px; display: flex; align-items: center; gap: 10px; cursor: pointer; font-family: var(--font-display); font-size: 13px; font-weight: 700; color: var(--text); background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--radius); list-style: none; user-select: none; transition: background 0.15s; }
 .formula-panel summary::-webkit-details-marker { display: none; }
 .formula-panel[open] summary { border-radius: var(--radius) var(--radius) 0 0; }
 .formula-panel summary:hover { background: var(--accent-dim); }
 .formula-panel summary .chevron { margin-left: auto; color: var(--text-faint); transition: transform 0.18s; }
 .formula-panel[open] summary .chevron { transform: rotate(90deg); }
-.formula-body {
-  background: var(--panel); border: 1.5px solid var(--border); border-top: none;
-  border-radius: 0 0 var(--radius) var(--radius); padding: 20px 22px;
-}
+.formula-body { background: var(--panel); border: 1.5px solid var(--border); border-top: none; border-radius: 0 0 var(--radius) var(--radius); padding: 20px 22px; }
 .formula-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 12px; }
-.formula-table th {
-  text-align: left; font-family: var(--font-display); font-size: 11px; font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim);
-  padding: 8px 10px; background: var(--bg); border-bottom: 1.5px solid var(--border);
-}
+.formula-table th { text-align: left; font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); padding: 8px 10px; background: var(--bg); border-bottom: 1.5px solid var(--border); }
 .formula-table td { padding: 8px 10px; border-bottom: 1px solid var(--border); color: var(--text); line-height: 1.5; vertical-align: top; }
 .formula-table tr:last-child td { border-bottom: none; }
 .param-sym { font-family: var(--font-mono); font-weight: 600; font-size: 12px; }
 .param-sym.plus  { color: var(--signal-ok); }
 .param-sym.minus { color: var(--signal-crit); }
-.formula-code {
-  background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-  padding: 12px 16px; font-family: var(--font-mono); font-size: 12.5px; color: var(--text);
-  line-height: 2; margin-top: 6px; white-space: pre-wrap;
-}
+.formula-code { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; font-family: var(--font-mono); font-size: 12.5px; color: var(--text); line-height: 2; margin-top: 6px; white-space: pre-wrap; }
 
-/* ── PROCESS LOG ──────────────────────────────────────────────────────── */
-#processLog {
-  background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius);
-  padding: 14px 16px; font-family: var(--font-mono); font-size: 12px; color: var(--text-dim);
-  line-height: 1.9; display: none; margin-bottom: 20px; max-height: 180px;
-  overflow-y: auto; white-space: pre-wrap;
-}
+/* ── PROCESS LOG ────────────────────────────────────────────────────────── */
+#processLog { background: var(--bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 14px 16px; font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); line-height: 1.9; display: none; margin-bottom: 20px; max-height: 220px; overflow-y: auto; white-space: pre-wrap; }
 #processLog .log-ok   { color: var(--signal-ok); }
 #processLog .log-warn { color: var(--signal-warn); }
 #processLog .log-err  { color: var(--signal-crit); }
 #processLog .log-info { color: var(--accent); }
 
-/* ── RESULT ────────────────────────────────────────────────────────────── */
+/* ── RESULT ──────────────────────────────────────────────────────────────── */
 #resultSection { display: none; }
-
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; margin-bottom: 24px; }
 .kpi-card { background: var(--panel); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 18px 16px; text-align: center; }
 .kpi-card__value { font-family: var(--font-display); font-size: 26px; font-weight: 800; color: var(--text); line-height: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -161,15 +101,10 @@ body { min-height: 100vh; }
 .kpi-card.highlight { border-color: var(--accent); background: var(--accent-dim); }
 .kpi-card.highlight .kpi-card__value { color: var(--accent-deep); font-size: 18px; }
 
-/* ── SCORE TABLE ───────────────────────────────────────────────────────── */
+/* ── SCORE TABLE ─────────────────────────────────────────────────────────── */
 .score-table-wrap { overflow-x: auto; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--panel); margin-bottom: 20px; }
 .score-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-.score-table thead th {
-  padding: 11px 13px; text-align: left;
-  font-family: var(--font-display); font-size: 10.5px; font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim);
-  background: var(--bg); border-bottom: 1.5px solid var(--border); white-space: nowrap;
-}
+.score-table thead th { padding: 11px 13px; text-align: left; font-family: var(--font-display); font-size: 10.5px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); background: var(--bg); border-bottom: 1.5px solid var(--border); white-space: nowrap; }
 .score-table thead th.num { text-align: right; }
 .score-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
 .score-table tbody tr:last-child { border-bottom: none; }
@@ -179,15 +114,18 @@ body { min-height: 100vh; }
 .score-table tbody td.name-col { font-family: var(--font-display); font-weight: 600; }
 .score-table tbody td.rank-col { text-align: center; min-width: 44px; }
 
-.rank-badge {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 28px; height: 28px; border-radius: 50%;
-  font-family: var(--font-display); font-size: 12px; font-weight: 800;
-}
+.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 50%; font-family: var(--font-display); font-size: 12px; font-weight: 800; }
 .rank-badge.r1 { background: #fff3d6; color: #b36a00; }
 .rank-badge.r2 { background: #f0f0f0; color: #555; }
 .rank-badge.r3 { background: #fdeee3; color: #a0522d; }
 .rank-badge.rn { background: var(--bg); color: var(--text-faint); font-size: 11px; font-weight: 600; }
+
+/* performance category badge */
+.cat-badge { display: inline-block; font-family: var(--font-display); font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 20px; white-space: nowrap; }
+.cat-top    { background: var(--signal-ok-bg);   color: var(--signal-ok);   border: 1.5px solid var(--signal-ok); }
+.cat-ok     { background: var(--accent-dim);      color: var(--accent-deep); border: 1.5px solid var(--border-bright); }
+.cat-warn   { background: var(--signal-warn-bg);  color: #7a5200;            border: 1.5px solid #d99a2b; }
+.cat-crit   { background: var(--signal-crit-bg);  color: var(--signal-crit); border: 1.5px solid var(--signal-crit); }
 
 .score-bar-cell { min-width: 120px; }
 .score-bar-wrap { display: flex; align-items: center; gap: 8px; }
@@ -202,7 +140,7 @@ body { min-height: 100vh; }
 .score-num.neg     { color: var(--signal-crit); }
 .score-num.neutral { color: var(--text-dim); }
 
-/* ── DETAIL EXPAND ─────────────────────────────────────────────────────── */
+/* ── DETAIL EXPAND ───────────────────────────────────────────────────────── */
 .detail-row td { background: var(--bg) !important; padding: 0 !important; border-bottom: 1.5px solid var(--border-bright) !important; }
 .detail-inner { padding: 14px 16px 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; }
 .detail-stat .ds-label { font-family: var(--font-display); font-size: 10px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 2px; }
@@ -215,17 +153,15 @@ body { min-height: 100vh; }
 .expand-btn:hover { color: var(--accent); background: var(--accent-dim); }
 .expand-btn.open { transform: rotate(90deg); color: var(--accent); }
 
-/* ── EXPORT BAR ────────────────────────────────────────────────────────── */
+/* ── MISC ───────────────────────────────────────────────────────────────── */
 .export-bar { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; align-items: center; }
-
-/* ── NOTE BOX ──────────────────────────────────────────────────────────── */
 .note-box { background: var(--accent-dim); border: 1.5px solid var(--border-bright); border-radius: var(--radius); padding: 12px 16px; font-size: 12px; color: var(--accent-deep); line-height: 1.7; margin-bottom: 20px; }
 .note-box b { color: var(--accent); }
 </style>
 </head>
 <body>
 
-<!-- LOGIN OVERLAY -->
+<!-- ════════════════════════ LOGIN OVERLAY ════════════════════════ -->
 <div id="loginOverlay">
   <div class="login-card">
     <span class="login-lock-icon">&#x1F510;</span>
@@ -247,7 +183,7 @@ body { min-height: 100vh; }
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ════════════════════════ MAIN APP ════════════════════════════ -->
 <div id="mainApp">
 <div class="tool-wrap">
 
@@ -271,25 +207,62 @@ body { min-height: 100vh; }
       <span class="chevron">&#8250;</span>
     </summary>
     <div class="formula-body">
-      <div class="section-label" style="margin-bottom:8px;">Formula Total Poin</div>
+      <div class="section-label" style="margin-bottom:8px;">Formula</div>
       <div class="formula-code">Total Poin  =  (+1 &times; I)  +  (+1 &times; C_valid)  +  (-1 &times; C_kosong)  +  (+3 &times; HK)  +  (-3 &times; M)
-Poin / HK   =  Total Poin &divide; Hari Kerja Aktif</div>
+Poin / Hari =  Total Poin &divide; H (Hari Kerja Aktif)</div>
+
       <table class="formula-table" style="margin-top:18px;">
-        <thead><tr><th>Simbol</th><th>Parameter</th><th>Poin</th><th>Keterangan</th></tr></thead>
+        <thead><tr><th style="min-width:80px;">Simbol</th><th>Parameter</th><th>Poin</th><th>Logika &amp; Sumber Kolom</th></tr></thead>
         <tbody>
-          <tr><td><span class="param-sym plus">I</span></td><td>Input On-Shift</td><td><span class="param-sym plus">+1</span></td><td>Tiket gangguan padam yang diinput PIC pada shift dan jam kerja aktifnya sendiri.</td></tr>
-          <tr><td><span class="param-sym plus">C_valid</span></td><td>Close Valid</td><td><span class="param-sym plus">+1</span></td><td>Tiket berstatus CLOSE dengan Root Cause yang telah diperbarui ke penyebab final.</td></tr>
-          <tr><td><span class="param-sym minus">C_kosong</span></td><td>Close Kosong/Default</td><td><span class="param-sym minus">&minus;1</span></td><td>Tiket CLOSE langsung ditutup tanpa mengganti status bawaan form ("SEDANG DITANYAKAN"). Dibebankan ke PIC BLAST UP.</td></tr>
-          <tr><td><span class="param-sym plus">HK</span></td><td>Housekeeping</td><td><span class="param-sym plus">+3</span></td><td>Inisiatif menyisir dan menginput tiket padam yang terlewat dari shift sebelumnya.</td></tr>
-          <tr><td><span class="param-sym minus">M</span></td><td>Missed Incident</td><td><span class="param-sym minus">&minus;3</span></td><td>Gangguan padam di luar toleransi transisi 30 menit yang lolos dari pengawasan shift yang sedang berdinas. Dibebankan per personel bertugas.</td></tr>
-          <tr><td>HK Aktif</td><td>Hari Kerja Aktif</td><td>&mdash;</td><td>Total shift operasional (PAGI/SIANG/MALAM) yang dijalani masing-masing PIC berdasarkan lembar jadwal SUMMARY LINE-UP.</td></tr>
+          <tr>
+            <td><span class="param-sym">H</span></td>
+            <td>Hari Kerja Aktif</td>
+            <td>&mdash;</td>
+            <td>COUNTIF Excel[Shift] IN (PAGI/SIANG/MALAM) per [Nama].</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym plus">I</span></td>
+            <td>Input On-Shift</td>
+            <td><span class="param-sym plus">+1</span></td>
+            <td>[PIC BLAST DOWN] = PIC &bull; D_event=D_submit &bull; S_event=S_submit &bull; S_roster=S_event &bull; Lag Submit&minus;Down &le; 120 menit.</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym plus">HK</span></td>
+            <td>Housekeeping Backlog</td>
+            <td><span class="param-sym plus">+3</span></td>
+            <td>[PIC BLAST DOWN] = PIC &bull; S_event &ne; S_roster ATAU Lag Submit&minus;Down &gt; 120 menit.</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym plus">C_valid</span></td>
+            <td>Close Valid</td>
+            <td><span class="param-sym plus">+1</span></td>
+            <td>[TICKET STATUS]=CLOSE &bull; [PIC BLAST UP]=PIC &bull; [ROOTCAUSE] &ne; "SEDANG DITANYAKAN" &bull; [ROOTCAUSE] tidak kosong.</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym minus">C_kosong</span></td>
+            <td>Close Kosong/Default</td>
+            <td><span class="param-sym minus">&minus;1</span></td>
+            <td>[TICKET STATUS]=CLOSE &bull; [PIC BLAST UP]=PIC &bull; [ROOTCAUSE]="SEDANG DITANYAKAN" ATAU kosong.</td>
+          </tr>
+          <tr>
+            <td><span class="param-sym minus">M</span></td>
+            <td>Missed Group</td>
+            <td><span class="param-sym minus">&minus;3</span></td>
+            <td>Tiket backlog yang Down Time-nya di luar jendela 30-menit &rarr; semua engineer berdinas pada D_event/S_event kena penalti.</td>
+          </tr>
         </tbody>
       </table>
-      <div class="section-label" style="margin-top:18px;margin-bottom:8px;">Aturan Validasi Teknis</div>
+
+      <div class="section-label" style="margin-top:18px;margin-bottom:8px;">Shift &amp; Tanggal Acuan</div>
+      <div class="formula-code">07:00&ndash;14:59  &rarr; S = PAGI,  D = tanggal hari itu
+15:00&ndash;22:59  &rarr; S = SIANG, D = tanggal hari itu
+23:00&ndash;23:59  &rarr; S = MALAM, D = tanggal hari itu
+00:00&ndash;06:59  &rarr; S = MALAM, D = tanggal hari itu &minus; 1 hari  (&larr; kritis!)</div>
+
+      <div class="section-label" style="margin-top:18px;margin-bottom:8px;">Toleransi Transisi &amp; Kategori Kelayakan</div>
       <ul style="font-size:12.5px;color:var(--text-dim);line-height:2;margin:0;padding-left:18px;">
-        <li><strong>On-Shift vs Backlog:</strong> Jika DEVICE DOWN TIME di luar rentang shift PIC penginput &rarr; otomatis diklasifikasikan sebagai HK.</li>
-        <li><strong>Toleransi 30 Menit:</strong> Insiden di 30 menit handover (06:30&ndash;07:30, 14:30&ndash;15:30, 22:30&ndash;23:30) tidak dihitung sebagai kelalaian (M).</li>
-        <li><strong>Eksklusi Shift Malam:</strong> Waktu respons &amp; SLA kecepatan blast awal hanya dihitung untuk shift Pagi dan Siang.</li>
+        <li>Jendela 30 menit: 06:30&ndash;07:30, 14:30&ndash;15:30, 22:30&ndash;23:30 &rarr; insiden di sini tidak dihitung sebagai M.</li>
+        <li><strong>&ge; 25.0</strong>: Sangat Layak (Top Performer) &bull; <strong>20.0&ndash;24.9</strong>: Cukup Layak &bull; <strong>10.0&ndash;19.9</strong>: Perlu Pembinaan &bull; <strong>&lt; 10.0</strong>: Evaluasi Ketat</li>
       </ul>
     </div>
   </details>
@@ -298,21 +271,21 @@ Poin / HK   =  Total Poin &divide; Hari Kerja Aktif</div>
   <div class="section-label">Upload File</div>
   <div class="upload-grid">
     <div>
-      <div style="font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.04em;">&#9312; DATA TIKET GANGGUAN</div>
+      <div style="font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.04em;">&#9312; DATA TIKET (CSV)</div>
       <label class="upload-zone" id="zoneTicket">
         <span class="upload-zone__icon">&#x1F4C4;</span>
-        <div class="upload-zone__label">Klik atau seret file ke sini</div>
-        <div class="upload-zone__sub">Format: Excel (.xlsx), TSV (.tsv), atau CSV (.csv)</div>
+        <div class="upload-zone__label">Form Surveillance NOC — OLT DOWN</div>
+        <div class="upload-zone__sub">Format: CSV (.csv) atau Excel (.xlsx / .tsv)</div>
         <div class="upload-zone__filename" id="fileTicketName"></div>
         <input type="file" id="fileTicket" accept=".xlsx,.xls,.tsv,.csv,.txt">
       </label>
     </div>
     <div>
-      <div style="font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.04em;">&#9313; JADWAL PIKET (SUMMARY LINE-UP)</div>
+      <div style="font-family:var(--font-display);font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:8px;letter-spacing:0.04em;">&#9313; JADWAL PIKET (EXCEL)</div>
       <label class="upload-zone" id="zoneSchedule">
         <span class="upload-zone__icon">&#x1F4C5;</span>
-        <div class="upload-zone__label">Klik atau seret file ke sini</div>
-        <div class="upload-zone__sub">Format: Excel (.xlsx), TSV (.tsv), atau CSV (.csv)</div>
+        <div class="upload-zone__label">JADWAL PIKET NOC RITEL — Sheet SUMMARY LINE-UP</div>
+        <div class="upload-zone__sub">Format: Excel (.xlsx) atau CSV/TSV</div>
         <div class="upload-zone__filename" id="fileScheduleName"></div>
         <input type="file" id="fileSchedule" accept=".xlsx,.xls,.tsv,.csv,.txt">
       </label>
@@ -345,14 +318,15 @@ Poin / HK   =  Total Poin &divide; Hari Kerja Aktif</div>
           <tr>
             <th style="width:44px;text-align:center;">#</th>
             <th>Nama PIC</th>
-            <th class="num" title="Hari Kerja Aktif">Hari Kerja</th>
-            <th class="num" title="Input On-Shift">I</th>
-            <th class="num" title="Close Valid">C&#x2713;</th>
-            <th class="num" title="Close Kosong">C&#x2717;</th>
-            <th class="num" title="Housekeeping">HK</th>
-            <th class="num" title="Missed Incident">M</th>
+            <th class="num" title="Hari Kerja Aktif">HK</th>
+            <th class="num" title="Input On-Shift (≤120 menit)">I</th>
+            <th class="num" title="Close Valid (Root Cause diisi)">C&#x2713;</th>
+            <th class="num" title="Close Kosong (Root Cause default/kosong)">C&#x2717;</th>
+            <th class="num" title="Housekeeping Backlog">HK</th>
+            <th class="num" title="Missed Incident Group">M</th>
             <th class="num">Total Poin</th>
-            <th style="min-width:160px;">Poin/Hari</th>
+            <th style="min-width:150px;">Poin/Hari</th>
+            <th>Kategori</th>
             <th style="width:36px;"></th>
           </tr>
         </thead>
@@ -366,9 +340,8 @@ Poin / HK   =  Total Poin &divide; Hari Kerja Aktif</div>
       <div class="score-table-wrap">
         <table class="score-table">
           <thead><tr>
-            <th>Waktu Incident</th><th>Perangkat / Lokasi</th>
-            <th>Shift Berdinas</th><th>PIC Terkena</th>
-            <th class="num">Poin Potongan</th>
+            <th>No Tiket</th><th>Device Down Time</th><th>Perangkat</th>
+            <th>Shift Kejadian</th><th>PIC Terkena</th><th class="num">Potongan</th>
           </tr></thead>
           <tbody id="missedTbody"></tbody>
         </table>
@@ -382,8 +355,8 @@ Poin / HK   =  Total Poin &divide; Hari Kerja Aktif</div>
         <table class="score-table">
           <thead><tr>
             <th>No Tiket</th><th>PIC Input</th>
-            <th>Waktu Padam</th><th>Waktu Input</th>
-            <th>Shift Padam</th><th>Shift Input</th>
+            <th>Device Down Time</th><th>Timestamp Submit</th>
+            <th>S_event</th><th>S_submit</th><th>Lag</th>
             <th class="num">Poin</th>
           </tr></thead>
           <tbody id="hkTbody"></tbody>
@@ -398,7 +371,6 @@ Poin / HK   =  Total Poin &divide; Hari Kerja Aktif</div>
     </div>
 
   </div><!-- /resultSection -->
-
 </div><!-- /tool-wrap -->
 </div><!-- /mainApp -->
 
@@ -408,9 +380,9 @@ Poin / HK   =  Total Poin &divide; Hari Kerja Aktif</div>
 <script>
 'use strict';
 
-/* =========================================================
+/* ===================================================================
    FIXED PIC ROSTER
-========================================================= */
+=================================================================== */
 const PIC_LIST = [
   'IHSANUL MAULANA',
   'MUHAMMAD FARID',
@@ -422,14 +394,13 @@ const PIC_LIST = [
   'MUHAMMAD BINTANG SANDI JANNATA',
 ];
 
-// Render roster chips
 document.getElementById('picRoster').innerHTML =
-  PIC_LIST.map(n => `<span class="pic-chip">${n}</span>`).join('');
+  PIC_LIST.map(n => `<span class="pic-chip">${esc(n)}</span>`).join('');
 
-/* =========================================================
+/* ===================================================================
    AUTH
-========================================================= */
-const SESSION_KEY = 'survtoolkit_scoring_auth_v2';
+=================================================================== */
+const SESSION_KEY = 'survtoolkit_scoring_auth_v3';
 const loginOverlay = document.getElementById('loginOverlay');
 const mainApp      = document.getElementById('mainApp');
 
@@ -437,11 +408,8 @@ if (sessionStorage.getItem(SESSION_KEY) === '1') {
   loginOverlay.style.display = 'none';
   mainApp.style.display = 'block';
 }
-
 document.getElementById('loginBtn').addEventListener('click', doLogin);
-document.addEventListener('keydown', e => {
-  if (e.key === 'Enter' && loginOverlay.style.display !== 'none') doLogin();
-});
+document.addEventListener('keydown', e => { if (e.key === 'Enter' && loginOverlay.style.display !== 'none') doLogin(); });
 
 function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
@@ -457,15 +425,15 @@ function doLogin() {
   }
 }
 
-/* =========================================================
+/* ===================================================================
    STATE
-========================================================= */
+=================================================================== */
 let ticketRows   = [];
 let scheduleRows = [];
 
-/* =========================================================
+/* ===================================================================
    FILE ZONE
-========================================================= */
+=================================================================== */
 function setupZone(zoneId, inputId, nameId, onLoad) {
   const zone   = document.getElementById(zoneId);
   const input  = document.getElementById(inputId);
@@ -502,7 +470,7 @@ async function handleFile(file, zone, nameEl, onLoad) {
 }
 
 function detectSep(text) {
-  const s = text.slice(0, 2000);
+  const s = text.slice(0, 3000);
   const t = (s.match(/\t/g)||[]).length, c = (s.match(/,/g)||[]).length, sc = (s.match(/;/g)||[]).length;
   if (t >= c && t >= sc) return '\t';
   return sc > c ? ';' : ',';
@@ -511,16 +479,16 @@ function detectSep(text) {
 function parseDelimited(text, sep) {
   const lines = text.split(/\r?\n/).filter(l => l.trim());
   if (!lines.length) return [];
-  const hdr = lines[0].split(sep).map(h => h.trim().replace(/^["']|["']$/g, ''));
+  const hdr = lines[0].split(sep).map(h => h.trim().replace(/^["'\uFEFF]|["']$/g, ''));
   return lines.slice(1).map(line => {
-    const vals = splitLine(line, sep);
+    const vals = splitCSVLine(line, sep);
     const obj  = {};
     hdr.forEach((h, i) => { obj[h] = (vals[i] || '').trim().replace(/^["']|["']$/g, ''); });
     return obj;
   }).filter(r => Object.values(r).some(v => v));
 }
 
-function splitLine(line, sep) {
+function splitCSVLine(line, sep) {
   const res = []; let cur = ''; let inQ = false;
   for (let i = 0; i < line.length; i++) {
     const c = line[i];
@@ -537,7 +505,9 @@ async function readExcel(file) {
     reader.onload = e => {
       try {
         const wb = XLSX.read(e.target.result, { type: 'array', cellDates: true });
-        resolve(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '', raw: false }));
+        // Try to find SUMMARY LINE-UP sheet, fallback to first sheet
+        const sheetName = wb.SheetNames.find(n => /SUMMARY/i.test(n) || /LINE.UP/i.test(n)) || wb.SheetNames[0];
+        resolve(XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '', raw: false }));
       } catch(err) { reject(err); }
     };
     reader.onerror = reject;
@@ -552,9 +522,9 @@ function checkReady() {
   document.getElementById('btnProcess').disabled = !(ticketRows.length && scheduleRows.length);
 }
 
-/* =========================================================
+/* ===================================================================
    RESET
-========================================================= */
+=================================================================== */
 document.getElementById('btnReset').addEventListener('click', () => {
   ticketRows = []; scheduleRows = [];
   ['fileTicket','fileSchedule'].forEach(id => { document.getElementById(id).value = ''; });
@@ -562,20 +532,23 @@ document.getElementById('btnReset').addEventListener('click', () => {
   ['fileTicketName','fileScheduleName'].forEach(id => {
     const el = document.getElementById(id); el.textContent = ''; el.style.display = 'none';
   });
-  document.getElementById('resultSection').style.display  = 'none';
-  document.getElementById('missedSection').style.display  = 'none';
-  document.getElementById('hkSection').style.display      = 'none';
-  document.getElementById('processLog').style.display     = 'none';
-  document.getElementById('processLog').innerHTML         = '';
-  document.getElementById('btnReset').style.display       = 'none';
-  document.getElementById('btnProcess').disabled          = true;
+  ['resultSection','missedSection','hkSection'].forEach(id => document.getElementById(id).style.display = 'none');
+  const log = document.getElementById('processLog'); log.innerHTML = ''; log.style.display = 'none';
+  document.getElementById('btnReset').style.display  = 'none';
+  document.getElementById('btnProcess').disabled      = true;
 });
 
-/* =========================================================
-   COLUMN AUTO-DETECT (silent — no UI shown)
-========================================================= */
-function findCol(cols, patterns) {
-  for (const p of patterns) {
+/* ===================================================================
+   COLUMN AUTO-DETECT (exact names first, then pattern fallback)
+=================================================================== */
+function findCol(cols, exactNames, patterns) {
+  // Try exact match first (case-insensitive)
+  for (const name of exactNames) {
+    const f = cols.find(c => c.trim().toUpperCase() === name.toUpperCase());
+    if (f) return f;
+  }
+  // Then pattern
+  for (const p of (patterns || [])) {
     const f = cols.find(c => new RegExp(p, 'i').test(c));
     if (f) return f;
   }
@@ -584,234 +557,286 @@ function findCol(cols, patterns) {
 
 function autoColsTicket(cols) {
   return {
-    noTiket:        findCol(cols, ['no.*tiket','tiket.*no','ticket.*id','no_tiket','\\bid\\b']),
-    picInput:       findCol(cols, ['pic.*input','input.*pic','created.*by','inputter','dibuat.*oleh','petugas.*input']),
-    picBlastup:     findCol(cols, ['pic.*blast','blast.*up','blastup','pic.*close','closer','penutup']),
-    deviceDownTime: findCol(cols, ['device.*down','down.*time','waktu.*padam','\\bpadam\\b','downtime']),
-    inputTime:      findCol(cols, ['input.*time','waktu.*input','created.*at','created_at','dibuat']),
-    closeTime:      findCol(cols, ['close.*time','waktu.*close','closed.*at','selesai']),
-    status:         findCol(cols, ['\\bstatus\\b','\\bstate\\b']),
-    rootCause:      findCol(cols, ['root.*cause','rootcause','akar.*masalah','cause','penyebab']),
-    device:         findCol(cols, ['\\bdevice\\b','perangkat','\\bolt\\b','lokasi','location']),
+    noTiket:        findCol(cols, ['ID TICKET','ID TIKET','NO TICKET','NO TIKET'], ['id.*ticket','id.*tiket','no.*ticket']),
+    timestamp:      findCol(cols, ['Timestamp','TIMESTAMP'], ['timestamp','created.*at','waktu.*submit']),
+    deviceDownTime: findCol(cols, ['DEVICE DOWN TIME','DEVICE DOWN','DOWN TIME'], ['device.*down','down.*time','waktu.*padam','downtime']),
+    picBlastDown:   findCol(cols, ['PIC BLAST DOWN','PIC BLAST DOWN '], ['pic.*blast.*down','pic.*input','blast.*down']),
+    picBlastUp:     findCol(cols, ['PIC BLAST UP','PIC BLAST UP '],   ['pic.*blast.*up','blast.*up','pic.*close']),
+    status:         findCol(cols, ['TICKET STATUS','STATUS TIKET','STATUS'], ['ticket.*status','status']),
+    rootcause:      findCol(cols, ['ROOTCAUSE','ROOT CAUSE','ROOT_CAUSE'], ['root.*cause','rootcause','penyebab']),
+    device:         findCol(cols, ['PERANGKAT','OLT','DEVICE','LOCATION','LOKASI'], ['perangkat','device','olt','lokasi']),
+    shift:          findCol(cols, ['SHIFT'], ['\\bshift\\b']),
   };
 }
 
 function autoColsSched(cols) {
   return {
-    picName: findCol(cols, ['nama','\\bname\\b','\\bpic\\b','petugas','personel']),
-    tanggal: findCol(cols, ['tanggal','\\bdate\\b','\\btgl\\b','\\bhari\\b']),
-    shift:   findCol(cols, ['\\bshift\\b','jadwal','sesi']),
+    tanggal: findCol(cols, ['Tanggal','TANGGAL','TGL','DATE'], ['tanggal','\\btgl\\b','\\bdate\\b']),
+    shift:   findCol(cols, ['Shift','SHIFT'],                   ['\\bshift\\b','jadwal']),
+    nama:    findCol(cols, ['Nama','NAMA','NAME','PIC'],        ['\\bnama\\b','\\bname\\b','\\bpic\\b']),
+    role:    findCol(cols, ['Role','ROLE','JOBDESK','Role / Jobdesk'], ['role','jobdesk']),
   };
 }
 
-/* =========================================================
-   HELPERS
-========================================================= */
+/* ===================================================================
+   DATE/SHIFT HELPERS — per specification
+=================================================================== */
 function parseDate(str) {
   if (!str) return null;
   str = String(str).trim();
+  // Try native parse (handles ISO, Excel date strings)
   let d = new Date(str);
-  if (!isNaN(d)) return d;
-  const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})(?:[T\s](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+  if (!isNaN(d) && d.getFullYear() > 1970) return d;
+  // dd/mm/yyyy [hh:mm[:ss]]
+  const m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})(?:[T\s,](\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
   if (m) {
-    d = new Date(+m[3], +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0), +(m[6]||0));
+    const yr = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+    d = new Date(yr, +m[2]-1, +m[1], +(m[4]||0), +(m[5]||0), +(m[6]||0));
     if (!isNaN(d)) return d;
   }
   return null;
 }
 
-function getShift(h) {
-  if (h >= 7  && h < 15) return 'PAGI';
-  if (h >= 15 && h < 23) return 'SIANG';
-  return 'MALAM';
+/**
+ * Classify a datetime into {shift, dateKey} per the specification:
+ *   07:00–14:59 → PAGI,  D = same day
+ *   15:00–22:59 → SIANG, D = same day
+ *   23:00–23:59 → MALAM, D = same day
+ *   00:00–06:59 → MALAM, D = same day MINUS 1
+ */
+function classifyDT(dt) {
+  if (!dt) return null;
+  const h = dt.getHours();
+  let shift, d;
+  if (h >= 7 && h < 15) {
+    shift = 'PAGI';
+    d = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  } else if (h >= 15 && h < 23) {
+    shift = 'SIANG';
+    d = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  } else if (h >= 23) {
+    shift = 'MALAM';
+    d = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+  } else { // 00:00–06:59
+    shift = 'MALAM';
+    d = new Date(dt.getFullYear(), dt.getMonth(), dt.getDate());
+    d.setDate(d.getDate() - 1); // D - 1
+  }
+  return { shift, dateKey: d.toISOString().slice(0, 10) };
 }
 
-// Transition window: 30 min around each handover (06:30-07:30, 14:30-15:30, 22:30-23:30)
+/** 30-min handover transition window — incidents here are NOT penalized as M */
 function inTransition(dt) {
   if (!dt) return false;
   const m = dt.getHours() * 60 + dt.getMinutes();
-  return (m >= 390 && m <= 450) || (m >= 870 && m <= 930) || (m >= 1350 && m <= 1410);
+  return (m >= 390 && m <= 450)   // 06:30–07:30
+      || (m >= 870 && m <= 930)   // 14:30–15:30
+      || (m >= 1350 && m <= 1410); // 22:30–23:30
 }
 
-// Normalize PIC name: uppercase + trim, then fuzzy-match against PIC_LIST
+const LAG_MS = 120 * 60 * 1000; // 120 minutes in ms
+
+/** Normalize PIC name — uppercase + trim, then fuzzy-match to PIC_LIST */
 function normalizePIC(raw) {
   if (!raw) return '';
-  const up = String(raw).trim().toUpperCase();
-  // exact match first
+  const up = String(raw).trim().toUpperCase()
+    .replace(/\s+/g, ' ')           // collapse multiple spaces
+    .replace(/[^\w\s]/g, '');       // strip non-word non-space chars
   const exact = PIC_LIST.find(p => p === up);
   if (exact) return exact;
-  // partial: PIC name contains the raw value OR raw contains the PIC name
-  const partial = PIC_LIST.find(p => p.includes(up) || up.includes(p));
-  return partial || up; // return as-is if no match (may be unlisted PIC)
+  // Partial match: list name is contained in raw or vice versa
+  const partial = PIC_LIST.find(p => up.includes(p) || p.includes(up));
+  return partial || up;
 }
 
-function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 
+/* ===================================================================
+   LOGGING
+=================================================================== */
 function log(msg, type) {
   const el = document.getElementById('processLog');
   el.style.display = 'block';
-  el.innerHTML += `<span${type?' class="log-'+type+'"':''}>${msg}</span>\n`;
+  el.innerHTML += `<span${type ? ' class="log-'+type+'"' : ''}>${esc(msg)}</span>\n`;
   el.scrollTop = el.scrollHeight;
 }
 
-/* =========================================================
+/* ===================================================================
    MAIN PROCESSING
-========================================================= */
+=================================================================== */
 document.getElementById('btnProcess').addEventListener('click', processData);
 
 function processData() {
-  document.getElementById('processLog').innerHTML = '';
-  document.getElementById('processLog').style.display = 'none';
-  document.getElementById('resultSection').style.display = 'none';
-  document.getElementById('missedSection').style.display = 'none';
-  document.getElementById('hkSection').style.display     = 'none';
+  const logEl = document.getElementById('processLog');
+  logEl.innerHTML = ''; logEl.style.display = 'none';
+  ['resultSection','missedSection','hkSection'].forEach(id => document.getElementById(id).style.display = 'none');
 
   log('Memulai proses...', 'info');
 
-  /* ── Detect columns silently ── */
+  /* ── Detect columns ── */
   const tCols = Object.keys(ticketRows[0] || {});
   const sCols = Object.keys(scheduleRows[0] || {});
   const cm    = autoColsTicket(tCols);
   const scm   = autoColsSched(sCols);
 
-  log('Tiket: ' + ticketRows.length + ' baris | Jadwal: ' + scheduleRows.length + ' baris');
-  log('Kolom tiket terdeteksi:');
-  log('  PIC Input=[' + cm.picInput + '] | PIC Blast=[' + cm.picBlastup + '] | DownTime=[' + cm.deviceDownTime + '] | Status=[' + cm.status + '] | RC=[' + cm.rootCause + ']');
-  log('Kolom jadwal terdeteksi:');
-  log('  PIC=[' + scm.picName + '] | Tanggal=[' + scm.tanggal + '] | Shift=[' + scm.shift + ']');
+  log(`Tiket: ${ticketRows.length} baris | Jadwal: ${scheduleRows.length} baris`);
+  log(`Kolom CSV  → Timestamp:[${cm.timestamp}] | DownTime:[${cm.deviceDownTime}] | PIC DOWN:[${cm.picBlastDown}] | PIC UP:[${cm.picBlastUp}] | Status:[${cm.status}] | RC:[${cm.rootcause}]`);
+  log(`Kolom Excel → Nama:[${scm.nama}] | Tanggal:[${scm.tanggal}] | Shift:[${scm.shift}] | Role:[${scm.role}]`);
 
-  /* ── 1. Build schedule lookup from fixed PIC_LIST ── */
-  const picSchedule = {}; // picName -> Set of "YYYY-MM-DD_SHIFT"
-  const picWorkdays = {}; // picName -> count
-
-  // Init all fixed PICs with empty sets
+  /* ── 1. Build schedule lookup ── */
+  const picSchedule = {}; // picName → Set<"dateKey_SHIFT">
+  const picWorkdays = {}; // picName → count of operational shifts
   PIC_LIST.forEach(p => { picSchedule[p] = new Set(); picWorkdays[p] = 0; });
 
+  const VALID_SHIFTS = new Set(['PAGI','SIANG','MALAM']);
+
   scheduleRows.forEach(r => {
-    const rawName = String(r[scm.picName] || '').trim();
-    const name    = normalizePIC(rawName);
-    if (!PIC_LIST.includes(name)) return; // skip unlisted
-    const tgl   = String(r[scm.tanggal] || '').trim();
-    const shift = String(r[scm.shift]   || '').trim().toUpperCase();
-    const d = parseDate(tgl);
+    const rawName = String(r[scm.nama]  || '').trim();
+    const rawDate = String(r[scm.tanggal] || '').trim();
+    const rawShift= String(r[scm.shift]   || '').trim().toUpperCase();
+
+    const name  = normalizePIC(rawName);
+    if (!PIC_LIST.includes(name)) return;
+
+    const d     = parseDate(rawDate);
     if (!d) return;
+
+    // Find shift token inside the cell (e.g. "PAGI", "SIANG", "MALAM")
+    const shift = VALID_SHIFTS.has(rawShift) ? rawShift
+                : ['PAGI','SIANG','MALAM'].find(s => rawShift.includes(s));
+    if (!shift) return; // LIBUR, CUTI, OFF, etc.
+
     const dk = d.toISOString().slice(0, 10);
-    const sn = ['PAGI','SIANG','MALAM'].find(s => shift.includes(s));
-    if (!sn) return;
-    picSchedule[name].add(dk + '_' + sn);
+    picSchedule[name].add(dk + '_' + shift);
     picWorkdays[name]++;
   });
 
-  log('Jadwal terbaca: ' + PIC_LIST.map(p => p.split(' ')[0] + '=' + picWorkdays[p] + 'hr').join(', '), 'ok');
+  log('Hari Kerja per PIC: ' + PIC_LIST.map(p => `${p.split(' ')[0]}=${picWorkdays[p]}`).join(', '), 'ok');
 
-  function onShiftAt(name, dt) {
-    if (!dt || !picSchedule[name]) return false;
-    return picSchedule[name].has(dt.toISOString().slice(0, 10) + '_' + getShift(dt.getHours()));
-  }
-
-  /* ── 2. Parse tiket & classify ── */
+  /* ── 2. Init score counters ── */
   const scores = {};
   PIC_LIST.forEach(p => { scores[p] = { I:0, Cv:0, Ck:0, HK:0, M:0 }; });
 
-  const hkList      = [];
-  const missedCands = {}; // key: "dateShift_downTs" -> { downTime, device, shift, dutys, inputMs }
+  const hkList      = [];      // detail rows for HK section
+  // missedMap: "dateKey_SHIFT_ticketId" → {info, covered}
+  // A ticket is "covered" (not missed) if any PIC submitted it on-shift within 120 min
+  const missedMap   = {};
 
   let parsed = 0, skipped = 0;
 
   ticketRows.forEach(r => {
-    const noTiket    = String(r[cm.noTiket]        || '').trim();
-    const rawPicIn   = String(r[cm.picInput]        || '').trim();
-    const rawPicBl   = String(r[cm.picBlastup]      || '').trim();
-    const status     = String(r[cm.status]          || '').trim().toUpperCase();
-    const rc         = String(r[cm.rootCause]       || '').trim().toUpperCase();
-    const device     = String(r[cm.device]          || '').trim();
+    const noTiket   = String(r[cm.noTiket]        || '').trim();
+    const rawTs     = r[cm.timestamp];
+    const rawDown   = r[cm.deviceDownTime];
+    const rawPicDn  = String(r[cm.picBlastDown]   || '').trim();
+    const rawPicUp  = String(r[cm.picBlastUp]      || '').trim();
+    const status    = String(r[cm.status]          || '').trim().toUpperCase();
+    const rc        = String(r[cm.rootcause]       || '').trim();
+    const device    = String(r[cm.device]          || '').trim();
 
-    const downTime  = parseDate(r[cm.deviceDownTime]);
-    const inputTime = parseDate(r[cm.inputTime]);
-    const closeTime = parseDate(r[cm.closeTime]);
+    const tsTime   = parseDate(rawTs);
+    const downTime = parseDate(rawDown);
 
-    const picInput  = normalizePIC(rawPicIn);
-    const picBlast  = normalizePIC(rawPicBl);
+    const picDn    = normalizePIC(rawPicDn);
+    const picUp    = normalizePIC(rawPicUp);
 
-    if (!picInput && !picBlast) { skipped++; return; }
+    if (!picDn && !picUp) { skipped++; return; }
     parsed++;
 
-    /* I / HK */
-    if (picInput && inputTime) {
-      const onShift = PIC_LIST.includes(picInput) && onShiftAt(picInput, inputTime);
-      if (onShift) {
-        scores[picInput].I++;
-        // Track earliest input for missed-incident window
-        if (downTime && !inTransition(downTime)) {
-          const dk  = downTime.toISOString().slice(0, 10) + '_' + getShift(downTime.getHours());
-          const key = dk + '_' + downTime.getTime();
-          if (!missedCands[key]) {
-            const dutys = PIC_LIST.filter(p => picSchedule[p].has(dk));
-            missedCands[key] = { downTime, device, shift: getShift(downTime.getHours()), dutys, inputMs: Infinity };
+    /* ── Classify event: S_event / D_event ── */
+    const evClass  = classifyDT(downTime);
+    /* ── Classify submit: S_submit / D_submit ── */
+    const subClass = classifyDT(tsTime);
+
+    /* ── I / HK: only for PIC BLAST DOWN ── */
+    if (picDn && PIC_LIST.includes(picDn) && tsTime && downTime) {
+      const lag       = tsTime.getTime() - downTime.getTime();
+      // S_roster for this PIC on D_event / S_event
+      const evKey     = evClass ? evClass.dateKey + '_' + evClass.shift : null;
+      const rosterOK  = evKey && picSchedule[picDn].has(evKey);
+      const dateOK    = evClass && subClass && evClass.dateKey === subClass.dateKey;
+      const shiftOK   = evClass && subClass && evClass.shift   === subClass.shift;
+      const lagOK     = lag >= 0 && lag <= LAG_MS;
+
+      if (rosterOK && dateOK && shiftOK && lagOK) {
+        /* ON-SHIFT: I */
+        scores[picDn].I++;
+        // Mark this incident as covered for missed-detection
+        if (evKey && !inTransition(downTime)) {
+          const mk = (noTiket || (downTime.getTime()+''));
+          if (!missedMap[mk]) {
+            missedMap[mk] = { downTime, device, shift: evClass.shift, dateKey: evClass.dateKey, covered: false };
           }
-          const lag = inputTime.getTime() - downTime.getTime();
-          if (lag < missedCands[key].inputMs) missedCands[key].inputMs = lag;
+          missedMap[mk].covered = true;
         }
-      } else if (PIC_LIST.includes(picInput)) {
-        scores[picInput].HK++;
-        hkList.push({ noTiket, picInput, device, downTime, inputTime,
-          shiftDown: downTime ? getShift(downTime.getHours()) : '?',
-          shiftInput: getShift(inputTime.getHours()) });
+      } else {
+        /* HOUSEKEEPING: HK */
+        scores[picDn].HK++;
+        hkList.push({
+          noTiket, picDn, device, downTime, tsTime,
+          sEvent:  evClass  ? evClass.shift  : '?',
+          sSubmit: subClass ? subClass.shift : '?',
+          lagMin:  lag >= 0 ? Math.round(lag/60000) : -1,
+        });
+        // This ticket is potentially missed if down time outside transition window
+        if (evClass && !inTransition(downTime)) {
+          const mk = (noTiket || (downTime.getTime()+''));
+          if (!missedMap[mk]) {
+            missedMap[mk] = { downTime, device, shift: evClass.shift, dateKey: evClass.dateKey, covered: false };
+          }
+          // HK means it was NOT submitted on-shift → remains uncovered unless another on-shift entry exists
+        }
+      }
+    } else if (picDn && !tsTime && downTime && evClass) {
+      // No timestamp — treat as HK (can't verify lag)
+      if (PIC_LIST.includes(picDn)) {
+        scores[picDn].HK++;
+        hkList.push({ noTiket, picDn, device, downTime, tsTime:null, sEvent: evClass.shift, sSubmit:'?', lagMin:-1 });
+      }
+      if (!inTransition(downTime)) {
+        const mk = (noTiket || (downTime.getTime()+''));
+        if (!missedMap[mk]) {
+          missedMap[mk] = { downTime, device, shift: evClass.shift, dateKey: evClass.dateKey, covered: false };
+        }
       }
     }
 
-    /* Track incident regardless for missed-cand */
-    if (downTime && !inTransition(downTime) && inputTime) {
-      const dk  = downTime.toISOString().slice(0, 10) + '_' + getShift(downTime.getHours());
-      const key = dk + '_' + downTime.getTime();
-      if (!missedCands[key]) {
-        const dutys = PIC_LIST.filter(p => picSchedule[p].has(dk));
-        missedCands[key] = { downTime, device, shift: getShift(downTime.getHours()), dutys, inputMs: Infinity };
-      }
-      const lag = inputTime.getTime() - downTime.getTime();
-      if (lag < missedCands[key].inputMs) missedCands[key].inputMs = lag;
-    } else if (downTime && !inTransition(downTime) && !inputTime) {
-      const dk  = downTime.toISOString().slice(0, 10) + '_' + getShift(downTime.getHours());
-      const key = dk + '_' + downTime.getTime();
-      if (!missedCands[key]) {
-        const dutys = PIC_LIST.filter(p => picSchedule[p].has(dk));
-        missedCands[key] = { downTime, device, shift: getShift(downTime.getHours()), dutys, inputMs: Infinity };
-      }
-    }
-
-    /* C_valid / C_kosong */
-    if (status.includes('CLOSE') || status.includes('CLOSED')) {
-      const isKosong = rc === '' || rc.includes('SEDANG DITANYAKAN') || rc === 'DEFAULT';
-      const target   = PIC_LIST.includes(picBlast) ? picBlast : (PIC_LIST.includes(picInput) ? picInput : null);
-      if (target) {
-        if (isKosong) scores[target].Ck++;
-        else          scores[target].Cv++;
-      }
+    /* ── C_valid / C_kosong: charged to PIC BLAST UP ── */
+    if ((status === 'CLOSE' || status === 'CLOSED') && picUp && PIC_LIST.includes(picUp)) {
+      const rcUp  = rc.trim().toUpperCase();
+      const isKosong = rcUp === '' || rcUp === 'SEDANG DITANYAKAN';
+      if (isKosong) scores[picUp].Ck++;
+      else          scores[picUp].Cv++;
     }
   });
 
-  log('Diproses: ' + parsed + ' tiket | Dilewati: ' + skipped, 'ok');
+  log(`Diproses: ${parsed} tiket | Dilewati: ${skipped}`, 'ok');
+  log(`HK terdeteksi: ${hkList.length} tiket`, 'ok');
 
-  /* ── Finalize Missed Incidents ── */
+  /* ── 3. Finalize Missed Incidents ── */
+  // All uncovered tickets → penalize duty PICs on that date+shift
   const finalMissed = [];
-  Object.values(missedCands).forEach(m => {
-    if (!m.dutys.length) return;
-    // Missed if no input within 30 min
-    const isMissed = m.inputMs > 30 * 60 * 1000;
-    if (isMissed) {
-      m.dutys.forEach(p => { scores[p].M++; });
-      finalMissed.push(m);
-    }
+  Object.values(missedMap).forEach(m => {
+    if (m.covered) return;
+    const key = m.dateKey + '_' + m.shift;
+    const dutyPICs = PIC_LIST.filter(p => picSchedule[p].has(key));
+    if (!dutyPICs.length) return;
+    dutyPICs.forEach(p => { scores[p].M++; });
+    finalMissed.push({ ...m, dutyPICs });
   });
 
-  log('HK: ' + hkList.length + ' tiket | Missed: ' + finalMissed.length + ' incident', finalMissed.length > 0 ? 'warn' : 'ok');
+  log(`Missed incident: ${finalMissed.length} kejadian`, finalMissed.length > 0 ? 'warn' : 'ok');
 
-  /* ── 3. Compute final scores ── */
+  /* ── 4. Compute final scores ── */
   const results = PIC_LIST.map(name => {
     const s   = scores[name];
     const tot = s.I + s.Cv - s.Ck + 3*s.HK - 3*s.M;
-    const hk  = picWorkdays[name] || 1; // avoid div-by-zero
-    return { name, ...s, total: tot, hk, pph: tot / hk };
+    const hk  = picWorkdays[name] || 1;
+    const pph = tot / hk;
+    const cat = pph >= 25 ? 'top' : pph >= 20 ? 'ok' : pph >= 10 ? 'warn' : 'crit';
+    return { name, ...s, total: tot, hk, pph, cat };
   }).sort((a, b) => b.pph - a.pph);
 
   log('Selesai! Menampilkan hasil...', 'ok');
@@ -820,46 +845,58 @@ function processData() {
   document.getElementById('btnProcess').disabled = true;
 }
 
-/* =========================================================
+/* ===================================================================
    RENDER RESULTS
-========================================================= */
+=================================================================== */
 function fmtDate(d) {
   if (!d) return '\u2014';
   return d.toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'}) + ' ' +
          d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
 }
 
+const CAT_LABEL = {
+  top:  { cls:'cat-top',  label:'Sangat Layak' },
+  ok:   { cls:'cat-ok',   label:'Cukup Layak' },
+  warn: { cls:'cat-warn', label:'Perlu Pembinaan' },
+  crit: { cls:'cat-crit', label:'Evaluasi Ketat' },
+};
+const BAR_CLS = { top:'ok', ok:'ok', warn:'warn', crit:'crit' };
+
 function renderResults(results, hkList, missedList) {
-  const totI  = results.reduce((s,r) => s+r.I,  0);
+  const totI  = results.reduce((s,r) => s+r.I, 0);
   const totHK = results.reduce((s,r) => s+r.HK, 0);
-  const totM  = results.reduce((s,r) => s+r.M,  0);
+  const totM  = results.reduce((s,r) => s+r.M, 0);
   const avg   = results.reduce((s,r) => s+r.pph, 0) / results.length;
   const best  = results[0] || {};
 
   document.getElementById('kpiGrid').innerHTML = `
     <div class="kpi-card"><div class="kpi-card__value accent">${results.length}</div><div class="kpi-card__label">Total PIC</div></div>
-    <div class="kpi-card"><div class="kpi-card__value ok">${totI}</div><div class="kpi-card__label">Input On-Shift</div></div>
-    <div class="kpi-card"><div class="kpi-card__value ok">${totHK}</div><div class="kpi-card__label">Housekeeping</div></div>
-    <div class="kpi-card"><div class="kpi-card__value ${totM>0?'crit':'ok'}">${totM}</div><div class="kpi-card__label">Missed Incident</div></div>
+    <div class="kpi-card"><div class="kpi-card__value ok">${totI}</div><div class="kpi-card__label">Input On-Shift (I)</div></div>
+    <div class="kpi-card"><div class="kpi-card__value ok">${totHK}</div><div class="kpi-card__label">Housekeeping (HK)</div></div>
+    <div class="kpi-card"><div class="kpi-card__value ${totM>0?'crit':'ok'}">${totM}</div><div class="kpi-card__label">Missed Incident (M)</div></div>
     <div class="kpi-card highlight"><div class="kpi-card__value">${avg.toFixed(2)}</div><div class="kpi-card__label">Rata-rata Poin/Hari</div></div>
     <div class="kpi-card highlight"><div class="kpi-card__value">${esc(best.name||'\u2014')}</div><div class="kpi-card__label">&#x1F3C6; Terproduktif</div></div>
   `;
 
   document.getElementById('periodNote').innerHTML =
-    '<b>Catatan:</b> Nilai <em>Poin/Hari Kerja</em> adalah skor akhir yang adil — ' +
-    'memperhitungkan perbedaan jumlah shift antar PIC. ' +
-    'Peringkat disusun dari nilai tertinggi ke terendah.';
+    '<b>Skor Akhir = Poin/Hari Kerja Aktif.</b> Skala: ' +
+    '&#x2265;25 <span class="cat-badge cat-top">Sangat Layak</span> &nbsp;' +
+    '20&ndash;24.9 <span class="cat-badge cat-ok">Cukup Layak</span> &nbsp;' +
+    '10&ndash;19.9 <span class="cat-badge cat-warn">Perlu Pembinaan</span> &nbsp;' +
+    '&lt;10 <span class="cat-badge cat-crit">Evaluasi Ketat</span>';
 
   const maxPPH = Math.max(...results.map(r => Math.abs(r.pph)), 0.1);
   const tbody  = document.getElementById('scoreTbody');
   tbody.innerHTML = '';
 
   results.forEach((r, idx) => {
-    const rank  = idx + 1;
-    const rCls  = rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
-    const pphC  = r.pph >= avg ? 'ok' : r.pph >= 0 ? 'warn' : 'crit';
-    const barW  = Math.min(100, Math.abs(r.pph) / maxPPH * 100);
-    const pphTxt= (r.pph >= 0 ? '+' : '') + r.pph.toFixed(2);
+    const rank   = idx + 1;
+    const rCls   = rank===1?'r1':rank===2?'r2':rank===3?'r3':'rn';
+    const barW   = Math.min(100, Math.abs(r.pph) / maxPPH * 100);
+    const barCls = BAR_CLS[r.cat];
+    const pphTxt = (r.pph >= 0 ? '+' : '') + r.pph.toFixed(2);
+    const cat    = CAT_LABEL[r.cat];
+    const numCls = r.cat === 'crit' ? 'neg' : r.cat === 'warn' ? 'warn' : 'pos';
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -874,10 +911,11 @@ function renderResults(results, hkList, missedList) {
       <td class="num"><span class="score-num ${r.total>=0?'pos':'neg'}" style="font-size:13px;">${r.total>=0?'+':''}${r.total}</span></td>
       <td class="score-bar-cell">
         <div class="score-bar-wrap">
-          <div class="score-bar-track"><div class="score-bar-fill ${pphC}" id="bar_${idx}" style="width:0%"></div></div>
-          <span class="score-num ${pphC}" style="font-size:13.5px;">${pphTxt}</span>
+          <div class="score-bar-track"><div class="score-bar-fill ${barCls}" id="bar_${idx}" style="width:0%"></div></div>
+          <span class="score-num ${numCls}" style="font-size:13.5px;">${pphTxt}</span>
         </div>
       </td>
+      <td><span class="cat-badge ${cat.cls}">${cat.label}</span></td>
       <td><button class="expand-btn" id="expbtn_${idx}" onclick="toggleDetail(${idx})">&#8250;</button></td>
     `;
     tbody.appendChild(tr);
@@ -885,7 +923,7 @@ function renderResults(results, hkList, missedList) {
     const dtTr = document.createElement('tr');
     dtTr.style.display = 'none';
     dtTr.id = 'detail_' + idx;
-    dtTr.innerHTML = `<td colspan="11"><div class="detail-inner">
+    dtTr.innerHTML = `<td colspan="12"><div class="detail-inner">
       <div class="detail-stat"><div class="ds-label">Input On-Shift (I)</div><div class="ds-value pos">+${r.I} poin</div></div>
       <div class="detail-stat"><div class="ds-label">Close Valid (C&#x2713;)</div><div class="ds-value pos">+${r.Cv} poin</div></div>
       <div class="detail-stat"><div class="ds-label">Close Kosong (C&#x2717;)</div><div class="ds-value ${r.Ck>0?'neg':''}">\u2212${r.Ck} poin</div></div>
@@ -893,7 +931,7 @@ function renderResults(results, hkList, missedList) {
       <div class="detail-stat"><div class="ds-label">Missed Incident (M)</div><div class="ds-value ${r.M>0?'neg':''}">\u2212${r.M*3} poin (${r.M}\u00d73)</div></div>
       <div class="detail-stat"><div class="ds-label">Total Poin</div><div class="ds-value ${r.total>=0?'pos':'neg'}">${r.total>=0?'+':''}${r.total}</div></div>
       <div class="detail-stat"><div class="ds-label">Hari Kerja Aktif</div><div class="ds-value accent">${r.hk} shift</div></div>
-      <div class="detail-stat"><div class="ds-label">Poin/Hari (Skor Akhir)</div><div class="ds-value ${pphC}" style="font-size:18px;">${pphTxt}</div></div>
+      <div class="detail-stat"><div class="ds-label">Poin/Hari (Skor Akhir)</div><div class="ds-value ${numCls}" style="font-size:18px;">${pphTxt}</div></div>
     </div></td>`;
     tbody.appendChild(dtTr);
   });
@@ -911,11 +949,12 @@ function renderResults(results, hkList, missedList) {
     document.getElementById('missedSection').style.display = 'block';
     document.getElementById('missedTbody').innerHTML = missedList.map(m => `
       <tr>
+        <td style="font-family:var(--font-mono)">${esc(m.noTiket||'\u2014')}</td>
         <td>${fmtDate(m.downTime)}</td>
-        <td>${esc(m.device || '\u2014')}</td>
+        <td>${esc(m.device||'\u2014')}</td>
         <td><span class="badge badge--warn">${m.shift}</span></td>
-        <td>${m.dutys.map(esc).join(', ')}</td>
-        <td class="num"><span class="score-num neg">\u2212${3 * m.dutys.length}</span></td>
+        <td>${m.dutyPICs.map(esc).join(', ')}</td>
+        <td class="num"><span class="score-num neg">\u2212${3*m.dutyPICs.length}</span></td>
       </tr>`).join('');
   }
 
@@ -924,12 +963,13 @@ function renderResults(results, hkList, missedList) {
     document.getElementById('hkSection').style.display = 'block';
     document.getElementById('hkTbody').innerHTML = hkList.map(h => `
       <tr>
-        <td style="font-family:var(--font-mono)">${esc(h.noTiket || '\u2014')}</td>
-        <td>${esc(h.picInput)}</td>
+        <td style="font-family:var(--font-mono)">${esc(h.noTiket||'\u2014')}</td>
+        <td>${esc(h.picDn)}</td>
         <td>${fmtDate(h.downTime)}</td>
-        <td>${fmtDate(h.inputTime)}</td>
-        <td><span class="badge badge--info">${h.shiftDown}</span></td>
-        <td><span class="badge badge--ok">${h.shiftInput}</span></td>
+        <td>${fmtDate(h.tsTime)}</td>
+        <td><span class="badge badge--warn">${h.sEvent}</span></td>
+        <td><span class="badge badge--info">${h.sSubmit}</span></td>
+        <td>${h.lagMin >= 0 ? h.lagMin + ' mnt' : '\u2014'}</td>
         <td class="num"><span class="score-num pos">+3</span></td>
       </tr>`).join('');
   }
@@ -948,13 +988,15 @@ function toggleDetail(idx) {
   if (btn) btn.classList.toggle('open', !open);
 }
 
-/* =========================================================
+/* ===================================================================
    EXPORT
-========================================================= */
+=================================================================== */
 function exportCSV(results) {
-  const hdr  = 'Nama PIC,Hari Kerja,I,C_valid,C_kosong,HK,M,Total Poin,Poin per Hari';
-  const rows = results.map(r =>
-    `"${r.name}",${r.hk},${r.I},${r.Cv},${r.Ck},${r.HK},${r.M},${r.total},${r.pph.toFixed(3)}`);
+  const hdr  = 'Nama PIC,Hari Kerja,I (On-Shift),C_valid,C_kosong,HK (Backlog),M (Missed),Total Poin,Poin per Hari,Kategori';
+  const rows = results.map(r => {
+    const cat = CAT_LABEL[r.cat].label;
+    return `"${r.name}",${r.hk},${r.I},${r.Cv},${r.Ck},${r.HK},${r.M},${r.total},${r.pph.toFixed(3)},"${cat}"`;
+  });
   const blob = new Blob([[hdr, ...rows].join('\r\n')], { type: 'text/csv;charset=utf-8;' });
   const a = Object.assign(document.createElement('a'), {
     href: URL.createObjectURL(blob),
@@ -965,14 +1007,16 @@ function exportCSV(results) {
 }
 
 function exportText(results) {
-  let txt = 'REKAP SKOR PRODUKTIVITAS PIC\n' + '='.repeat(50) + '\n';
+  let txt = 'REKAP SKOR PRODUKTIVITAS PIC — QA SURVEILLANCE\n' + '='.repeat(52) + '\n';
   txt += 'Dibuat: ' + new Date().toLocaleString('id-ID') + '\n\n';
   results.forEach((r, i) => {
+    const cat = CAT_LABEL[r.cat].label;
     txt += `${i+1}. ${r.name}\n`;
-    txt += `   Hari Kerja : ${r.hk} shift\n`;
-    txt += `   Total Poin : ${r.total>=0?'+':''}${r.total}\n`;
-    txt += `   Poin/Hari  : ${r.pph>=0?'+':''}${r.pph.toFixed(3)}\n`;
-    txt += `   Rincian    : I=${r.I} | C_valid=${r.Cv} | C_kosong=${r.Ck} | HK=${r.HK} | M=${r.M}\n\n`;
+    txt += `   Hari Kerja    : ${r.hk} shift\n`;
+    txt += `   Total Poin    : ${r.total>=0?'+':''}${r.total}\n`;
+    txt += `   Poin/Hari     : ${r.pph>=0?'+':''}${r.pph.toFixed(3)}\n`;
+    txt += `   Kategori      : ${cat}\n`;
+    txt += `   Rincian       : I=${r.I} | C_valid=${r.Cv} | C_kosong=${r.Ck} | HK=${r.HK} | M=${r.M}\n\n`;
   });
   navigator.clipboard.writeText(txt).then(() => showToast('Teks rekap tersalin ke clipboard!'));
 }
