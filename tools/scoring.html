@@ -7,6 +7,7 @@
   <title>QA Scorecard &amp; Surveillance · SURVTOOLKIT</title>
   <link rel="stylesheet" href="../shared/theme.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
   <style>
     /* -------------------------------------------------------
            Scoring-page extensions on top of shared/theme.css
@@ -367,6 +368,23 @@
         border: 1px solid #ccc;
       }
     }
+    /* Drop zone */
+    .upd-dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 20px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .upd-dropzone:hover, .upd-dropzone--over {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+    }
   </style>
 </head>
 
@@ -439,6 +457,9 @@
               Penilaian Akhir Tim Surveillance</div>
             <div style="font-size:12px;color:var(--text-dim);margin-top:3px" id="periodeLabel">Diurutkan berdasarkan
               Rasio Produktivitas Harian (Poin / Hari Kerja)</div>
+            <span id="cacheBadge" style="display:none;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--signal-ok-bg);color:var(--signal-ok);margin-top:4px;display:inline-flex;align-items:center;gap:4px">
+              <i class="fa-solid fa-floppy-disk"></i> Data dari cache
+            </span>
           </div>
           <input type="text" id="searchInput" placeholder="Cari nama personel...">
         </div>
@@ -561,6 +582,101 @@
         </div>
 
       </div>
+
+      <!-- Panel: Upload & Analisis Data -->
+      <div class="panel" style="padding:20px;margin-top:4px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <div style="background:var(--accent-dim);padding:10px;border-radius:8px;color:var(--accent)">
+            <i class="fa-solid fa-upload fa-lg"></i>
+          </div>
+          <div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:14px">Update Data Scorecard</div>
+            <div style="font-size:12px;color:var(--text-dim);margin-top:2px">Upload file mentah atau paste JSON untuk memperbarui scorecard tanpa edit file HTML</div>
+          </div>
+        </div>
+
+        <!-- Tab selector -->
+        <div style="display:flex;gap:0;border-bottom:1.5px solid var(--border);margin-bottom:18px">
+          <button class="upd-tab active" onclick="updSwitchTab(this,'upload')" style="font-family:var(--font-display);font-size:12px;font-weight:600;padding:8px 16px;border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all 0.15s">
+            <i class="fa-solid fa-upload"></i> Upload File
+          </button>
+          <button class="upd-tab" onclick="updSwitchTab(this,'ei')" style="font-family:var(--font-display);font-size:12px;font-weight:600;padding:8px 16px;border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all 0.15s">
+            <i class="fa-solid fa-clock-rotate-left" style="color:#c026d3"></i> Merge EI (JSON)
+          </button>
+          <button class="upd-tab" onclick="updSwitchTab(this,'full')" style="font-family:var(--font-display);font-size:12px;font-weight:600;padding:8px 16px;border:none;background:none;cursor:pointer;border-bottom:2.5px solid transparent;margin-bottom:-1.5px;transition:all 0.15s">
+            <i class="fa-solid fa-rotate" style="color:var(--accent)"></i> Replace Full (JSON)
+          </button>
+        </div>
+
+        <!-- ── Pane: Upload File ── -->
+        <div id="upd-pane-upload">
+          <div class="pane-2col" style="gap:14px;margin-bottom:14px">
+            <!-- CSV/TSV drop zone -->
+            <div class="upd-dropzone" id="dropCsv" onclick="document.getElementById('fileCsv').click()" ondragover="event.preventDefault();this.classList.add('upd-dropzone--over')" ondragleave="this.classList.remove('upd-dropzone--over')" ondrop="handleDrop(event,'fileCsv','dropCsv','labelCsv')">
+              <i class="fa-solid fa-file-csv fa-2x" style="color:var(--signal-crit);margin-bottom:8px"></i>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:13px">Form Surveillance NOC</div>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px">.csv &nbsp;/&nbsp; .tsv &nbsp;/&nbsp; .txt</div>
+              <div id="labelCsv" style="font-size:11px;color:var(--accent);margin-top:8px;font-weight:600">Klik atau drag file di sini</div>
+              <input type="file" id="fileCsv" accept=".csv,.tsv,.txt" style="display:none" onchange="setFileLabel('fileCsv','labelCsv')">
+            </div>
+            <!-- Excel drop zone -->
+            <div class="upd-dropzone" id="dropXlsx" onclick="document.getElementById('fileXlsx').click()" ondragover="event.preventDefault();this.classList.add('upd-dropzone--over')" ondragleave="this.classList.remove('upd-dropzone--over')" ondrop="handleDrop(event,'fileXlsx','dropXlsx','labelXlsx')">
+              <i class="fa-solid fa-file-excel fa-2x" style="color:var(--signal-ok);margin-bottom:8px"></i>
+              <div style="font-family:var(--font-display);font-weight:700;font-size:13px">Jadwal Piket NOC</div>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:4px">.xlsx &nbsp;/&nbsp; .xls</div>
+              <div id="labelXlsx" style="font-size:11px;color:var(--accent);margin-top:8px;font-weight:600">Klik atau drag file di sini</div>
+              <input type="file" id="fileXlsx" accept=".xlsx,.xls" style="display:none" onchange="setFileLabel('fileXlsx','labelXlsx')">
+            </div>
+          </div>
+
+          <!-- Progress bar -->
+          <div id="analysisProgress" style="display:none;height:4px;background:var(--border);border-radius:2px;margin-bottom:10px;overflow:hidden">
+            <div id="analysisBar" style="height:100%;width:0%;background:var(--accent);transition:width 0.3s"></div>
+          </div>
+
+          <div style="display:flex;align-items:center;gap:12px">
+            <button class="btn btn-sm" onclick="runAnalysis()" style="background:var(--accent);padding:10px 20px;font-size:13px">
+              <i class="fa-solid fa-bolt"></i> Analisis & Update Scorecard
+            </button>
+            <span id="analysisStatus" style="font-size:12px;color:var(--text-dim)"></span>
+          </div>
+          <div id="cacheControls" style="display:none;margin-top:10px;padding:10px 12px;background:var(--signal-ok-bg);border:1px solid var(--signal-ok);border-radius:var(--radius-sm);display:flex;align-items:center;gap:10px">
+            <i class="fa-solid fa-floppy-disk" style="color:var(--signal-ok)"></i>
+            <span style="font-size:12px;color:var(--signal-ok);font-weight:600" id="cacheInfo">Data tersimpan di cache browser</span>
+            <button class="btn btn-sm" onclick="clearStorage()" style="background:var(--signal-crit);padding:4px 12px;font-size:11px;margin-left:auto">
+              <i class="fa-solid fa-trash"></i> Hapus Cache
+            </button>
+          </div>
+        </div>
+
+        <!-- ── Pane: Merge EI (JSON) ── -->
+        <div id="upd-pane-ei" style="display:none">
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;line-height:1.7">
+            Paste isi <code>ei_output.json</code> (dari <code>analyze_scoring_ei.py</code>). Data EI di-<strong>merge</strong> ke monthlyAgg yang ada — kolom lain tidak berubah.
+          </div>
+          <textarea id="updEiJson" placeholder='{"ei_by_month":{"Mei":{"NAMA":2}},"ei_detail":{"NAMA":[{"id":"..."}]}}' style="width:100%;height:120px;font-family:var(--font-mono);font-size:11px;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);resize:vertical;box-sizing:border-box"></textarea>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+            <button class="btn btn-sm" onclick="applyEiData()" style="background:var(--accent)"><i class="fa-solid fa-check"></i> Terapkan EI</button>
+            <span id="updEiStatus" style="font-size:12px;color:var(--text-dim)"></span>
+          </div>
+        </div>
+
+        <!-- ── Pane: Replace Full (JSON) ── -->
+        <div id="upd-pane-full" style="display:none">
+          <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;line-height:1.7">
+            Paste <strong>monthlyAgg</strong> dan <strong>detailLists</strong> lengkap. <span style="color:var(--signal-crit);font-weight:600">⚠ Seluruh data akan diganti.</span>
+          </div>
+          <label style="font-family:var(--font-display);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);display:block;margin-bottom:4px">monthlyAgg JSON</label>
+          <textarea id="updAggJson" placeholder='{"Mei":{"NAMA":{"H":21,"I":329,...}}}' style="width:100%;height:90px;font-family:var(--font-mono);font-size:11px;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);resize:vertical;box-sizing:border-box"></textarea>
+          <label style="font-family:var(--font-display);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;color:var(--text-dim);display:block;margin:10px 0 4px">detailLists JSON</label>
+          <textarea id="updDetailJson" placeholder='{"close_kosong":{},"hk_backlog":{},"missed_shift":{},"ei":{}}' style="width:100%;height:90px;font-family:var(--font-mono);font-size:11px;padding:10px;border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--text);resize:vertical;box-sizing:border-box"></textarea>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px">
+            <button class="btn btn-sm" onclick="applyFullData()" style="background:var(--signal-crit)"><i class="fa-solid fa-rotate"></i> Replace Data</button>
+            <span id="updFullStatus" style="font-size:12px;color:var(--text-dim)"></span>
+          </div>
+        </div>
+
+      </div>
     </div>
 
     <!-- Pane: Formula -->
@@ -570,8 +686,7 @@
           style="font-family:var(--font-display);font-weight:700;font-size:15px;color:var(--text);margin-bottom:14px">
           Metodologi &amp; Logika Formula QA</div>
         <div class="formula-box">
-          Total Poin = (+1 &times; I) + (+1 &times; C<sub>valid</sub>) &minus; (+1 &times; C<sub>kosong</sub>) + (+3
-          &times; HK) &minus; (+3 &times; M)<br>
+          Total Poin = (+1 &times; I) + (+1 &times; C<sub>valid</sub>) &minus; (1 &times; C<sub>kosong</sub>) + (3 &times; HK) &minus; (3 &times; M) &minus; (1 &times; EI)<br>
           Skor Akhir (Poin / Hari) = Total Poin / Hari Kerja Aktif (H)
         </div>
         <div class="pane-2col">
@@ -795,7 +910,415 @@
       scOpenModal();
     }
 
+    // =====================================================================
+    // UPDATE DATA PANEL — tabs, file upload analysis engine
+    // =====================================================================
+
+    function updSwitchTab(btn, mode) {
+      document.querySelectorAll('.upd-tab').forEach(t => {
+        t.style.color = 'var(--text-dim)';
+        t.style.borderBottomColor = 'transparent';
+      });
+      btn.style.color = 'var(--accent)';
+      btn.style.borderBottomColor = 'var(--accent)';
+      ['upload','ei','full'].forEach(m => {
+        const el = document.getElementById('upd-pane-' + m);
+        if (el) el.style.display = m === mode ? '' : 'none';
+      });
+    }
+    // Init active state on load
+    (function(){
+      const first = document.querySelector('.upd-tab.active');
+      if (first) { first.style.color = 'var(--accent)'; first.style.borderBottomColor = 'var(--accent)'; }
+    })();
+
+    // ── Drag & Drop helpers ──────────────────────────────────────────────
+    function handleDrop(ev, inputId, zoneId, labelId) {
+      ev.preventDefault();
+      document.getElementById(zoneId).classList.remove('upd-dropzone--over');
+      const f = ev.dataTransfer.files[0];
+      if (!f) return;
+      const dt = new DataTransfer();
+      dt.items.add(f);
+      document.getElementById(inputId).files = dt.files;
+      document.getElementById(labelId).textContent = '📄 ' + f.name;
+      document.getElementById(zoneId).style.borderColor = 'var(--signal-ok)';
+    }
+    function setFileLabel(inputId, labelId) {
+      const f = document.getElementById(inputId).files[0];
+      if (!f) return;
+      document.getElementById(labelId).textContent = '📄 ' + f.name;
+      document.getElementById(inputId).closest('.upd-dropzone').style.borderColor = 'var(--signal-ok)';
+    }
+
+    // ── Merge EI (JSON paste) ────────────────────────────────────────────
+    function applyEiData() {
+      const raw = document.getElementById('updEiJson').value.trim();
+      const status = document.getElementById('updEiStatus');
+      if (!raw) { status.style.color = 'var(--signal-warn)'; status.textContent = '⚠ Textarea kosong.'; return; }
+      let parsed;
+      try { parsed = JSON.parse(raw); } catch(e) { status.style.color = 'var(--signal-crit)'; status.textContent = '✗ JSON tidak valid: ' + e.message; return; }
+      const eiByMonth = parsed.ei_by_month || {};
+      const eiDetail  = parsed.ei_detail   || {};
+      let cnt = 0;
+      Object.keys(eiByMonth).forEach(b => {
+        if (!monthlyAgg[b]) return;
+        Object.keys(eiByMonth[b]).forEach(n => {
+          if (monthlyAgg[b][n]) { monthlyAgg[b][n].EI = eiByMonth[b][n]; cnt++; }
+        });
+      });
+      if (!detailLists.ei) detailLists.ei = {};
+      Object.keys(eiDetail).forEach(n => { detailLists.ei[n] = eiDetail[n]; });
+      refreshAll();
+      status.style.color = 'var(--signal-ok)';
+      status.textContent = `✓ Merge selesai: ${cnt} entri EI diperbarui.`;
+    }
+
+    // ── Replace Full (JSON paste) ────────────────────────────────────────
+    function applyFullData() {
+      const rawAgg    = document.getElementById('updAggJson').value.trim();
+      const rawDetail = document.getElementById('updDetailJson').value.trim();
+      const status    = document.getElementById('updFullStatus');
+      if (!rawAgg || !rawDetail) { status.style.color = 'var(--signal-warn)'; status.textContent = '⚠ Kedua field harus diisi.'; return; }
+      let newAgg, newDetail;
+      try { newAgg    = JSON.parse(rawAgg);    } catch(e) { status.style.color = 'var(--signal-crit)'; status.textContent = '✗ monthlyAgg: ' + e.message; return; }
+      try { newDetail = JSON.parse(rawDetail); } catch(e) { status.style.color = 'var(--signal-crit)'; status.textContent = '✗ detailLists: ' + e.message; return; }
+      Object.keys(monthlyAgg).forEach(k => delete monthlyAgg[k]);
+      Object.assign(monthlyAgg, newAgg);
+      Object.keys(detailLists).forEach(k => delete detailLists[k]);
+      Object.assign(detailLists, newDetail);
+      rebuildMonthDropdown();
+      refreshAll();
+      status.style.color = 'var(--signal-ok)';
+      status.textContent = `✓ Data diganti. ${Object.keys(newAgg).length} periode dimuat.`;
+    }
+
+    function rebuildMonthDropdown() {
+      const sel2 = document.getElementById('monthSelect');
+      sel2.innerHTML = '';
+      ['Semua (Mei-Agustus)','Mei','Juni','Juli','Agustus'].filter(m => monthlyAgg[m]).forEach(m => {
+        const o = document.createElement('option'); o.value = o.textContent = m; sel2.appendChild(o);
+      });
+      sel2.value = sel2.options[0]?.value || '';
+    }
+
+    // ── Browser-side Analysis Engine ─────────────────────────────────────
+    const NAMA_RESMI_LIST = [
+      'IHSANUL MAULANA','MUHAMMAD FARID','MUHAMMAD HELMI','ALFITO SRI PANGESTU',
+      'EDI GUNTORO','BAYU RAIHAN SANJAYA','ADE PRASETYO','MUHAMMAD BINTANG SANDI JANNATA'
+    ];
+    const NAMA_RESMI_SET = new Set(NAMA_RESMI_LIST);
+    const BULAN_IDX = {5:'Mei', 6:'Juni', 7:'Juli', 8:'Agustus'}; // JS month getMonth()+1
+    const SEMUA_LBL = 'Semua (Mei-Agustus)';
+
+    function normN(s) { return String(s||'').replace(/\s+/g,' ').trim().toUpperCase(); }
+
+    function parseDT_A(s) {
+      if (!s) return null;
+      s = String(s).trim();
+      const m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})/);
+      if (m) return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5]);
+      const d = new Date(s); return isNaN(d) ? null : d;
+    }
+
+    function getShift_A(dt) {
+      const h = dt.getHours();
+      return h >= 7 && h < 15 ? 'P' : h >= 15 && h < 23 ? 'S' : 'M';
+    }
+
+    function getDK_A(dt) {
+      return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+    }
+
+    function isHandover_A(dt) {
+      const min = dt.getHours()*60 + dt.getMinutes();
+      return [7*60, 15*60, 23*60].some(b => Math.min(Math.abs(min-b), 1440-Math.abs(min-b)) <= 30);
+    }
+
+    function buildRoster_A(wb) {
+      const roster   = {}; // dk -> {P:[],S:[],M:[]}
+      const workDays = {}; // bulan -> name -> Set(dk)
+
+      for (const shName of wb.SheetNames) {
+        const SHU = shName.toUpperCase();
+        if (SHU.includes('SEPTEMBER')) continue;
+        if (!SHU.includes('LINE') && !SHU.includes('SUMMARY') && !SHU.includes('LINEUP')) continue;
+
+        const ws   = wb.Sheets[shName];
+        const data = XLSX.utils.sheet_to_json(ws, {header:1, defval:'', raw:false});
+        let hi = -1, cD = -1, cP = -1, cS = -1, cM = -1;
+
+        for (let i = 0; i < Math.min(data.length, 15); i++) {
+          const row = data[i].map(c => String(c).toUpperCase().trim());
+          if (row.some(c => c === 'TANGGAL' || c.includes('TANGGAL'))) {
+            hi = i;
+            row.forEach((c,j) => {
+              if (c === 'TANGGAL' || c.includes('TANGGAL') || c === 'DATE') cD = j;
+              else if (c === 'P' || c === 'PAGI')  cP = j;
+              else if (c === 'S' || c === 'SIANG') cS = j;
+              else if (c === 'M' || c === 'MALAM') cM = j;
+            });
+            break;
+          }
+        }
+        if (hi === -1 || cD === -1 || (cP === -1 && cS === -1 && cM === -1)) continue;
+
+        for (let i = hi + 1; i < data.length; i++) {
+          const row = data[i];
+          const dv  = String(row[cD] || '').trim();
+          if (!dv) continue;
+
+          let date;
+          if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dv)) {
+            const [d2,mo2,y2] = dv.split('/'); date = new Date(+y2, +mo2-1, +d2);
+          } else if (/^\d{4}-\d{2}-\d{2}$/.test(dv)) {
+            date = new Date(dv);
+          } else if (/^\d+$/.test(dv)) {
+            const serial = +dv; date = new Date((serial-25569)*86400000);
+            date = new Date(date.getTime() + date.getTimezoneOffset()*60000);
+          } else { date = new Date(dv); }
+          if (!date || isNaN(date)) continue;
+
+          const mo = date.getMonth() + 1;
+          const bulan = BULAN_IDX[mo];
+          if (!bulan) continue;
+          const dk = getDK_A(date);
+          if (!roster[dk]) roster[dk] = {P:[],S:[],M:[]};
+          if (!workDays[bulan]) workDays[bulan] = {};
+
+          for (const [shift, col] of [['P',cP],['S',cS],['M',cM]]) {
+            if (col === -1) continue;
+            const cell = String(row[col] || '').trim();
+            if (!cell) continue;
+            const names = cell.split(/[,\n\/\\]+/).map(normN).filter(n => n.length > 2);
+            roster[dk][shift].push(...names);
+            names.forEach(n => {
+              if (!workDays[bulan][n]) workDays[bulan][n] = new Set();
+              workDays[bulan][n].add(dk);
+            });
+          }
+        }
+      }
+      return { roster, workDays };
+    }
+
+    function detectSep(line) {
+      const t = (line.match(/\t/g)||[]).length;
+      const c = (line.match(/,/g)||[]).length;
+      const s = (line.match(/;/g)||[]).length;
+      return t >= c && t >= s ? '\t' : s > c ? ';' : ',';
+    }
+
+    function splitCSVLine(line, sep) {
+      if (sep !== ',') return line.split(sep).map(f => f.trim().replace(/^"|"$/g,''));
+      const fields = []; let field = '', inQ = false;
+      for (let i = 0; i <= line.length; i++) {
+        const ch = i < line.length ? line[i] : null;
+        if (ch === '"') inQ = !inQ;
+        else if ((ch === sep || ch === null) && !inQ) { fields.push(field.trim().replace(/^"|"$/g,'')); field=''; }
+        else field += (ch||'');
+      }
+      return fields;
+    }
+
+    function doAnalysis_A(csvText, wb) {
+      const { roster, workDays } = buildRoster_A(wb);
+      const lines = csvText.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l => l.trim());
+      if (lines.length < 2) return null;
+
+      const sep  = detectSep(lines[0]);
+      const hdrs = splitCSVLine(lines[0], sep).map(h => h.toUpperCase().replace(/"|'|\uFEFF/g,'').trim());
+      const gc   = (...cands) => { for (const c of cands) { const i = hdrs.findIndex(h => h.includes(c.toUpperCase())); if (i !== -1) return i; } return -1; };
+
+      const COL_TS   = gc('TIMESTAMP');
+      const COL_DOWN = gc('DEVICE DOWN TIME','DOWN TIME','DOWNTIME');
+      const COL_PD   = gc('PIC BLAST DOWN','PIC DOWN');
+      const COL_PU   = gc('PIC BLAST UP','PIC UP');
+      const COL_RC   = gc('ROOTCAUSE','ROOT CAUSE');
+      const COL_STAT = gc('TICKET STATUS','STATUS');
+      const COL_ID   = gc('NO TIKET','ID','TICKET ID','TICKET_ID');
+      const COL_REG  = gc('REGIONAL','REGION');
+      const COL_HOST = gc('HOSTNAME','DEVICE NAME','DEVICE');
+
+      if (COL_DOWN === -1) return null;
+
+      // Init accumulators
+      const BLNS = ['Mei','Juni','Juli','Agustus'];
+      const agg  = {};
+      const det  = { close_kosong:{}, hk_backlog:{}, missed_shift:{}, ei:{} };
+      for (const b of [...BLNS, SEMUA_LBL]) {
+        agg[b] = {};
+        for (const n of NAMA_RESMI_LIST) agg[b][n] = {H:0, I:0, Cvalid:0, Ckosong:0, HK:0, M:0, EI:0};
+      }
+      for (const n of NAMA_RESMI_LIST) {
+        det.close_kosong[n] = []; det.hk_backlog[n] = []; det.missed_shift[n] = []; det.ei[n] = [];
+      }
+
+      // H from workDays
+      for (const b of BLNS) {
+        for (const n of NAMA_RESMI_LIST) {
+          const d = workDays[b]?.[n]?.size || 0;
+          agg[b][n].H = d;
+          agg[SEMUA_LBL][n].H += d;
+        }
+      }
+
+      let ticketCount = 0;
+
+      for (let i = 1; i < lines.length; i++) {
+        const row    = splitCSVLine(lines[i], sep);
+        const tsStr  = COL_TS !== -1 ? (row[COL_TS]||'') : '';
+        const dnStr  = COL_DOWN !== -1 ? (row[COL_DOWN]||'') : '';
+        const picD   = normN(COL_PD !== -1 ? row[COL_PD] : '');
+        const picU   = normN(COL_PU !== -1 ? row[COL_PU] : '');
+        const rc     = String(COL_RC !== -1 ? row[COL_RC] : '').toUpperCase().trim();
+        const stat   = String(COL_STAT !== -1 ? row[COL_STAT] : '').toUpperCase().trim();
+        const id     = String(COL_ID !== -1 ? row[COL_ID] : '').trim();
+        const reg    = String(COL_REG !== -1 ? row[COL_REG] : '').trim();
+        const host   = String(COL_HOST !== -1 ? row[COL_HOST] : '').trim();
+
+        const dnDT = parseDT_A(dnStr);
+        if (!dnDT) continue;
+        const mo = dnDT.getMonth() + 1;
+        const bulan = BULAN_IDX[mo];
+        if (!bulan) continue;
+
+        const tsDT   = parseDT_A(tsStr);
+        const dk     = getDK_A(dnDT);
+        const evShft = getShift_A(dnDT);
+        ticketCount++;
+
+        // ── Close Kosong / Valid ─────────────────────────────────
+        if (stat.includes('CLOSE') && NAMA_RESMI_SET.has(picU)) {
+          const kosong = rc.includes('SEDANG DITANYAKAN') || !rc || rc === '-' || rc.length < 3;
+          if (kosong) {
+            agg[bulan][picU].Ckosong++; agg[SEMUA_LBL][picU].Ckosong++;
+            det.close_kosong[picU].push({id, down:dnStr, up:tsStr, regional:reg, hostname:host, bulan});
+          } else {
+            agg[bulan][picU].Cvalid++; agg[SEMUA_LBL][picU].Cvalid++;
+          }
+        }
+
+        // ── EI Detection ─────────────────────────────────────────
+        if (tsDT) {
+          const dH = Math.abs((tsDT - dnDT) / 3600000);
+          const dS = (tsDT - dnDT) / 1000;
+          const eiType = dH >= 11 && dH <= 13 ? 'ampm' : dS < -1800 ? 'submit_before' : null;
+          if (eiType) {
+            let duty = (roster[dk]?.[evShft]||[]).find(n => NAMA_RESMI_SET.has(n));
+            if (!duty && evShft === 'M') {
+              const pk = getDK_A(new Date(dnDT.getTime()-86400000));
+              duty = (roster[pk]?.['M']||[]).find(n => NAMA_RESMI_SET.has(n));
+            }
+            if (duty) {
+              agg[bulan][duty].EI++; agg[SEMUA_LBL][duty].EI++;
+              det.ei[duty].push({id, down:dnStr, submit:tsStr, delta_jam:Math.round(dH*10)/10,
+                jenis: eiType==='ampm'?'AM/PM Error':'Submit Sebelum Event', regional:reg, hostname:host, bulan});
+            }
+          }
+        }
+
+        // ── Input / HK / Missed ──────────────────────────────────
+        if (!tsDT || !NAMA_RESMI_SET.has(picD)) continue;
+        const subShft = getShift_A(tsDT);
+
+        // Find picD's scheduled shift on event date
+        let picSch = null;
+        const prevDk = getDK_A(new Date(dnDT.getTime()-86400000));
+        for (const [testDk, testSh] of [[dk,'P'],[dk,'S'],[dk,'M'],[prevDk,'M']]) {
+          if ((roster[testDk]?.[testSh]||[]).includes(picD)) { picSch = testSh; break; }
+        }
+
+        if (picSch) {
+          if (subShft === picSch) {
+            // On-shift input
+            agg[bulan][picD].I++; agg[SEMUA_LBL][picD].I++;
+          } else {
+            // Housekeeping Backlog
+            agg[bulan][picD].HK++; agg[SEMUA_LBL][picD].HK++;
+            det.hk_backlog[picD].push({id, down:dnStr, submit:tsStr,
+              delay_menit:Math.round((tsDT-dnDT)/60000), regional:reg, hostname:host, bulan});
+          }
+          // Missed Shift — event in P/S but reported by different shift
+          if ((evShft === 'P' || evShft === 'S') && picSch !== evShft && !isHandover_A(dnDT)) {
+            const onDuty = (roster[dk]?.[evShft]||[]).filter(n => NAMA_RESMI_SET.has(n));
+            onDuty.forEach(n => {
+              agg[bulan][n].M++; agg[SEMUA_LBL][n].M++;
+              det.missed_shift[n].push({id, down:dnStr, shift:evShft,
+                grup:onDuty, diinput_oleh:picD, regional:reg, hostname:host, bulan});
+            });
+          }
+        } else {
+          // picD not in roster — count as input anyway
+          agg[bulan][picD].I++; agg[SEMUA_LBL][picD].I++;
+        }
+      }
+      return { agg, det, ticketCount };
+    }
+
+    function setProgress(pct) {
+      const bar = document.getElementById('analysisBar');
+      if (bar) bar.style.width = pct + '%';
+    }
+
+    function runAnalysis() {
+      const csvFile  = document.getElementById('fileCsv').files[0];
+      const xlsxFile = document.getElementById('fileXlsx').files[0];
+      const statusEl = document.getElementById('analysisStatus');
+      const progEl   = document.getElementById('analysisProgress');
+
+      if (!csvFile)  { statusEl.style.color='var(--signal-warn)'; statusEl.textContent='⚠ Pilih file CSV/TSV terlebih dahulu.'; return; }
+      if (!xlsxFile) { statusEl.style.color='var(--signal-warn)'; statusEl.textContent='⚠ Pilih file Excel (.xlsx) terlebih dahulu.'; return; }
+
+      if (typeof XLSX === 'undefined') {
+        statusEl.style.color = 'var(--signal-crit)';
+        statusEl.textContent = '✗ Library SheetJS belum termuat. Pastikan ada koneksi internet lalu refresh halaman.';
+        return;
+      }
+
+      statusEl.style.color = 'var(--text-dim)'; statusEl.textContent = '⏳ Membaca file...';
+      progEl.style.display = 'block'; setProgress(10);
+
+      const r1 = new FileReader();
+      r1.onload = e => {
+        const csvText = e.target.result;
+        setProgress(40);
+        const r2 = new FileReader();
+        r2.onload = e2 => {
+          setProgress(70);
+          try {
+            const wb  = XLSX.read(new Uint8Array(e2.target.result), {type:'array'});
+            setProgress(85);
+            const res = doAnalysis_A(csvText, wb);
+            if (!res) {
+              statusEl.style.color='var(--signal-crit)';
+              statusEl.textContent='✗ Gagal memproses. Pastikan kolom CSV sesuai (Timestamp, DEVICE DOWN TIME, dsb).';
+              progEl.style.display='none'; return;
+            }
+            Object.keys(monthlyAgg).forEach(k => delete monthlyAgg[k]);
+            Object.assign(monthlyAgg, res.agg);
+            Object.keys(detailLists).forEach(k => delete detailLists[k]);
+            Object.assign(detailLists, res.det);
+            rebuildMonthDropdown();
+            setProgress(100);
+            refreshAll();
+            saveToStorage();
+            setTimeout(() => { progEl.style.display='none'; setProgress(0); }, 600);
+            statusEl.style.color='var(--signal-ok)';
+            statusEl.textContent=`✓ Selesai! ${res.ticketCount.toLocaleString('id-ID')} tiket diproses & disimpan ke cache.`;
+          } catch(err) {
+            statusEl.style.color='var(--signal-crit)';
+            statusEl.textContent='✗ Error: ' + err.message;
+            progEl.style.display='none';
+          }
+        };
+        r2.readAsArrayBuffer(xlsxFile);
+      };
+      r1.readAsText(csvFile, 'UTF-8');
+    }
+
     let currentRows = [];
+
     function refreshAll() {
       const bulan = sel.value;
       currentRows = buildRows(bulan);
@@ -813,6 +1336,66 @@
     });
 
     refreshAll();
+
+    // ── localStorage Persistence ──────────────────────────────────────────
+    const STORAGE_KEY = 'survtoolkit_scoring_v1';
+
+    function saveToStorage() {
+      try {
+        const payload = JSON.stringify({ agg: monthlyAgg, detail: detailLists, savedAt: new Date().toISOString() });
+        localStorage.setItem(STORAGE_KEY, payload);
+        showCacheBadge(true);
+      } catch(e) {
+        // Quota exceeded or private mode — silently ignore
+        console.warn('Cache save failed:', e.message);
+      }
+    }
+
+    function loadFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        const { agg, detail, savedAt } = JSON.parse(raw);
+        if (!agg || !detail) return false;
+
+        Object.keys(monthlyAgg).forEach(k => delete monthlyAgg[k]);
+        Object.assign(monthlyAgg, agg);
+        Object.keys(detailLists).forEach(k => delete detailLists[k]);
+        Object.assign(detailLists, detail);
+        rebuildMonthDropdown();
+        refreshAll();
+        showCacheBadge(true, savedAt);
+        return true;
+      } catch(e) {
+        return false;
+      }
+    }
+
+    function clearStorage() {
+      localStorage.removeItem(STORAGE_KEY);
+      showCacheBadge(false);
+      // Reset ke data hardcoded awal (reload halaman)
+      if (confirm('Cache dihapus. Reload halaman untuk kembali ke data bawaan?')) {
+        location.reload();
+      }
+    }
+
+    function showCacheBadge(show, savedAt) {
+      const badge    = document.getElementById('cacheBadge');
+      const controls = document.getElementById('cacheControls');
+      const info     = document.getElementById('cacheInfo');
+      if (badge)    badge.style.display    = show ? 'inline-flex' : 'none';
+      if (controls) controls.style.display = show ? 'flex'        : 'none';
+      if (info && savedAt) {
+        const d = new Date(savedAt);
+        info.textContent = `Cache tersimpan — ${d.toLocaleDateString('id-ID', {day:'numeric',month:'long',year:'numeric'})} ${d.toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'})}`;
+      }
+    }
+
+    // Auto-load cache on open (jika ada)
+    if (!loadFromStorage()) {
+      refreshAll(); // pakai data hardcoded bawaan
+    }
   </script>
 </body>
 
