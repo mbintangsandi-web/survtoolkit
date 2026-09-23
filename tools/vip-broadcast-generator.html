@@ -800,7 +800,7 @@
         const btn = document.createElement('button');
         btn.className = 'cpu-mode' + (cpuMode === o.key ? ' active ' + o.extra : '');
         btn.textContent = o.label;
-        btn.onclick = () => { cpuMode = o.key; cpuRenderCommands(); cpuRenderModes(); };
+        btn.onclick = () => { cpuMode = o.key; cpuRenderModes(); cpuRenderInputs(); cpuRenderCommands(); };
         el.appendChild(btn);
       });
     }
@@ -808,7 +808,27 @@
     function cpuRenderInputs() {
       const grid = document.getElementById('cpuInputGrid');
       grid.innerHTML = '';
-      CPU_BRANDS[cpuBrand].fields.forEach(f => {
+
+      // Kumpulkan key yang benar-benar dipakai oleh command mode aktif
+      const activeCmds = CPU_BRANDS[cpuBrand].commands.filter(c => cpuMode === 'pw' ? c.pw : !c.pw);
+      const usedKeys = new Set();
+      activeCmds.forEach(c => {
+        const matches = c.tpl.match(/\{(\w+)\}/g);
+        if (matches) matches.forEach(m => usedKeys.add(m.slice(1, -1)));
+      });
+
+      // Hanya tampilkan field yang key-nya dipakai
+      const visibleFields = CPU_BRANDS[cpuBrand].fields.filter(f => usedKeys.has(f.key));
+
+      if (visibleFields.length === 0) {
+        const note = document.createElement('p');
+        note.style.cssText = 'margin:0;font-size:12px;color:var(--muted);';
+        note.textContent = 'Tidak ada parameter untuk mode ini.';
+        grid.appendChild(note);
+        return;
+      }
+
+      visibleFields.forEach(f => {
         const div = document.createElement('div');
         div.className = 'cpu-field';
         const lbl = document.createElement('label');
