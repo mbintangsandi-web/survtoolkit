@@ -169,6 +169,16 @@
       color: #fff;
     }
 
+    button.export {
+      border-color: var(--green);
+      color: var(--green);
+    }
+
+    button.export:hover {
+      background: var(--green);
+      color: #fff;
+    }
+
     button.copy {
       border-color: var(--accent);
       color: var(--accent);
@@ -307,6 +317,8 @@
       <div id="outputContainer"></div>
       <div class="btn-row">
         <button class="copy" onclick="copyAll()">📄 Copy Semua Region</button>
+        <button class="export" onclick="exportData('csv')">⬇ Export CSV</button>
+        <button class="export" onclick="exportData('tsv')">⬇ Export TSV</button>
       </div>
     </div>
 
@@ -318,8 +330,10 @@
   <div class="toast" id="toast"></div>
 
   <script>
-    let broadcastData = {}; // region -> array of {olt, time, name}
+    let broadcastData = {}; // region -> { alarmName: [{olt, dateObj}] }
     let regionOrder = [];
+    let generateTimestamp = null; // waktu saat Generate diklik
+    let parsedSeverityMap = {}; // key: olt+'|'+alarmName -> severity string
 
     function loadSample() {
       const sample = `Operation\tSeverity\tFirst Occurred (ST)\tCleared On (ST)\tOccurrences\tName\tAlarm Source\tLocation Info\tOther Information\tLast Occurred (ST)\tAcknowledged On (ST)\tFiber/Cable Name\tCleared By\tAcknowledged By\tClearance Status\tAcknowledgement Status\tAlarm Serial Number\tMaintenance Status\tMaintenance Region\tUser Label\tService Level\tAlarm ID
@@ -363,6 +377,8 @@
     }
 
     function generateBroadcast() {
+      generateTimestamp = new Date();
+      parsedSeverityMap = {};
       const raw = document.getElementById('inputData').value;
       if (!raw.trim()) {
         alert('Data input kosong. Paste data terlebih dahulu.');
@@ -377,6 +393,7 @@
       const colFirstOccurred = findCol(headers, 'First Occurred (ST)', 'First Occurred');
       const colName = findCol(headers, 'Name');
       const colAlarmSource = findCol(headers, 'Alarm Source');
+      const colSeverity = findCol(headers, 'Severity');
 
       if (colFirstOccurred === -1 || colName === -1 || colAlarmSource === -1) {
         alert('Header tidak dikenali. Pastikan kolom "First Occurred (ST)", "Name", dan "Alarm Source" ada.');
@@ -394,6 +411,7 @@
         const alarmSource   = (cols[colAlarmSource]   || '').trim();
         const name          = (cols[colName]          || '').trim();
         const firstOccurred = (cols[colFirstOccurred] || '').trim();
+        const severity      = colSeverity !== -1 ? (cols[colSeverity] || '').trim() : '';
         if (!alarmSource || !name || !firstOccurred) continue;
 
         totalRows++;
@@ -409,7 +427,10 @@
           regionOrder.push(region);
         }
         if (!broadcastData[region][name]) broadcastData[region][name] = [];
-        broadcastData[region][name].push({ olt: alarmSource, dateObj });
+        broadcastData[region][name].push({ olt: alarmSource, dateObj, severity });
+        // simpan severity per OLT+alarmName untuk export
+        const sevKey = alarmSource + '|' + name;
+        if (!parsedSeverityMap[sevKey]) parsedSeverityMap[sevKey] = severity;
       }
 
       if (regionOrder.length === 0) {
@@ -544,6 +565,91 @@
       document.getElementById('emptyPanel').style.display = 'block';
       broadcastData = {};
       regionOrder = [];
+      generateTimestamp = null;
+      parsedSeverityMap = {};
+    }
+
+    function fmtTimestamp(d) {
+      if (!d) return '';
+      const p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+    }
+
+    function fmtFileTs(d) {
+      if (!d) return 'export';
+      const p = n => String(n).padStart(2, '0');
+      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
+    }
+
+    function exportData(format) {
+      if (regionOrder.length === 0) {
+        alert('Belum ada data. Klik "Generate Broadcast" terlebih dahulu.');
+        return;
+      }
+
+      const sep = format === 'csv' ? ',' : '\t';
+      const ext = format === 'csv' ? 'csv' : 'tsv';
+      const tsNow = fmtTimestamp(generateTimestamp);
+
+      const HEADERS = [
+        'Timestamp', 'PIC', 'Shift', 'Hostname', 'Severity',
+        'Description', 'Service Impact', 'Customer Impact Count',
+        'Problem Time', 'Solved Time', 'Respon Time (Min)',
+        'Action', 'Status', 'Root Cause'
+      ];
+
+      const rows = [HEADERS];
+
+      for (const region of regionOrder) {
+        for (const [alarmName, items] of Object.entries(broadcastData[region])) {
+          for (const item of items) {
+            const sevKey = item.olt + '|' + alarmName;
+            const severity = parsedSeverityMap[sevKey] || '';
+            const problemTime = fmtDisplay(item.dateObj);
+            rows.push([
+              tsNow,       // Timestamp
+              '',          // PIC
+              '',          // Shift
+              item.olt,    // Hostname
+              severity,    // Severity
+              alarmName,   // Description
+              '',          // Service Impact
+              '',          // Customer Impact Count
+              problemTime, // Problem Time
+              '',          // Solved Time
+              '',          // Respon Time (Min)
+              '',          // Action
+              '',          // Status
+              ''           // Root Cause
+            ]);
+          }
+        }
+      }
+
+      // Encode rows
+      function encodeCell(val, isCsv) {
+        if (!isCsv) return val;
+        // CSV: quote jika mengandung koma, newline, atau double-quote
+        if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+          return '"' + val.replace(/"/g, '""') + '"';
+        }
+        return val;
+      }
+
+      const isCsv = format === 'csv';
+      const content = rows
+        .map(row => row.map(c => encodeCell(String(c), isCsv)).join(sep))
+        .join('\r\n');
+
+      const bom = '\uFEFF'; // BOM agar Excel baca UTF-8 dengan benar
+      const blob = new Blob([bom + content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `alarm-nce-export-${fmtFileTs(generateTimestamp)}.${ext}`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(`File .${ext} ter-download (${rows.length - 1} record)`);
     }
   </script>
   <div style="text-align:center;padding:20px 0 40px;"><a href="../index.html"

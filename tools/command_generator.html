@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OLT Command Generator</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2a2f3a;
+    --text:#e8eaed; --muted:#9aa3b2; --accent:#3ea6ff; --accent2:#22c55e;
+    --danger:#f87171;
+    padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  @media (prefers-color-scheme: light){
+    :root:not([data-theme="dark"]){
+      --bg:#f4f5f7; --panel:#ffffff; --panel2:#f0f1f4; --border:#dde1e7;
+      --text:#1a1d23; --muted:#5a6270; --accent:#0b6fe0; --accent2:#16a34a;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0f1115; --panel:#171a21; --panel2:#1e222b; --border:#2a2f3a;
+    --text:#e8eaed; --muted:#9aa3b2; --accent:#3ea6ff; --accent2:#22c55e;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}
+  header{position:sticky;top:0;top:env(safe-area-inset-top,0px);background:var(--panel);border-bottom:1px solid var(--border);padding:14px 16px;z-index:10;}
+  header h1{margin:0;font-size:17px;}
+  header p{margin:4px 0 0;color:var(--muted);font-size:12.5px;}
+  .wrap{max-width:900px;margin:0 auto;padding:16px;}
+  .tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;}
+  .tab{flex:0 0 auto;padding:9px 16px;border-radius:20px;border:1px solid var(--border);background:var(--panel);color:var(--text);cursor:pointer;font-size:13.5px;font-weight:600;white-space:nowrap;}
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .modes{display:flex;gap:8px;margin-bottom:14px;}
+  .mode{flex:1;padding:10px;border-radius:9px;border:1px solid var(--border);background:var(--panel);color:var(--muted);cursor:pointer;font-size:13px;font-weight:700;text-align:center;}
+  .mode.active{background:var(--danger,#f87171);border-color:var(--danger,#f87171);color:#fff;}
+  .mode.active.general{background:var(--accent);border-color:var(--accent);}
+  .empty-note{color:var(--muted);font-size:13px;padding:10px 2px;}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px;}
+  .card h2{margin:0 0 10px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;}
+  .field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px;}
+  .field input{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--panel2);color:var(--text);font-size:14px;}
+  .field input:focus{outline:2px solid var(--accent);}
+  .cmd-list{display:flex;flex-direction:column;gap:8px;}
+  .cmd-row{display:flex;align-items:center;gap:8px;background:var(--panel2);border:1px solid var(--border);border-radius:9px;padding:9px 10px;}
+  .cmd-text{flex:1;min-width:0;overflow-x:auto;white-space:pre;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;padding:2px 0;}
+  .copy-btn{flex:0 0 auto;border:none;background:var(--accent);color:#fff;padding:8px 12px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;}
+  .copy-btn.copied{background:var(--accent2);}
+  .toolbar{display:flex;justify-content:flex-end;margin-bottom:10px;}
+  .copy-all{border:1px solid var(--border);background:transparent;color:var(--text);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;font-weight:600;}
+  .note{color:var(--muted);font-size:12px;margin-top:8px;}
+  ::-webkit-scrollbar{height:6px;width:6px;}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>OLT Command Generator</h1>
+  <p>Isi parameter, command otomatis ter-generate dan siap di-copy paste per brand.</p>
+</header>
+<div class="wrap">
+  <div class="tabs" id="tabs"></div>
+  <div class="modes" id="modes"></div>
+  <div class="card" id="inputCard">
+    <h2>Parameter</h2>
+    <div class="grid" id="inputGrid"></div>
+  </div>
+  <div class="card">
+    <div class="toolbar"><button class="copy-all" id="copyAllBtn">Copy Semua Command</button></div>
+    <div class="cmd-list" id="cmdList"></div>
+    <p class="note">Field kosong akan tampil sebagai <code>...</code> pada command — isi dulu sebelum copy.</p>
+  </div>
+</div>
+
+<script>
+const BRANDS = {
+  HUAWEI: {
+    fields: [
+      {key:'F', label:'Frame (F)', placeholder:'0'},
+      {key:'S', label:'Slot (S)', placeholder:'1'},
+      {key:'P', label:'Port (P)', placeholder:'1'},
+      {key:'ONU', label:'ONT ID', placeholder:'0'}
+    ],
+    commands: [
+      {tpl:'display ont info option run-state {F} {S} {P} {ONU}'},
+      {tpl:'display ont wlan-info {F}/{S}/{P} {ONU}'},
+      {tpl:'display mac-address ont {F}/{S}/{P} {ONU}'},
+      {tpl:'display ont wan-info {F}/{S}/{P} {ONU}'},
+      {tpl:'display current-configuration ont {F}/{S}/{P} {ONU}'},
+      {tpl:'display ont-lineprofile gpon profile-id'},
+      {tpl:'display dba-profile profile-id'},
+      {tpl:'config'},
+      {tpl:'interface gpon {F}/{S}'},
+      {tpl:'display ont optical-info {P} {ONU}'},
+      {tpl:'display ont wlan-status {P} {ONU} | include STA Mac Address'},
+      {tpl:'display ont wlan-status {P} {ONU} | include Signal Quality Level'},
+      {tpl:'display ont register-info {P} {ONU}'},
+      {tpl:'ont reset {P} {ONU}'}
+    ]
+  },
+  RAISECOM: {
+    fields: [
+      {key:'FSP', label:'F/S/P', placeholder:'1/4/18'},
+      {key:'USER', label:'PPPoE Username', placeholder:'RCMG3D486DD5'},
+      {key:'PASS', label:'PPPoE Password', placeholder:''},
+      {key:'VLAN', label:'VLAN', placeholder:'2904'},
+      {key:'SSID', label:'SSID Name', placeholder:''},
+      {key:'WIFIPASS', label:'WiFi Password', placeholder:''}
+    ],
+    commands: [
+      {tpl:'show interface gpon-onu creation-information | include {FSP}'},
+      {tpl:'show interface gpon-onu {FSP} online-information'},
+      {tpl:'show gpon-onu {FSP} transceiver'},
+      {tpl:'show interface gpon-olt transceiver rx-onu-power | include {FSP}'},
+      {tpl:'show interface gpon-olt {FSP} ddm detail'},
+      {tpl:'show gpon-onu {FSP} wifi information'},
+      {tpl:'show gpon-onu {FSP} wifi-5g information'},
+      {tpl:'show mac-address-table l2-address interface gpon-onu {FSP}'},
+      {tpl:'show gpon-onu {FSP} iphost'},
+      {tpl:'show event history-table interface gpon-onu {FSP} detail'},
+      {tpl:'reboot gpon-onu {FSP} now'},
+      {tpl:'config', pw:true},
+      {tpl:'gpon-onu {FSP}', pw:true},
+      {tpl:'wifi-ap 1 auth mode wpa2', pw:true},
+      {tpl:'wifi-ap 1 ssid-name {SSID}', pw:true},
+      {tpl:'wifi-ap 1 wpa key {WIFIPASS}', pw:true},
+      {tpl:'iphost 1 mode pppoe'},
+      {tpl:'iphost 1 pppoe username {USER} password {PASS}', pw:true},
+      {tpl:'iphost 1 vlan {VLAN}'},
+      {tpl:'iphost 1 service mode route nat enable cos 0 portlist 1,2 ssidlist 1'},
+      {tpl:'iphost 1 service Internet'},
+      {tpl:'end', pw:true}
+    ]
+  },
+  BDCOM: {
+    fields: [
+      {key:'ONU', label:'ONU Interface', placeholder:'GPON0/5:25'},
+      {key:'SSID', label:'SSID Name', placeholder:'coco_melon_2'},
+      {key:'WIFIPASS', label:'WiFi Password', placeholder:''}
+    ],
+    commands: [
+      {tpl:'show gpon interface {ONU} onu basic-info'},
+      {tpl:'show gpon interface {ONU} onu optical-transceiver-diagnosis'},
+      {tpl:'show gpon interface {ONU} onu wan 1 config'},
+      {tpl:'show gpon interface {ONU} onu wifi 1 config'},
+      {tpl:'gpon reboot onu interface {ONU}'},
+      {tpl:'y'},
+      {tpl:'config', pw:true},
+      {tpl:'interface {ONU}', pw:true},
+      {tpl:'gpon onu wifi 2.4G ssid 1 ssid-name {SSID}', pw:true},
+      {tpl:'gpon onu wifi 2.4G ssid 1 encrypt-key {WIFIPASS}', pw:true}
+    ]
+  },
+  ZTE: {
+    fields: [
+      {key:'ONU', label:'ONU Interface', placeholder:'gpon-onu_1/1/11:14'},
+      {key:'SN', label:'Serial Number (SN)', placeholder:''}
+    ],
+    commands: [
+      {tpl:'show gpon onu by sn {SN}'},
+      {tpl:'show gpon onu detail-info {ONU}'},
+      {tpl:'show pon power onu-rx {ONU}'},
+      {tpl:'show gpon remote-onu wan-ip {ONU}'},
+      {tpl:'show gpon remote-onu wifi info {ONU}'},
+      {tpl:'show gpon remote-onu ssid info {ONU}'},
+      {tpl:'configure terminal'},
+      {tpl:'pon-onu-mng {ONU}'},
+      {tpl:'reboot'},
+      {tpl:'y'}
+    ]
+  }
+};
+
+let currentBrand = 'HUAWEI';
+let currentMode = 'general'; // 'general' | 'pw'
+const values = {};
+Object.keys(BRANDS).forEach(b => values[b] = {});
+
+const tabsEl = document.getElementById('tabs');
+const modesEl = document.getElementById('modes');
+const inputGrid = document.getElementById('inputGrid');
+const cmdList = document.getElementById('cmdList');
+
+function renderTabs(){
+  tabsEl.innerHTML = '';
+  Object.keys(BRANDS).forEach(brand => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (brand === currentBrand ? ' active' : '');
+    btn.textContent = brand;
+    btn.onclick = () => { currentBrand = brand; currentMode = 'general'; renderAll(); };
+    tabsEl.appendChild(btn);
+  });
+}
+
+function renderModes(){
+  modesEl.innerHTML = '';
+  const opts = [
+    {key:'general', label:'Command Umum', cls:'general'},
+    {key:'pw', label:'🔑 Ganti Password', cls:''}
+  ];
+  opts.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'mode' + (currentMode === o.key ? ' active ' + o.cls : '');
+    btn.textContent = o.label;
+    btn.onclick = () => { currentMode = o.key; renderCommands(); renderModes(); };
+    modesEl.appendChild(btn);
+  });
+}
+
+function renderInputs(){
+  inputGrid.innerHTML = '';
+  BRANDS[currentBrand].fields.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'field';
+    div.innerHTML = `<label>${f.label}</label>`;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = f.placeholder || '';
+    input.value = values[currentBrand][f.key] || '';
+    input.oninput = (e) => { values[currentBrand][f.key] = e.target.value; renderCommands(); };
+    div.appendChild(input);
+    inputGrid.appendChild(div);
+  });
+}
+
+function buildCommand(tpl){
+  return tpl.replace(/\{(\w+)\}/g, (m, key) => {
+    const v = values[currentBrand][key];
+    return (v && v.trim() !== '') ? v.trim() : '...';
+  });
+}
+
+function renderCommands(){
+  cmdList.innerHTML = '';
+  const list = BRANDS[currentBrand].commands.filter(c => currentMode === 'pw' ? c.pw : true);
+  if (list.length === 0){
+    const p = document.createElement('p');
+    p.className = 'empty-note';
+    p.textContent = 'Belum ada command ganti password untuk brand ini.';
+    cmdList.appendChild(p);
+    return;
+  }
+  list.forEach(c => {
+    const text = buildCommand(c.tpl);
+    const row = document.createElement('div');
+    row.className = 'cmd-row';
+    const span = document.createElement('div');
+    span.className = 'cmd-text';
+    span.textContent = text;
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.onclick = () => copyText(text, btn);
+    row.appendChild(span);
+    row.appendChild(btn);
+    cmdList.appendChild(row);
+  });
+}
+
+function copyText(text, btn){
+  const done = () => {
+    if (btn){
+      const old = btn.textContent;
+      btn.textContent = 'Tersalin!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1200);
+    }
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+
+function fallbackCopy(text, cb){
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity = '0';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); } catch(e){}
+  document.body.removeChild(ta);
+  if (cb) cb();
+}
+
+document.getElementById('copyAllBtn').onclick = () => {
+  const list = BRANDS[currentBrand].commands.filter(c => currentMode === 'pw' ? c.pw : true);
+  const all = list.map(c => buildCommand(c.tpl)).join('\n');
+  copyText(all, document.getElementById('copyAllBtn'));
+};
+
+function renderAll(){
+  renderTabs();
+  renderModes();
+  renderInputs();
+  renderCommands();
+}
+
+renderAll();
+</script>
+</body>
+</html>

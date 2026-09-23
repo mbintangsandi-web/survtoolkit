@@ -15,6 +15,7 @@
       --muted: #5b6c85;
       --danger: #e0393e;
       --ok: #1f9d55;
+      --panel2: #f0f4fb;
     }
 
     * {
@@ -28,6 +29,17 @@
       color: var(--text);
       padding: 24px;
     }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      max-width: 920px;
+      margin: 0 auto 4px;
+    }
+    .page-header-text { flex: 1; }
 
     h1 {
       font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
@@ -260,14 +272,313 @@
       margin-left: 8px;
       vertical-align: middle;
     }
+
+    /* ══════════════════════════════════════
+       CEK PERANGKAT USER — Floating Panel
+    ══════════════════════════════════════ */
+    #cpuTrigger {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      padding: 9px 15px;
+      background: linear-gradient(135deg,#1d52b0,#2f6fe4);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(47,111,228,.30);
+      transition: transform .15s, box-shadow .15s;
+      white-space: nowrap;
+    }
+    #cpuTrigger:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(47,111,228,.38);
+      background: linear-gradient(135deg,#1a49a0,#2762d4);
+    }
+    #cpuTrigger .icon { font-size: 15px; }
+
+    /* Overlay backdrop */
+    #cpuBackdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15,25,50,.28);
+      z-index: 400;
+      backdrop-filter: blur(2px);
+    }
+    #cpuBackdrop.open { display: block; }
+
+    /* Slide-in drawer from right */
+    #cpuPanel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      height: 100%;
+      width: 460px;
+      max-width: 100vw;
+      background: #fff;
+      border-left: 1px solid var(--border);
+      box-shadow: -6px 0 32px rgba(20,40,80,.14);
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(110%);
+      transition: transform .3s cubic-bezier(.4,0,.2,1);
+    }
+    #cpuPanel.open { transform: translateX(0); }
+
+    .cpu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 18px 14px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg,#1d52b0,#2f6fe4);
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .cpu-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .cpu-header-title h2 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+    }
+    .cpu-header-title p {
+      margin: 2px 0 0;
+      font-size: 11.5px;
+      opacity: .82;
+    }
+    #cpuClose {
+      background: rgba(255,255,255,.18);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      margin: 0;
+      padding: 0;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    #cpuClose:hover { background: rgba(255,255,255,.30); }
+
+    .cpu-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    /* Brand tabs */
+    .cpu-tabs {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+      margin-bottom: 12px;
+      scrollbar-width: none;
+    }
+    .cpu-tabs::-webkit-scrollbar { display:none; }
+    .cpu-tab {
+      flex: 0 0 auto;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12.5px;
+      font-weight: 700;
+      white-space: nowrap;
+      transition: background .15s, color .15s;
+    }
+    .cpu-tab.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    /* Mode buttons */
+    .cpu-modes {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+    .cpu-mode {
+      flex: 1;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--panel2);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      transition: background .15s, color .15s;
+    }
+    .cpu-mode.active { background: var(--danger); border-color: var(--danger); color: #fff; }
+    .cpu-mode.active.gen { background: var(--accent); border-color: var(--accent); }
+
+    /* Param card */
+    .cpu-param-card {
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .cpu-param-card h3 {
+      margin: 0 0 10px;
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .cpu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 8px;
+    }
+    .cpu-field label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+      margin-top: 0;
+    }
+    .cpu-field input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      font-size: 13px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    .cpu-field input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(47,111,228,.14);
+    }
+
+    /* Command list */
+    .cpu-cmd-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 8px;
+    }
+    .cpu-copy-all {
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text);
+      padding: 7px 13px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      cursor: pointer;
+      font-weight: 600;
+      margin: 0;
+    }
+    .cpu-copy-all:hover { background: var(--panel2); }
+
+    .cpu-cmd-list { display: flex; flex-direction: column; gap: 6px; }
+    .cpu-cmd-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+    }
+    .cpu-cmd-text {
+      flex: 1;
+      min-width: 0;
+      overflow-x: auto;
+      white-space: pre;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      padding: 1px 0;
+      color: var(--text);
+    }
+    .cpu-cmd-copy {
+      flex: 0 0 auto;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      padding: 6px 11px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 0;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .cpu-cmd-copy:hover { background: #255bc4; }
+    .cpu-cmd-copy.copied { background: var(--ok); }
+
+    .cpu-empty { color: var(--muted); font-size: 12.5px; padding: 8px 2px; }
+    .cpu-note { color: var(--muted); font-size: 11px; margin-top: 8px; }
+
+    ::-webkit-scrollbar { height: 5px; width: 5px; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   </style>
 </head>
 
 <body>
+  <!-- ══ CEK PERANGKAT USER — Floating Panel ══ -->
+  <div id="cpuBackdrop" onclick="closeCpuPanel()"></div>
+  <div id="cpuPanel" role="dialog" aria-label="Cek Perangkat User" aria-modal="true">
+    <div class="cpu-header">
+      <div class="cpu-header-title">
+        <div>
+          <h2>🖥️ Cek Perangkat User</h2>
+          <p>OLT Command Generator — isi parameter, copy command</p>
+        </div>
+      </div>
+      <button id="cpuClose" onclick="closeCpuPanel()" title="Tutup">✕</button>
+    </div>
+    <div class="cpu-body">
+      <div class="cpu-tabs" id="cpuTabs"></div>
+      <div class="cpu-modes" id="cpuModes"></div>
+      <div class="cpu-param-card">
+        <h3>Parameter</h3>
+        <div class="cpu-grid" id="cpuInputGrid"></div>
+      </div>
+      <div class="cpu-cmd-toolbar">
+        <button class="cpu-copy-all" id="cpuCopyAllBtn">Copy Semua Command</button>
+      </div>
+      <div class="cpu-cmd-list" id="cpuCmdList"></div>
+      <p class="cpu-note">Field kosong tampil sebagai <code>...</code> — isi dulu sebelum copy.</p>
+    </div>
+  </div>
+
   <div class="wrap">
-    <h1>👑 Broadcast Gangguan User VIP<span class="badge" id="countBadge"></span></h1>
-    <div class="sub">Cari user VIP (nama / ID Pelanggan), lengkapi SID, waktu down & nomor tiket, lalu generate
-      broadcast.</div>
+    <div class="page-header">
+      <div class="page-header-text">
+        <h1>👑 Broadcast Gangguan User VIP<span class="badge" id="countBadge"></span></h1>
+        <div class="sub">Cari user VIP (nama / ID Pelanggan), lengkapi SID, waktu down &amp; nomor tiket, lalu generate broadcast.</div>
+      </div>
+      <button id="cpuTrigger" onclick="openCpuPanel()" title="Buka OLT Command Generator">
+        <span class="icon">🖥️</span> Cek Perangkat User
+      </button>
+    </div>
 
     <div class="card">
       <label>Cari User VIP (ketik nama atau ID Pelanggan)</label>
@@ -345,7 +656,255 @@
       <button class="copy-btn" id="copyBtn" onclick="copyOutput()">Copy</button>
       <div id="output">Isi form di atas lalu klik "Generate Broadcast".</div>
     </div>
-  </div>
+  </div><!-- /wrap -->
+
+  <script>
+    /* ══════════════════════════════════════════════
+       CEK PERANGKAT USER — OLT Command Generator
+    ══════════════════════════════════════════════ */
+    const CPU_BRANDS = {
+      HUAWEI: {
+        fields: [
+          {key:'F', label:'Frame (F)', placeholder:'0'},
+          {key:'S', label:'Slot (S)', placeholder:'1'},
+          {key:'P', label:'Port (P)', placeholder:'1'},
+          {key:'ONU', label:'ONT ID', placeholder:'0'}
+        ],
+        commands: [
+          {tpl:'display ont info option run-state {F} {S} {P} {ONU}'},
+          {tpl:'display ont wlan-info {F}/{S}/{P} {ONU}'},
+          {tpl:'display mac-address ont {F}/{S}/{P} {ONU}'},
+          {tpl:'display ont wan-info {F}/{S}/{P} {ONU}'},
+          {tpl:'display current-configuration ont {F}/{S}/{P} {ONU}'},
+          {tpl:'display ont-lineprofile gpon profile-id'},
+          {tpl:'display dba-profile profile-id'},
+          {tpl:'config'},
+          {tpl:'interface gpon {F}/{S}'},
+          {tpl:'display ont optical-info {P} {ONU}'},
+          {tpl:'display ont wlan-status {P} {ONU} | include STA Mac Address'},
+          {tpl:'display ont wlan-status {P} {ONU} | include Signal Quality Level'},
+          {tpl:'display ont register-info {P} {ONU}'},
+          {tpl:'ont reset {P} {ONU}'}
+        ]
+      },
+      RAISECOM: {
+        fields: [
+          {key:'FSP', label:'F/S/P', placeholder:'1/4/18'},
+          {key:'USER', label:'PPPoE Username', placeholder:'RCMG3D486DD5'},
+          {key:'PASS', label:'PPPoE Password', placeholder:''},
+          {key:'VLAN', label:'VLAN', placeholder:'2904'},
+          {key:'SSID', label:'SSID Name', placeholder:''},
+          {key:'WIFIPASS', label:'WiFi Password', placeholder:''}
+        ],
+        commands: [
+          {tpl:'show interface gpon-onu creation-information | include {FSP}'},
+          {tpl:'show interface gpon-onu {FSP} online-information'},
+          {tpl:'show gpon-onu {FSP} transceiver'},
+          {tpl:'show interface gpon-olt transceiver rx-onu-power | include {FSP}'},
+          {tpl:'show interface gpon-olt {FSP} ddm detail'},
+          {tpl:'show gpon-onu {FSP} wifi information'},
+          {tpl:'show gpon-onu {FSP} wifi-5g information'},
+          {tpl:'show mac-address-table l2-address interface gpon-onu {FSP}'},
+          {tpl:'show gpon-onu {FSP} iphost'},
+          {tpl:'show event history-table interface gpon-onu {FSP} detail'},
+          {tpl:'reboot gpon-onu {FSP} now'},
+          {tpl:'config', pw:true},
+          {tpl:'gpon-onu {FSP}', pw:true},
+          {tpl:'wifi-ap 1 auth mode wpa2', pw:true},
+          {tpl:'wifi-ap 1 ssid-name {SSID}', pw:true},
+          {tpl:'wifi-ap 1 wpa key {WIFIPASS}', pw:true},
+          {tpl:'iphost 1 mode pppoe'},
+          {tpl:'iphost 1 pppoe username {USER} password {PASS}', pw:true},
+          {tpl:'iphost 1 vlan {VLAN}'},
+          {tpl:'iphost 1 service mode route nat enable cos 0 portlist 1,2 ssidlist 1'},
+          {tpl:'iphost 1 service Internet'},
+          {tpl:'end', pw:true}
+        ]
+      },
+      BDCOM: {
+        fields: [
+          {key:'ONU', label:'ONU Interface', placeholder:'GPON0/5:25'},
+          {key:'SSID', label:'SSID Name', placeholder:'coco_melon_2'},
+          {key:'WIFIPASS', label:'WiFi Password', placeholder:''}
+        ],
+        commands: [
+          {tpl:'show gpon interface {ONU} onu basic-info'},
+          {tpl:'show gpon interface {ONU} onu optical-transceiver-diagnosis'},
+          {tpl:'show gpon interface {ONU} onu wan 1 config'},
+          {tpl:'show gpon interface {ONU} onu wifi 1 config'},
+          {tpl:'gpon reboot onu interface {ONU}'},
+          {tpl:'y'},
+          {tpl:'config', pw:true},
+          {tpl:'interface {ONU}', pw:true},
+          {tpl:'gpon onu wifi 2.4G ssid 1 ssid-name {SSID}', pw:true},
+          {tpl:'gpon onu wifi 2.4G ssid 1 encrypt-key {WIFIPASS}', pw:true}
+        ]
+      },
+      ZTE: {
+        fields: [
+          {key:'ONU', label:'ONU Interface', placeholder:'gpon-onu_1/1/11:14'},
+          {key:'SN', label:'Serial Number (SN)', placeholder:''}
+        ],
+        commands: [
+          {tpl:'show gpon onu by sn {SN}'},
+          {tpl:'show gpon onu detail-info {ONU}'},
+          {tpl:'show pon power onu-rx {ONU}'},
+          {tpl:'show gpon remote-onu wan-ip {ONU}'},
+          {tpl:'show gpon remote-onu wifi info {ONU}'},
+          {tpl:'show gpon remote-onu ssid info {ONU}'},
+          {tpl:'configure terminal'},
+          {tpl:'pon-onu-mng {ONU}'},
+          {tpl:'reboot'},
+          {tpl:'y'}
+        ]
+      }
+    };
+
+    let cpuBrand = 'HUAWEI';
+    let cpuMode = 'general';
+    const cpuValues = {};
+    Object.keys(CPU_BRANDS).forEach(b => cpuValues[b] = {});
+
+    function openCpuPanel() {
+      document.getElementById('cpuPanel').classList.add('open');
+      document.getElementById('cpuBackdrop').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      cpuRenderAll();
+    }
+    function closeCpuPanel() {
+      document.getElementById('cpuPanel').classList.remove('open');
+      document.getElementById('cpuBackdrop').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    function cpuRenderTabs() {
+      const el = document.getElementById('cpuTabs');
+      el.innerHTML = '';
+      Object.keys(CPU_BRANDS).forEach(brand => {
+        const btn = document.createElement('button');
+        btn.className = 'cpu-tab' + (brand === cpuBrand ? ' active' : '');
+        btn.textContent = brand;
+        btn.onclick = () => { cpuBrand = brand; cpuMode = 'general'; cpuRenderAll(); };
+        el.appendChild(btn);
+      });
+    }
+
+    function cpuRenderModes() {
+      const el = document.getElementById('cpuModes');
+      el.innerHTML = '';
+      const opts = [
+        {key:'general', label:'Command Umum', extra:'gen'},
+        {key:'pw', label:'🔑 Ganti Password', extra:''}
+      ];
+      opts.forEach(o => {
+        const btn = document.createElement('button');
+        btn.className = 'cpu-mode' + (cpuMode === o.key ? ' active ' + o.extra : '');
+        btn.textContent = o.label;
+        btn.onclick = () => { cpuMode = o.key; cpuRenderCommands(); cpuRenderModes(); };
+        el.appendChild(btn);
+      });
+    }
+
+    function cpuRenderInputs() {
+      const grid = document.getElementById('cpuInputGrid');
+      grid.innerHTML = '';
+      CPU_BRANDS[cpuBrand].fields.forEach(f => {
+        const div = document.createElement('div');
+        div.className = 'cpu-field';
+        const lbl = document.createElement('label');
+        lbl.textContent = f.label;
+        div.appendChild(lbl);
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = f.placeholder || '';
+        input.value = cpuValues[cpuBrand][f.key] || '';
+        input.oninput = e => { cpuValues[cpuBrand][f.key] = e.target.value; cpuRenderCommands(); };
+        div.appendChild(input);
+        grid.appendChild(div);
+      });
+    }
+
+    function cpuBuildCommand(tpl) {
+      return tpl.replace(/\{(\w+)\}/g, (m, key) => {
+        const v = cpuValues[cpuBrand][key];
+        return (v && v.trim() !== '') ? v.trim() : '...';
+      });
+    }
+
+    function cpuRenderCommands() {
+      const list = document.getElementById('cpuCmdList');
+      list.innerHTML = '';
+      const cmds = CPU_BRANDS[cpuBrand].commands.filter(c => cpuMode === 'pw' ? c.pw : true);
+      if (cmds.length === 0) {
+        const p = document.createElement('p');
+        p.className = 'cpu-empty';
+        p.textContent = 'Belum ada command ganti password untuk brand ini.';
+        list.appendChild(p);
+        return;
+      }
+      cmds.forEach(c => {
+        const text = cpuBuildCommand(c.tpl);
+        const row = document.createElement('div');
+        row.className = 'cpu-cmd-row';
+        const span = document.createElement('div');
+        span.className = 'cpu-cmd-text';
+        span.textContent = text;
+        const btn = document.createElement('button');
+        btn.className = 'cpu-cmd-copy';
+        btn.textContent = 'Copy';
+        btn.onclick = () => cpuCopyText(text, btn);
+        row.appendChild(span);
+        row.appendChild(btn);
+        list.appendChild(row);
+      });
+    }
+
+    function cpuCopyText(text, btn) {
+      const done = () => {
+        if (btn) {
+          const old = btn.textContent;
+          btn.textContent = 'Tersalin!';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1200);
+        }
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => cpuFallbackCopy(text, done));
+      } else {
+        cpuFallbackCopy(text, done);
+      }
+    }
+
+    function cpuFallbackCopy(text, cb) {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch(e){}
+      document.body.removeChild(ta);
+      if (cb) cb();
+    }
+
+    document.getElementById('cpuCopyAllBtn').onclick = () => {
+      const cmds = CPU_BRANDS[cpuBrand].commands.filter(c => cpuMode === 'pw' ? c.pw : true);
+      const all = cmds.map(c => cpuBuildCommand(c.tpl)).join('\n');
+      cpuCopyText(all, document.getElementById('cpuCopyAllBtn'));
+    };
+
+    function cpuRenderAll() {
+      cpuRenderTabs();
+      cpuRenderModes();
+      cpuRenderInputs();
+      cpuRenderCommands();
+    }
+
+    // Close panel on Escape key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closeCpuPanel();
+    });
+  </script>
 
   <script>
     const VIP_DATA = [
