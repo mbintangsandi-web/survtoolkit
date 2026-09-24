@@ -134,7 +134,10 @@
         &nbsp;&nbsp;3 Hari 13 Jam 25 Menit<br><br>
         <b>Format All Region:</b><br>
         &nbsp;&nbsp;RRVK6AE3<br>
-        &nbsp;&nbsp;9 Hari 1 Jam 46 Menit &nbsp; JAKARTA &amp; BANTEN
+        &nbsp;&nbsp;9 Hari 1 Jam 46 Menit &nbsp; JAKARTA &amp; BANTEN<br><br>
+        <b>Format Tanggal Lapor:</b><br>
+        &nbsp;&nbsp;RTCDZZAV<br>
+        &nbsp;&nbsp;2026-08-07 12:54&nbsp;&nbsp;KALIMANTAN
       </div>
     </div>
 
@@ -151,7 +154,10 @@
         &nbsp;&nbsp;3 Hari 13 Jam 25 Menit<br><br>
         <b>Format All Region:</b><br>
         &nbsp;&nbsp;RRVK6AE3<br>
-        &nbsp;&nbsp;9 Hari 1 Jam 46 Menit &nbsp; JAKARTA &amp; BANTEN
+        &nbsp;&nbsp;9 Hari 1 Jam 46 Menit &nbsp; JAKARTA &amp; BANTEN<br><br>
+        <b>Format Tanggal Lapor:</b><br>
+        &nbsp;&nbsp;RTCDZZAV<br>
+        &nbsp;&nbsp;2026-08-07 12:54&nbsp;&nbsp;KALIMANTAN
       </div>
     </div>
 
@@ -188,6 +194,7 @@
       'BALINUSRA':'RBNT','INTERNASIONAL':'RINT',
     };
     const DURATION_RE = /(\d+)\s*Hari(?:\s+(\d+)\s*Jam)?(?:\s+(\d+)\s*Menit)?/i;
+    const DATETIME_RE  = /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})/;
 
     function parseDuration(str) {
       const m = str.match(DURATION_RE);
@@ -259,10 +266,49 @@
       }
       return regions;
     }
+    // Format C: baris ganjil = ticket ID, baris genap = "YYYY-MM-DD HH:MM<tab>REGION"
+    function detectFormatC(lines) {
+      // Cari setidaknya satu baris yang cocok pola datetime
+      return lines.some(l => DATETIME_RE.test(l.trim()));
+    }
+    function minutesToDuration(totalMinutes) {
+      const absMin  = Math.max(0, totalMinutes);
+      const days    = Math.floor(absMin / (24 * 60));
+      const hours   = Math.floor((absMin % (24 * 60)) / 60);
+      const minutes = absMin % 60;
+      return { days, hours, minutes };
+    }
+    function parseFormatC(lines) {
+      const regions = {}; let i = 0;
+      while (i < lines.length) {
+        const ticketLine = lines[i].trim();
+        if (!ticketLine) { i++; continue; }
+        const dtLine = (lines[i + 1] || '').trim();
+        const dtMatch = dtLine.match(DATETIME_RE);
+        if (dtMatch) {
+          const [, yr, mo, dy, hh, mm] = dtMatch;
+          const lapor   = new Date(+yr, +mo - 1, +dy, +hh, +mm);
+          const now     = new Date();
+          const diffMin = Math.floor((now - lapor) / 60000);
+          const dur     = minutesToDuration(diffMin);
+          // Region berada setelah datetime (setelah tab atau spasi)
+          const afterDt = dtLine.slice(dtMatch[0].length).trim();
+          const code    = resolveRegion(afterDt);
+          if (!regions[code]) regions[code] = [];
+          regions[code].push({ device: ticketLine, duration: dur });
+          i += 2;
+        } else {
+          i++;
+        }
+      }
+      return regions;
+    }
     function parseInput(rawText) {
       if (!rawText.trim()) return {};
       const lines = rawText.split('\n');
-      const fmt = detectFormat(lines.map(l => l.trim()).filter(Boolean));
+      const nonEmpty = lines.map(l => l.trim()).filter(Boolean);
+      if (detectFormatC(nonEmpty)) return parseFormatC(lines);
+      const fmt = detectFormat(nonEmpty);
       return fmt === 'B' ? parseFormatB(lines) : parseFormatA(lines);
     }
     function durationToMinutes(d) {
