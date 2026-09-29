@@ -319,6 +319,7 @@
         <button class="copy" onclick="copyAll()">📄 Copy Semua Region</button>
         <button class="export" onclick="exportData('csv')">⬇ Export CSV</button>
         <button class="export" onclick="exportData('tsv')">⬇ Export TSV</button>
+        <button class="export" onclick="copySheetText()" style="border-color:#7c3aed;color:#7c3aed;" onmouseover="this.style.background='#7c3aed';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='#7c3aed'">📋 Copy Sheet Text</button>
       </div>
     </div>
 
@@ -556,6 +557,42 @@
       toast.textContent = msg;
       toast.classList.add('show');
       setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+
+    function copySheetText() {
+      if (regionOrder.length === 0) {
+        alert('Belum ada data. Klik "Generate Broadcast" terlebih dahulu.');
+        return;
+      }
+
+      const HEADERS = ['Hostname', 'Severity', 'First Occurred (ST)', 'Follow UP SBU', 'Alarm Name', 'Other Information'];
+      const rows = [HEADERS];
+
+      for (const region of regionOrder) {
+        for (const [alarmName, items] of Object.entries(broadcastData[region])) {
+          for (const item of items) {
+            const sevKey = item.olt + '|' + alarmName;
+            const severity = parsedSeverityMap[sevKey] || item.severity || '';
+            const firstOccurred = fmtDisplay(item.dateObj);
+            rows.push([
+              item.olt,      // Hostname
+              severity,      // Severity
+              firstOccurred, // First Occurred (ST)
+              '',            // Follow UP SBU — diisi manual
+              alarmName,     // Alarm Name
+              ''             // Other Information — diisi manual
+            ]);
+          }
+        }
+      }
+
+      const tsv = rows.map(r => r.join('\t')).join('\r\n');
+
+      navigator.clipboard.writeText(tsv).then(() => {
+        showToast(`Sheet text disalin (${rows.length - 1} row) — siap paste ke spreadsheet!`);
+      }).catch(() => {
+        alert('Gagal menyalin. Coba lagi atau gunakan Export TSV.');
+      });
     }
 
     function resetAll() {
