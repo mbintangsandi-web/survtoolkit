@@ -295,9 +295,12 @@
         <button class="primary" onclick="copyOutput()">📄 Copy Semua</button>
         <button class="export" onclick="exportData('csv')">⬇ Export CSV</button>
         <button class="export" onclick="exportData('tsv')">⬇ Export TSV</button>
-        <button class="export" onclick="copySheetText()" style="border-color:#7c3aed;color:#7c3aed;" onmouseover="this.style.background='#7c3aed';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='#7c3aed'">📋 Copy Sheet Text</button>
+        <button class="export" onclick="copySheetText()" style="border-color:#7c3aed;color:#7c3aed;"
+          onmouseover="this.style.background='#7c3aed';this.style.color='#fff'"
+          onmouseout="this.style.background='';this.style.color='#7c3aed'">📋 Copy Sheet Text</button>
       </div>
-      <div class="output" id="outputBox" style="display:flex;align-items:center;"><span class="empty-hint">Hasil broadcast akan muncul di sini setelah klik "Generate Broadcast"...</span></div>
+      <div class="output" id="outputBox" style="display:flex;align-items:center;"><span class="empty-hint">Hasil
+          broadcast akan muncul di sini setelah klik "Generate Broadcast"...</span></div>
     </div>
   </div>
 
@@ -312,22 +315,22 @@
       if (!str) return null;
       const m = str.trim().match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/);
       if (!m) return null;
-      return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+      return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
     }
 
     function fmtDisplay(dateObj) {
       if (!dateObj) return '';
-      const p = n => String(n).padStart(2,'0');
-      return `${dateObj.getFullYear()}-${p(dateObj.getMonth()+1)}-${p(dateObj.getDate())} ${p(dateObj.getHours())}:${p(dateObj.getMinutes())}:${p(dateObj.getSeconds())}`;
+      const p = n => String(n).padStart(2, '0');
+      return `${dateObj.getFullYear()}-${p(dateObj.getMonth() + 1)}-${p(dateObj.getDate())} ${p(dateObj.getHours())}:${p(dateObj.getMinutes())}:${p(dateObj.getSeconds())}`;
     }
 
     function parseLine(line) {
       const cols = line.split('\t');
       if (cols.length < 12) return null;
       const alarmName = (cols[3] || '').trim();
-      const olt       = (cols[6] || '').trim();
-      const rawTime   = (cols[11] || '').trim();
-      const severity  = (cols[2] || '').trim(); // kolom ke-3 (index 2)
+      const olt = (cols[6] || '').trim();
+      const rawTime = (cols[11] || '').trim();
+      const severity = (cols[2] || '').trim(); // kolom ke-3 (index 2)
       if (!olt || !alarmName) return null;
       const dateObj = parseRawDateTime(rawTime);
       return { olt, alarmName, dateObj, rawTime, severity };
@@ -386,8 +389,8 @@
       }
       parsedRows = parsed.slice(); // simpan untuk export
 
-      const outputBox  = document.getElementById('outputBox');
-      const statsRow   = document.getElementById('statsRow');
+      const outputBox = document.getElementById('outputBox');
+      const statsRow = document.getElementById('statsRow');
       const badgeCount = document.getElementById('badgeCount');
 
       if (parsed.length === 0) {
@@ -437,7 +440,7 @@
       statsRow.appendChild(totalAlarm);
 
       for (const sbu of sbuKeys) {
-        const totalInSbu = Object.values(sbuMap[sbu]).reduce((s,arr)=>s+arr.length,0);
+        const totalInSbu = Object.values(sbuMap[sbu]).reduce((s, arr) => s + arr.length, 0);
         const el = document.createElement('div');
         el.className = 'stat';
         el.innerHTML = `<b>${totalInSbu}</b>${sbu}`;
@@ -469,13 +472,13 @@
     function fmtTimestamp(d) {
       if (!d) return '';
       const p = n => String(n).padStart(2, '0');
-      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
     }
 
     function fmtFileTs(d) {
       if (!d) return 'export';
       const p = n => String(n).padStart(2, '0');
-      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
     }
 
     function exportData(format) {
@@ -549,25 +552,20 @@
         return;
       }
 
-      const HEADERS = ['Hostname', 'Severity', 'First Occurred (ST)', 'Follow UP SBU', 'Alarm Name', 'Other Information'];
-      const rows = [HEADERS];
-
-      for (const row of parsedRows) {
-        rows.push([
-          row.olt,        // Hostname
-          row.severity,   // Severity
-          row.rawTime,    // First Occurred (ST)
-          '',             // Follow UP SBU — diisi manual
-          row.alarmName,  // Alarm Name
-          ''              // Other Information — diisi manual
-        ]);
-      }
+      const rows = parsedRows.map(row => [
+        row.olt,        // Hostname
+        row.severity,   // Severity
+        row.rawTime,    // First Occurred (ST)
+        '',             // Follow UP SBU — diisi manual
+        row.alarmName,  // Alarm Name
+        ''              // Other Information — diisi manual
+      ]);
 
       const tsv = rows.map(r => r.join('\t')).join('\r\n');
 
       navigator.clipboard.writeText(tsv).then(() => {
         const toast = document.getElementById('toast');
-        toast.textContent = `Sheet text disalin (${rows.length - 1} row) — siap paste ke spreadsheet!`;
+        toast.textContent = `Sheet text disalin (${rows.length} row) — siap paste ke spreadsheet!`;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 2500);
       }).catch(() => {

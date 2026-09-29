@@ -319,7 +319,9 @@
         <button class="copy" onclick="copyAll()">📄 Copy Semua Region</button>
         <button class="export" onclick="exportData('csv')">⬇ Export CSV</button>
         <button class="export" onclick="exportData('tsv')">⬇ Export TSV</button>
-        <button class="export" onclick="copySheetText()" style="border-color:#7c3aed;color:#7c3aed;" onmouseover="this.style.background='#7c3aed';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='#7c3aed'">📋 Copy Sheet Text</button>
+        <button class="export" onclick="copySheetText()" style="border-color:#7c3aed;color:#7c3aed;"
+          onmouseover="this.style.background='#7c3aed';this.style.color='#fff'"
+          onmouseout="this.style.background='';this.style.color='#7c3aed'">📋 Copy Sheet Text</button>
       </div>
     </div>
 
@@ -409,10 +411,10 @@
 
       for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split('\t');
-        const alarmSource   = (cols[colAlarmSource]   || '').trim();
-        const name          = (cols[colName]          || '').trim();
+        const alarmSource = (cols[colAlarmSource] || '').trim();
+        const name = (cols[colName] || '').trim();
         const firstOccurred = (cols[colFirstOccurred] || '').trim();
-        const severity      = colSeverity !== -1 ? (cols[colSeverity] || '').trim() : '';
+        const severity = colSeverity !== -1 ? (cols[colSeverity] || '').trim() : '';
         if (!alarmSource || !name || !firstOccurred) continue;
 
         totalRows++;
@@ -467,24 +469,24 @@
       if (!str) return null;
       const m = str.trim().match(/^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2}):(\d{2})$/);
       if (!m) return null;
-      return new Date(+m[1], +m[2]-1, +m[3], +m[4], +m[5], +m[6]);
+      return new Date(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +m[6]);
     }
 
     function fmtDisplay(dateObj) {
       if (!dateObj) return '';
-      const p = n => String(n).padStart(2,'0');
-      return `${dateObj.getFullYear()}-${p(dateObj.getMonth()+1)}-${p(dateObj.getDate())} ${p(dateObj.getHours())}:${p(dateObj.getMinutes())}:${p(dateObj.getSeconds())}`;
+      const p = n => String(n).padStart(2, '0');
+      return `${dateObj.getFullYear()}-${p(dateObj.getMonth() + 1)}-${p(dateObj.getDate())} ${p(dateObj.getHours())}:${p(dateObj.getMinutes())}:${p(dateObj.getSeconds())}`;
     }
 
     function getRegionLabel(sbu) {
       const MAP = {
-        'RSBU':'RSBU','RSBT':'RSBT','RSBS':'RSBS',
-        'RJKT':'RJKT','RJBB':'RJBB','RJBTG':'RJBTG','RJBT':'RJBT',
-        'RBNT':'RBNT','RKAL':'RKAL','RINT':'RINT',
-        'SBU':'RSBU','SBT':'RSBT','SBS':'RSBS',
-        'JKTBNT':'RJKT','JKT':'RJKT',
-        'JATIM':'RJBT','JABAR':'RJBB','JATENG':'RJBTG',
-        'BALI':'RBNT','KAL':'RKAL',
+        'RSBU': 'RSBU', 'RSBT': 'RSBT', 'RSBS': 'RSBS',
+        'RJKT': 'RJKT', 'RJBB': 'RJBB', 'RJBTG': 'RJBTG', 'RJBT': 'RJBT',
+        'RBNT': 'RBNT', 'RKAL': 'RKAL', 'RINT': 'RINT',
+        'SBU': 'RSBU', 'SBT': 'RSBT', 'SBS': 'RSBS',
+        'JKTBNT': 'RJKT', 'JKT': 'RJKT',
+        'JATIM': 'RJBT', 'JABAR': 'RJBB', 'JATENG': 'RJBTG',
+        'BALI': 'RBNT', 'KAL': 'RKAL',
       };
       return MAP[sbu.toUpperCase()] || sbu;
     }
@@ -515,7 +517,7 @@
 
       const tabsEl = document.getElementById('regionTabs');
       tabsEl.innerHTML = regionOrder.map(r => {
-        const total = Object.values(broadcastData[r]).reduce((s,a)=>s+a.length,0);
+        const total = Object.values(broadcastData[r]).reduce((s, a) => s + a.length, 0);
         return `<div class="region-tab" onclick="scrollToRegion('${r}')">${r} (${total})</div>`;
       }).join('');
 
@@ -565,8 +567,7 @@
         return;
       }
 
-      const HEADERS = ['Hostname', 'Severity', 'First Occurred (ST)', 'Follow UP SBU', 'Alarm Name', 'Other Information'];
-      const rows = [HEADERS];
+      const rows = [];
 
       for (const region of regionOrder) {
         for (const [alarmName, items] of Object.entries(broadcastData[region])) {
@@ -589,7 +590,7 @@
       const tsv = rows.map(r => r.join('\t')).join('\r\n');
 
       navigator.clipboard.writeText(tsv).then(() => {
-        showToast(`Sheet text disalin (${rows.length - 1} row) — siap paste ke spreadsheet!`);
+        showToast(`Sheet text disalin (${rows.length} row) — siap paste ke spreadsheet!`);
       }).catch(() => {
         alert('Gagal menyalin. Coba lagi atau gunakan Export TSV.');
       });
@@ -609,13 +610,13 @@
     function fmtTimestamp(d) {
       if (!d) return '';
       const p = n => String(n).padStart(2, '0');
-      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
     }
 
     function fmtFileTs(d) {
       if (!d) return 'export';
       const p = n => String(n).padStart(2, '0');
-      return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
+      return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}_${p(d.getHours())}-${p(d.getMinutes())}`;
     }
 
     function exportData(format) {
