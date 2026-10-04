@@ -496,7 +496,7 @@
       "STATUS BLAST DOWN", "DURASI", "USER TERBLAST DOWN", "PIC BLAST DOWN",
       "ROOTCAUSE", "ROOTCAUSE DETAIL", "HC OLT", "HOSTNAME UPE PARENT",
       "HOSTNAME NPE PARENT", "DEVICE UP TIME", "TYPE BLAST UP", "PIC BLAST UP",
-      "STATUS BLAST UP", "UPDATE PROGRESS"
+      "STATUS BLAST UP", "WAKTU CLOSE TIKET", "UPDATE PROGRESS"
     ];
 
     // Indeks kolom penting
@@ -682,6 +682,7 @@
         const durasi = formatDurasi(row["DURASI"]);
         const potensi = row["POTENSIAL USER IMPACT"] || '-';
         const rootcause = row["ROOTCAUSE"] || '-';
+        const waktuClose = row["WAKTU CLOSE TIKET"] || '-';
         const updateProgress = row["UPDATE PROGRESS"] || '-';
 
         if (idx > 0) out += `\n`;
@@ -692,6 +693,7 @@
         out += `JUMLAH TIKET    : (AMBIL DATA DARI ICRM)\n`;
         out += `POTENSI IMPACT  : ${potensi}\n`;
         out += `PRE ROOTCAUSE   : ${rootcause}\n`;
+        out += `WAKTU CLOSE TIKET: ${waktuClose}\n`;
         out += `UPDATE PROGRESS : ${updateProgress}\n`;
       });
 
